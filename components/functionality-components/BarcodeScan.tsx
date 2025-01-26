@@ -22,14 +22,7 @@ export default function BarcodeScan({ onStopScanning, onBarcodeScanned }: Barcod
     const [scanned, setScanned] = useState(false);
     const facing = 'back';
 
-    useEffect(() => {
-        (async () => {
-            const { status } = await requestPermission();
-            console.log('Camera permission status:', status);
-        })();
-    }, []);
-
-    const handleBarCodeScanned = async ({ type, data }: BarcodeScanningResult) => {
+    const handleBarCodeScanned = async ({ data }: BarcodeScanningResult) => {
         try {
             setScanned(true);
 
@@ -123,7 +116,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     camera: {
-        flex: 1, // Ensure the camera takes up the full screen
+        flex: 1,
     },
     message: {
         fontSize: 18,
