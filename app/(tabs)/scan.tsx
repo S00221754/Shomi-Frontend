@@ -11,9 +11,15 @@ interface ProductInfo {
     status: boolean;
   }
 
+  enum ScanningMode {
+    Barcode = 'barcode',
+    Receipt = 'receipt',
+    None = 'none',
+}
 
 export default function ScannerScreen() {
     //states
+    const [scanningMode, setScanningMode] = useState<ScanningMode>(ScanningMode.None);
     const [isScanning, setIsScanning] = useState(false);
     const [scannedData, setScannedData] = useState<ProductInfo| null>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -21,11 +27,15 @@ export default function ScannerScreen() {
 
     // handle methods
     const handleScanProduct = () => {
-        setIsScanning(true);
+        setScanningMode(ScanningMode.Barcode);
+    };
+
+    const handleScanReceipt = () => {
+        setScanningMode(ScanningMode.Receipt);
     };
 
     const handleStopScanning = () => {
-        setIsScanning(false);
+        setScanningMode(ScanningMode.None);
     };
 
     const closeModal = () => {
@@ -41,20 +51,32 @@ export default function ScannerScreen() {
     // render
     return (
         <View style={styles.container}>
-            {!isScanning && (
+            {scanningMode === ScanningMode.None && (
                 <View style={styles.buttonContainer}>
                     <Button
-                        title="Scan Product"
+                        title="Scan Barcode"
                         onPress={handleScanProduct}
+                    />
+                    <Text style={styles.orText}>OR</Text>
+                    <Button
+                        title="Scan Receipt"
+                        onPress={handleScanReceipt}
                     />
                 </View>
             )}
 
-            {isScanning && (
+            {scanningMode === ScanningMode.Barcode && (
                 <BarcodeScan
                     onStopScanning={handleStopScanning}
                     onBarcodeScanned={handleBarcodeScanned}
                 />
+            )}
+
+            {scanningMode === ScanningMode.Receipt && (
+                <View style={styles.receiptScannerPlaceholder}>
+                    <Text>Receipt Scanner Placeholder</Text>
+                    <Button title="Stop Scanning" onPress={handleStopScanning} />
+                </View>
             )}
 
             <Modal
@@ -84,6 +106,17 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flex: 1,
         backgroundColor: '#25292e',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    orText: {
+        marginVertical: 10,
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#fff',
+    },
+    receiptScannerPlaceholder: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
