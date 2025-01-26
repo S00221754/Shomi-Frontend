@@ -2,9 +2,19 @@ import React, { useState } from 'react';
 import { View, Button, StyleSheet, Modal, Text } from 'react-native';
 import BarcodeScan from '../../components/functionality-components/BarcodeScan';
 
+interface ProductInfo {
+    product_name: string;
+    brands: string;
+    //keywords: string[]; may use for search 
+    // possible add nutrition facts with nutriments object
+    // image url for product image
+    status: boolean;
+  }
+
+
 export default function ScannerScreen() {
     const [isScanning, setIsScanning] = useState(false);
-    const [scannedData, setScannedData] = useState<{ data: string; type: string } | null>(null); // State to hold scanned data
+    const [scannedData, setScannedData] = useState<ProductInfo| null>(null); // State to hold scanned data
     const [isModalVisible, setIsModalVisible] = useState(false); // State to control modal visibility
 
     const handleScanProduct = () => {
@@ -19,8 +29,8 @@ export default function ScannerScreen() {
         setIsModalVisible(false); // Hide the modal
     };
 
-    const handleBarcodeScanned = (data: string, type: string) => {
-        setScannedData({ data, type }); // Update scanned data
+    const handleBarcodeScanned = (productInfo : ProductInfo) => {
+        setScannedData(productInfo); // Update scanned data
         setIsModalVisible(true); // Show the modal
         setIsScanning(false); // Stop scanning
     };
@@ -53,8 +63,8 @@ export default function ScannerScreen() {
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>Scanned Barcode</Text>
-                        <Text style={styles.modalText}>Type: {scannedData?.type}</Text>
-                        <Text style={styles.modalText}>Data: {scannedData?.data}</Text>
+                        <Text style={styles.modalText}>Name: {scannedData?.product_name}</Text>
+                        <Text style={styles.modalText}>Brand: {scannedData?.brands}</Text>
                         <Button title="Close" onPress={closeModal} />
                     </View>
                 </View>
