@@ -13,10 +13,13 @@ interface ProductInfo {
 
 
 export default function ScannerScreen() {
+    //states
     const [isScanning, setIsScanning] = useState(false);
-    const [scannedData, setScannedData] = useState<ProductInfo| null>(null); // State to hold scanned data
-    const [isModalVisible, setIsModalVisible] = useState(false); // State to control modal visibility
+    const [scannedData, setScannedData] = useState<ProductInfo| null>(null);
+    const [isModalVisible, setIsModalVisible] = useState(false);
 
+
+    // handle methods
     const handleScanProduct = () => {
         setIsScanning(true);
     };
@@ -26,15 +29,16 @@ export default function ScannerScreen() {
     };
 
     const closeModal = () => {
-        setIsModalVisible(false); // Hide the modal
+        setIsModalVisible(false);
     };
 
     const handleBarcodeScanned = (productInfo : ProductInfo) => {
-        setScannedData(productInfo); // Update scanned data
-        setIsModalVisible(true); // Show the modal
-        setIsScanning(false); // Stop scanning
+        setScannedData(productInfo);
+        setIsModalVisible(true);
+        setIsScanning(false);
     };
 
+    // render
     return (
         <View style={styles.container}>
             {!isScanning && (
@@ -49,11 +53,10 @@ export default function ScannerScreen() {
             {isScanning && (
                 <BarcodeScan
                     onStopScanning={handleStopScanning}
-                    onBarcodeScanned={handleBarcodeScanned} // Pass the callback
+                    onBarcodeScanned={handleBarcodeScanned}
                 />
             )}
 
-            {/* Modal to display scanned data */}
             <Modal
                 visible={isModalVisible}
                 transparent={true}
