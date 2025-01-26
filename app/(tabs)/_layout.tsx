@@ -19,6 +19,15 @@ export default function TabLayout() {
         }}
         >
       <Tabs.Screen
+        name="scan"
+        options={{
+          title: 'Scanner',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'barcode' : 'barcode-outline'} color={color} size={24}/>
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
@@ -30,7 +39,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="pantry"
         options={{
-          title: 'Storage',
+          title: 'Pantry Storage',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'information-circle' : 'information-circle-outline'} color={color} size={24}/>
           ),
