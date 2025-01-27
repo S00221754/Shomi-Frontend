@@ -12,7 +12,8 @@ const ReceiptScan = ({ onStopScanning } : ReceiptScanProps) => {
     const [receiptText, setReceiptText] = useState('');
     const [imageUri, setImageUri] = useState<string | null>(null);
 
-    // Request camera and gallery permissions
+
+    // needs testing
     const requestPermissions = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
@@ -25,7 +26,8 @@ const ReceiptScan = ({ onStopScanning } : ReceiptScanProps) => {
         }
     };
 
-    // Open camera to take a photo
+
+    // allows user to take a photo and upload it to the ocr
     const takePhoto = async () => {
         setIsLoading(true);
         let result = await ImagePicker.launchCameraAsync({
@@ -43,7 +45,8 @@ const ReceiptScan = ({ onStopScanning } : ReceiptScanProps) => {
         setIsLoading(false);
     };
 
-    // Open gallery to pick a photo
+
+    // allows user to upload a photo from their gallery
     const pickImage = async () => {
         setIsLoading(true);
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -61,7 +64,7 @@ const ReceiptScan = ({ onStopScanning } : ReceiptScanProps) => {
         setIsLoading(false);
     };
 
-    // Process the image using Google Cloud Vision API
+    // processes the image and extracts the text
     const processImage = async (uri: string) => {
         try {
             const apiKey = process.env.EXPO_PUBLIC_API_KEY;
@@ -97,6 +100,8 @@ const ReceiptScan = ({ onStopScanning } : ReceiptScanProps) => {
         }
     };
 
+
+    // converts the image to base64
     const convertImageToBase64 = async (uri: string) => {
         const response = await fetch(uri);
         const blob = await response.blob();
