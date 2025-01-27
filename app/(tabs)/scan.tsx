@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Button, StyleSheet, Modal, Text } from 'react-native';
 import BarcodeScan from '../../components/functionality-components/BarcodeScan';
+import ReceiptScan from '../../components/functionality-components/ReceiptScan';
 
 interface ProductInfo {
     product_name: string;
@@ -73,10 +74,7 @@ export default function ScannerScreen() {
             )}
 
             {scanningMode === ScanningMode.Receipt && (
-                <View style={styles.receiptScannerPlaceholder}>
-                    <Text>Receipt Scanner Placeholder</Text>
-                    <Button title="Stop Scanning" onPress={handleStopScanning} />
-                </View>
+                <ReceiptScan onStopScanning={handleStopScanning}/>
             )}
 
             <Modal
