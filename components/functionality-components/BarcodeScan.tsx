@@ -2,15 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
 import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import axios from 'axios';
-
-interface ProductInfo {
-    product_name: string;
-    brands: string;
-    //keywords: string[]; may use for search 
-    // possible add nutrition facts with nutriments object
-    // image url for product image
-    status: boolean;
-  }
+import { ProductInfo } from '@/types/ingredient';
 
 type BarcodeScanProps = {
     onStopScanning: () => void;
@@ -32,15 +24,15 @@ export default function BarcodeScan({ onStopScanning, onBarcodeScanned }: Barcod
     
             if (response.data.status === 1) {
                 const productInfo: ProductInfo = {
-                    product_name: response.data.product.product_name || 'Unknown',
-                    brands: response.data.product.brands || 'Unknown',
+                    ING_Name: response.data.product.product_name || 'Unknown',
+                    ING_BrandName: response.data.product.brands || 'Unknown',
                     status: true,
                 };
                 onBarcodeScanned(productInfo);
             } else {
                 const productInfo: ProductInfo = {
-                    product_name: 'Product not found',
-                    brands: 'Product not found',
+                    ING_Name: 'Product not found',
+                    ING_BrandName: 'Product not found',
                     status: false,
                 };
     
@@ -63,8 +55,8 @@ export default function BarcodeScan({ onStopScanning, onBarcodeScanned }: Barcod
             }
 
             const productInfo: ProductInfo = {
-                product_name: 'Error scanning barcode',
-                brands: 'Error scanning barcode',
+                ING_Name: 'Error scanning barcode',
+                ING__BrandName: 'Error scanning barcode',
                 status: false,
             };
 

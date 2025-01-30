@@ -2,15 +2,8 @@ import React, { useState } from 'react';
 import { View, Button, StyleSheet, Modal, Text } from 'react-native';
 import BarcodeScan from '../../components/functionality-components/BarcodeScan';
 import ReceiptScan from '../../components/functionality-components/ReceiptScan';
-
-interface ProductInfo {
-    product_name: string;
-    brands: string;
-    //keywords: string[]; may use for search 
-    // possible add nutrition facts with nutriments object
-    // image url for product image
-    status: boolean;
-  }
+import { ProductInfo } from '@/types/ingredient';
+import IngredientModal from '@/components/ui-components/IngredientModal';
 
   enum ScanningMode {
     Barcode = 'barcode',
@@ -22,7 +15,7 @@ export default function ScannerScreen() {
     //states
     const [scanningMode, setScanningMode] = useState<ScanningMode>(ScanningMode.None);
     const [isScanning, setIsScanning] = useState(false);
-    const [scannedData, setScannedData] = useState<ProductInfo| null>(null);
+    const [scannedData, setScannedData] = useState<ProductInfo>();
     const [isModalVisible, setIsModalVisible] = useState(false);
 
 
@@ -77,21 +70,12 @@ export default function ScannerScreen() {
                 <ReceiptScan onStopScanning={handleStopScanning}/>
             )}
 
-            <Modal
-                visible={isModalVisible}
-                transparent={true}
-                animationType="slide"
-                onRequestClose={closeModal}
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Scanned Barcode</Text>
-                        <Text style={styles.modalText}>Name: {scannedData?.product_name}</Text>
-                        <Text style={styles.modalText}>Brand: {scannedData?.brands}</Text>
-                        <Button title="Close" onPress={closeModal} />
-                    </View>
-                </View>
-            </Modal>
+
+            <IngredientModal 
+                visible={isModalVisible} 
+                onClose={closeModal}
+                ingredient={scannedData as ProductInfo}
+            />
         </View>
     );
 }
