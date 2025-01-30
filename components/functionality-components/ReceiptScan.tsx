@@ -80,6 +80,7 @@ const ReceiptScan = ({ onStopScanning } : ReceiptScanProps) => {
                         image: {
                             content: base64ImageData,
                         },
+                        //potentially add label detection (give it a banana and it will be able to identify it)
                         features: [
                             {
                                 type: 'TEXT_DETECTION',
