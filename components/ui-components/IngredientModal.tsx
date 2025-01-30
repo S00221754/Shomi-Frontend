@@ -1,15 +1,34 @@
-import { useGetIngredient } from '@/hooks/useGetIngredient';
 import { ProductInfo } from '@/types/ingredient';
-import React, { useState } from 'react';
-import { Modal, View, Text, Button, StyleSheet } from 'react-native';
+import { Modal, View, Text, Button, StyleSheet, TextInput } from 'react-native';
+import { addIngredient } from '@/services/ingredientsService';
+import { useState } from 'react';
 
 interface IngredientModalProps {
     visible: boolean;
     onClose: () => void;
-    ingredient?: ProductInfo;
+    ingredient: ProductInfo;
 }
 
 const IngredientModal: React.FC<IngredientModalProps> = ({ visible, onClose, ingredient }) => {
+    const [unitInput, setUnitInput] = useState("");
+    const handleAdd = async () => {
+        try {
+            console.log(ingredient); 
+            
+            // remove later
+            const updatedIngredient = {
+                ...ingredient,
+                ING_Units: unitInput ? [unitInput] : ingredient.ING_Units, 
+            };
+
+            console.log(updatedIngredient);
+            
+            await addIngredient(updatedIngredient);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     return (
         <Modal
             animationType="slide"
@@ -19,9 +38,19 @@ const IngredientModal: React.FC<IngredientModalProps> = ({ visible, onClose, ing
         >
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
+                <Text style={styles.modalText}>Ingredient Details</Text>
                     <Text style={styles.modalText}>{ingredient?.ING_Name}</Text>
                     <Text style={styles.modalText}>{ingredient?.ING_BrandName}</Text>
+                    <Text style={styles.modalText}>{ingredient?.ING_KeyWords}</Text>
+                    <Text style={styles.modalText}>Enter Unit:</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="e.g., kg"
+                        value={unitInput}
+                        onChangeText={setUnitInput}
+                    />
                     <Button title="Close" onPress={onClose} />
+                    <Button title="Add" onPress={handleAdd} />
                 </View>
             </View>
         </Modal>
@@ -53,6 +82,15 @@ const styles = StyleSheet.create({
     modalText: {
         marginBottom: 15,
         textAlign: 'center',
+    },
+    input: {
+        height: 40,
+        width: "100%",
+        borderColor: "gray",
+        borderWidth: 1,
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        marginBottom: 10,
     },
 });
 

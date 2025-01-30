@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, Button, } from 'react-native';
 import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import axios from 'axios';
 import { ProductInfo } from '@/types/ingredient';
@@ -26,6 +26,8 @@ export default function BarcodeScan({ onStopScanning, onBarcodeScanned }: Barcod
                 const productInfo: ProductInfo = {
                     ING_Name: response.data.product.product_name || 'Unknown',
                     ING_BrandName: response.data.product.brands || 'Unknown',
+                    ING_KeyWords: response.data.product._keywords || ['Unknown'],
+                    ING_Units:[],
                     status: true,
                 };
                 onBarcodeScanned(productInfo);
@@ -56,7 +58,7 @@ export default function BarcodeScan({ onStopScanning, onBarcodeScanned }: Barcod
 
             const productInfo: ProductInfo = {
                 ING_Name: 'Error scanning barcode',
-                ING__BrandName: 'Error scanning barcode',
+                ING_BrandName: 'Error scanning barcode',
                 status: false,
             };
 
