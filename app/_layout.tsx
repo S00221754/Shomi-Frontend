@@ -1,23 +1,18 @@
-import { Stack } from "expo-router";
-import { useColorScheme } from "react-native";
-import { StatusBar } from "expo-status-bar";
-import React from "react";
+import { AuthProvider } from '@/context/AuthContext';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import React from 'react';
+import { useColorScheme } from 'react-native';
 
 export default function RootLayout() {
-
   const colorScheme = useColorScheme();
-  console.log(colorScheme);
-  
   return (
-    <>
-      {/* Set the StatusBar style based on the theme */}
+    <AuthProvider>
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-
-      {/* Stack Navigator */}
       <Stack>
+        <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
       </Stack>
-    </>
-  );
+    </AuthProvider>
+  )
 }

@@ -1,10 +1,17 @@
-import { Text, View, StyleSheet } from "react-native";
-
+import { Text, View, StyleSheet, Button } from "react-native";
+import { useAuth } from "@/context/AuthContext";
 export default function Index() {
+
+  const { logout, userId } = useAuth();
+
+  
+
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Welcome to kitchen keys</Text>
+      <Text style={styles.text}>Welcome to Shomi</Text>
+      <Button title="Logout" onPress={logout} />
     </View>
+    
   );
 }
 
