@@ -6,51 +6,31 @@ import { useState } from 'react';
 interface IngredientModalProps {
     visible: boolean;
     onClose: () => void;
-    ingredient: ProductInfo;
+    ingredient: ProductInfo | null;
+    onAddIngredient: (ingredient: ProductInfo, unitInput: string) => Promise<void>;
 }
 
-const IngredientModal: React.FC<IngredientModalProps> = ({ visible, onClose, ingredient }) => {
+const IngredientModal: React.FC<IngredientModalProps> = ({ visible, onClose, ingredient, onAddIngredient }) => {
     const [unitInput, setUnitInput] = useState("");
-    const handleAdd = async () => {
-        try {
-            if (!ingredient) return;
 
-            if (!unitInput) {
-                return;
-            }
+    if (!ingredient) return null;
 
-            if (ingredient.Ing_units) {
-                ingredient.Ing_units.push(unitInput);
-            }
-            
-            await addIngredient(ingredient);
-        } catch (error) {
-            console.log(error);
-        }
-    }
+    const handleAddClick = async () => {
+        if (!unitInput) return;
+
+        await onAddIngredient(ingredient, unitInput);
+    };
 
     return (
-        <Modal
-            animationType="slide"
-            transparent={true}
-            visible={visible}
-            onRequestClose={onClose}
-        >
+        <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
-                <Text style={styles.modalText}>Ingredient Details</Text>
-                    <Text style={styles.modalText}>{ingredient?.Ing_name}</Text>
-                    <Text style={styles.modalText}>{ingredient?.Ing_brand}</Text>
-                    <Text style={styles.modalText}>{ingredient?.Ing_keywords}</Text>
-                    <Text style={styles.modalText}>Enter Unit:</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="e.g., kg"
-                        value={unitInput}
-                        onChangeText={setUnitInput}
-                    />
+                    <Text style={styles.modalText}>Ingredient Details</Text>
+                    <Text style={styles.modalText}>{ingredient.Ing_name}</Text>
+                    <Text style={styles.modalText}>{ingredient.Ing_brand}</Text>
+                    <TextInput style={styles.input} placeholder="Enter unit" value={unitInput} onChangeText={setUnitInput} />
                     <Button title="Close" onPress={onClose} />
-                    <Button title="Add" onPress={handleAdd} />
+                    <Button title="Add" onPress={handleAddClick} />
                 </View>
             </View>
         </Modal>
