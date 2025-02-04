@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, Button, } from 'react-native';
 import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import axios from 'axios';
-
-interface ProductInfo {
-    product_name: string;
-    brands: string;
-    //keywords: string[]; may use for search 
-    // possible add nutrition facts with nutriments object
-    // image url for product image
-    status: boolean;
-  }
+import { ProductInfo } from '@/types/ingredient';
 
 type BarcodeScanProps = {
     onStopScanning: () => void;
@@ -32,15 +24,19 @@ export default function BarcodeScan({ onStopScanning, onBarcodeScanned }: Barcod
     
             if (response.data.status === 1) {
                 const productInfo: ProductInfo = {
-                    product_name: response.data.product.product_name || 'Unknown',
-                    brands: response.data.product.brands || 'Unknown',
+                    Ing_barcode: data || 'Unknown', // need to check this
+                    Ing_name: response.data.product.product_name || 'Unknown',
+                    Ing_brand: response.data.product.brands || 'Unknown',
+                    Ing_keywords: response.data.product._keywords || ['Unknown'],
+                    Ing_units:[],
                     status: true,
                 };
                 onBarcodeScanned(productInfo);
             } else {
                 const productInfo: ProductInfo = {
-                    product_name: 'Product not found',
-                    brands: 'Product not found',
+                    Ing_name: 'Product not found',
+                    Ing_barcode: 'Product not found',
+                    Ing_brand: 'Product not found',
                     status: false,
                 };
     
@@ -63,8 +59,9 @@ export default function BarcodeScan({ onStopScanning, onBarcodeScanned }: Barcod
             }
 
             const productInfo: ProductInfo = {
-                product_name: 'Error scanning barcode',
-                brands: 'Error scanning barcode',
+                Ing_name: 'Product not found',
+                Ing_barcode: 'Product not found',
+                Ing_brand: 'Product not found',
                 status: false,
             };
 

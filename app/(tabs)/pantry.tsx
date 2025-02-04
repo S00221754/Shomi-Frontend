@@ -1,9 +1,10 @@
+import Pantry from '@/components/ui-components/Pantry';
 import { Text, View, StyleSheet } from 'react-native';
 
 export default function PantryScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Pantry screen</Text>
+      <Pantry/>
     </View>
   );
 }

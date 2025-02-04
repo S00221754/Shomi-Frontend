@@ -2,15 +2,9 @@ import React, { useState } from 'react';
 import { View, Button, StyleSheet, Modal, Text } from 'react-native';
 import BarcodeScan from '../../components/functionality-components/BarcodeScan';
 import ReceiptScan from '../../components/functionality-components/ReceiptScan';
-
-interface ProductInfo {
-    product_name: string;
-    brands: string;
-    //keywords: string[]; may use for search 
-    // possible add nutrition facts with nutriments object
-    // image url for product image
-    status: boolean;
-  }
+import { ProductInfo } from '@/types/ingredient';
+import IngredientModal from '@/components/ui-components/IngredientModal';
+import { useIngredientScanner } from '@/hooks/useIngredientScanner';
 
   enum ScanningMode {
     Barcode = 'barcode',
@@ -19,79 +13,39 @@ interface ProductInfo {
 }
 
 export default function ScannerScreen() {
-    //states
-    const [scanningMode, setScanningMode] = useState<ScanningMode>(ScanningMode.None);
-    const [isScanning, setIsScanning] = useState(false);
-    const [scannedData, setScannedData] = useState<ProductInfo| null>(null);
-    const [isModalVisible, setIsModalVisible] = useState(false);
+    const {
+        scanningMode,
+        scannedData,
+        isModalVisible,
+        handleScanProduct,
+        handleStopScanning,
+        closeModal,
+        handleBarcodeScanned,
+        handleAddIngredient,
+    } = useIngredientScanner();
 
-
-    // handle methods
-    const handleScanProduct = () => {
-        setScanningMode(ScanningMode.Barcode);
-    };
-
-    const handleScanReceipt = () => {
-        setScanningMode(ScanningMode.Receipt);
-    };
-
-    const handleStopScanning = () => {
-        setScanningMode(ScanningMode.None);
-    };
-
-    const closeModal = () => {
-        setIsModalVisible(false);
-    };
-
-    const handleBarcodeScanned = (productInfo : ProductInfo) => {
-        setScannedData(productInfo);
-        setIsModalVisible(true);
-        setIsScanning(false);
-    };
-
-    // render
     return (
         <View style={styles.container}>
-            {scanningMode === ScanningMode.None && (
+            {scanningMode === "None" && (
                 <View style={styles.buttonContainer}>
-                    <Button
-                        title="Scan Barcode"
-                        onPress={handleScanProduct}
-                    />
+                    <Button title="Scan Barcode" onPress={handleScanProduct} />
                     <Text style={styles.orText}>OR</Text>
-                    <Button
-                        title="Scan Receipt"
-                        onPress={handleScanReceipt}
-                    />
+                    <Button title="Scan Receipt" disabled={true} />
+                    <Text style={styles.orText}>Receipt scan is disabled for now</Text>
                 </View>
             )}
 
-            {scanningMode === ScanningMode.Barcode && (
-                <BarcodeScan
-                    onStopScanning={handleStopScanning}
-                    onBarcodeScanned={handleBarcodeScanned}
-                />
+            {scanningMode === "Barcode" && (
+                <BarcodeScan onStopScanning={handleStopScanning} onBarcodeScanned={handleBarcodeScanned} />
             )}
 
-            {scanningMode === ScanningMode.Receipt && (
-                <ReceiptScan onStopScanning={handleStopScanning}/>
-            )}
+            {scanningMode === "Receipt" && <ReceiptScan onStopScanning={handleStopScanning} />}
 
-            <Modal
-                visible={isModalVisible}
-                transparent={true}
-                animationType="slide"
-                onRequestClose={closeModal}
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Scanned Barcode</Text>
-                        <Text style={styles.modalText}>Name: {scannedData?.product_name}</Text>
-                        <Text style={styles.modalText}>Brand: {scannedData?.brands}</Text>
-                        <Button title="Close" onPress={closeModal} />
-                    </View>
-                </View>
-            </Modal>
+            <IngredientModal 
+                visible={isModalVisible} 
+                onClose={closeModal} 
+                ingredient={scannedData as ProductInfo} 
+                onAddIngredient={handleAddIngredient} />
         </View>
     );
 }
