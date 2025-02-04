@@ -24,17 +24,19 @@ export default function BarcodeScan({ onStopScanning, onBarcodeScanned }: Barcod
     
             if (response.data.status === 1) {
                 const productInfo: ProductInfo = {
-                    ING_Name: response.data.product.product_name || 'Unknown',
-                    ING_BrandName: response.data.product.brands || 'Unknown',
-                    ING_KeyWords: response.data.product._keywords || ['Unknown'],
-                    ING_Units:[],
+                    Ing_barcode: data || 'Unknown', // need to check this
+                    Ing_name: response.data.product.product_name || 'Unknown',
+                    Ing_brand: response.data.product.brands || 'Unknown',
+                    Ing_keywords: response.data.product._keywords || ['Unknown'],
+                    Ing_units:[],
                     status: true,
                 };
                 onBarcodeScanned(productInfo);
             } else {
                 const productInfo: ProductInfo = {
-                    ING_Name: 'Product not found',
-                    ING_BrandName: 'Product not found',
+                    Ing_name: 'Product not found',
+                    Ing_barcode: 'Product not found',
+                    Ing_brand: 'Product not found',
                     status: false,
                 };
     
@@ -57,8 +59,9 @@ export default function BarcodeScan({ onStopScanning, onBarcodeScanned }: Barcod
             }
 
             const productInfo: ProductInfo = {
-                ING_Name: 'Error scanning barcode',
-                ING_BrandName: 'Error scanning barcode',
+                Ing_name: 'Product not found',
+                Ing_barcode: 'Product not found',
+                Ing_brand: 'Product not found',
                 status: false,
             };
 

@@ -55,7 +55,9 @@ export default function ScannerScreen() {
                     <Button
                         title="Scan Receipt"
                         onPress={handleScanReceipt}
+                        disabled={true}
                     />
+                    <Text style={styles.orText}>Receipt scan is disabled for now</Text>
                 </View>
             )}
 

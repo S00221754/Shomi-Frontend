@@ -15,12 +15,12 @@ const Pantry: React.FC = () => {
           ) : (
             <FlatList
               data={ingredients}
-              keyExtractor={(item: ProductInfo) => (item.id ? item.id.toString() : "unknown")}
+              keyExtractor={(item: ProductInfo) => (item.Ing_id ? item.Ing_id.toString() : "unknown")}
               renderItem={({ item }) => (
                 <View style={styles.ingredientItem}>
-                  <Text style={styles.ingredientText}>Product: {item.ING_Name}</Text>
-                  <Text style={styles.ingredientText}>Brand: {item.ING_BrandName || "Unknown"}</Text>
-                  <Text style={styles.ingredientText}>Quantity: {item.ING_KeyWords || "N/A"}</Text>
+                  <Text style={styles.ingredientText}>Product: {item.Ing_name}</Text>
+                  <Text style={styles.ingredientText}>Brand: {item.Ing_brand || "Unknown"}</Text>
+                  <Text style={styles.ingredientText}>Quantity: {item.Ing_keywords || "N/A"}</Text>
                 </View>
               )}
             />

@@ -13,17 +13,17 @@ const IngredientModal: React.FC<IngredientModalProps> = ({ visible, onClose, ing
     const [unitInput, setUnitInput] = useState("");
     const handleAdd = async () => {
         try {
-            console.log(ingredient); 
-            
-            // remove later
-            const updatedIngredient = {
-                ...ingredient,
-                ING_Units: unitInput ? [unitInput] : ingredient.ING_Units, 
-            };
+            if (!ingredient) return;
 
-            console.log(updatedIngredient);
+            if (!unitInput) {
+                return;
+            }
+
+            if (ingredient.Ing_units) {
+                ingredient.Ing_units.push(unitInput);
+            }
             
-            await addIngredient(updatedIngredient);
+            await addIngredient(ingredient);
         } catch (error) {
             console.log(error);
         }
@@ -39,9 +39,9 @@ const IngredientModal: React.FC<IngredientModalProps> = ({ visible, onClose, ing
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
                 <Text style={styles.modalText}>Ingredient Details</Text>
-                    <Text style={styles.modalText}>{ingredient?.ING_Name}</Text>
-                    <Text style={styles.modalText}>{ingredient?.ING_BrandName}</Text>
-                    <Text style={styles.modalText}>{ingredient?.ING_KeyWords}</Text>
+                    <Text style={styles.modalText}>{ingredient?.Ing_name}</Text>
+                    <Text style={styles.modalText}>{ingredient?.Ing_brand}</Text>
+                    <Text style={styles.modalText}>{ingredient?.Ing_keywords}</Text>
                     <Text style={styles.modalText}>Enter Unit:</Text>
                     <TextInput
                         style={styles.input}
