@@ -2,7 +2,7 @@ import { Text, View, StyleSheet, Button } from "react-native";
 import { useAuth } from "@/context/AuthContext";
 export default function Index() {
 
-  const { logout, userId } = useAuth();
+  const { logout } = useAuth();
 
   
 
