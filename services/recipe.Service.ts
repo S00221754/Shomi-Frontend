@@ -9,3 +9,12 @@ export const getRecipes = async (): Promise<Recipe[]> => {
         throw error;
     }
 };
+
+export const getRecipeById = async (id: string): Promise<Recipe> => {
+    try {
+        const response = await axiosInstance.get<Recipe>(`/recipes/${id}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};

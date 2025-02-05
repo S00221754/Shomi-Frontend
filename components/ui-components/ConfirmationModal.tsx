@@ -24,10 +24,10 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           </Text>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onClose}>
-              <Text style={styles.buttonText}>No</Text>
+              <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.button, styles.confirmButton]} onPress={onConfirm}>
-              <Text style={styles.buttonText}>Yes, Remove</Text>
+              <Text style={styles.confirmButtonText}>Remove</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -39,24 +39,31 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
     justifyContent: "center",
     alignItems: "center",
   },
   modalContainer: {
-    width: 300,
-    backgroundColor: "white",
+    width: 320,
+    backgroundColor: "#333",
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 12,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
+    color: "#ffd33d",
     marginBottom: 10,
   },
   message: {
     fontSize: 16,
+    color: "#fff",
     textAlign: "center",
     marginBottom: 20,
   },
@@ -67,20 +74,26 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    padding: 12,
-    borderRadius: 5,
+    paddingVertical: 12,
+    borderRadius: 8,
     alignItems: "center",
     marginHorizontal: 5,
   },
   cancelButton: {
-    backgroundColor: "#ddd",
+    backgroundColor: "#555",
   },
   confirmButton: {
-    backgroundColor: "red",
+    backgroundColor: "#d32f2f",
   },
-  buttonText: {
+  cancelButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  confirmButtonText: {
     color: "white",
     fontWeight: "bold",
+    fontSize: 16,
   },
 });
 

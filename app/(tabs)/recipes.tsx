@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
 import axiosInstance from "../../services/api";
 import { Recipe } from "../../types/recipe";
+import { useRouter } from "expo-router";
 
 export default function RecipeScreen() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -46,11 +48,14 @@ export default function RecipeScreen() {
         data={recipes}
         keyExtractor={(item) => item.recipe_id}
         renderItem={({ item }) => (
-          <View style={styles.recipeCard}>
+          <TouchableOpacity
+            style={styles.recipeCard}
+            onPress={() => router.push({ pathname: `/recipes/[id]`, params: { id: item.recipe_id } })}
+          >
             <Text style={styles.recipeTitle}>{item.recipe_name}</Text>
             <Text style={styles.recipeDescription}>{item.recipe_description}</Text>
             <Text style={styles.recipeTime}>⏱ {item.cooking_time} mins</Text>
-          </View>
+          </TouchableOpacity>
         )}
       />
     </View>

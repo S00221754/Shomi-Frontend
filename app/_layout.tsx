@@ -12,6 +12,18 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="recipes/[id]"
+          options={{
+            headerShown: true,
+            headerStyle: { backgroundColor: "#25292e" },
+            headerTintColor: "#ffd33d", 
+            headerShadowVisible: false,
+            headerTitle: "",
+          }}
+        />
+
+
       </Stack>
     </AuthProvider>
   )
