@@ -5,6 +5,8 @@ import ReceiptScan from '../../components/functionality-components/ReceiptScan';
 import { ProductInfo } from '@/types/ingredient';
 import IngredientModal from '@/components/ui-components/IngredientModal';
 import { useIngredientScanner } from '@/hooks/useIngredientScanner';
+import UserIngredientModal from '@/components/ui-components/UserIngredientModal';
+import { UserIngredientInput } from '@/types/user-ingredient';
 
   enum ScanningMode {
     Barcode = 'barcode',
@@ -16,12 +18,16 @@ export default function ScannerScreen() {
     const {
         scanningMode,
         scannedData,
-        isModalVisible,
+        userIngredient,
+        isAddIngredientModalVisible,
+        isAddUserIngredientModalVisible,
         handleScanProduct,
         handleStopScanning,
-        closeModal,
+        closeIngredientModal,
+        closeUserIngredientModal,
         handleBarcodeScanned,
         handleAddIngredient,
+        handleAddUserIngredient,
     } = useIngredientScanner();
 
     return (
@@ -41,11 +47,20 @@ export default function ScannerScreen() {
 
             {scanningMode === "Receipt" && <ReceiptScan onStopScanning={handleStopScanning} />}
 
+            <UserIngredientModal 
+                visible={isAddUserIngredientModalVisible} 
+                onClose={closeUserIngredientModal} 
+                userIngredient={userIngredient as UserIngredientInput} 
+                onAddUserIngredient={handleAddUserIngredient}
+            />
+
             <IngredientModal 
-                visible={isModalVisible} 
-                onClose={closeModal} 
+                visible={isAddIngredientModalVisible} 
+                onClose={closeIngredientModal} 
                 ingredient={scannedData as ProductInfo} 
                 onAddIngredient={handleAddIngredient} />
+
+
         </View>
     );
 }

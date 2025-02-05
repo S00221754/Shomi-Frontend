@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Modal, View, Text, Button, ActivityIndicator, FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import { useGetUserIngredients } from "@/hooks/useGetUserIngredients";
 import { useAuth } from "@/context/AuthContext";
 import ConfirmationModal from "./ConfirmationModal";
 import { useDeleteUserIngredient } from "@/hooks/useDeleteUserIngredient";
+import { useFocusEffect } from "expo-router";
 
 const Pantry: React.FC = () => {
   const { userId } = useAuth();
@@ -27,6 +28,13 @@ const Pantry: React.FC = () => {
     }
   };
 
+
+  // temp solution for demo purposes - to be replaced with a proper solution
+  useFocusEffect(
+    useCallback(() => {
+        fetchUserIngredients();
+    }, [])
+);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My Pantry</Text>

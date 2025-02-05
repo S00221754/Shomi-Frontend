@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Button, } from 'react-native';
 import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import axios from 'axios';
 import { ProductInfo } from '@/types/ingredient';
+import { getIngredientByBarcode } from '@/services/ingredientsService';
 
 type BarcodeScanProps = {
     onStopScanning: () => void;
@@ -17,6 +18,25 @@ export default function BarcodeScan({ onStopScanning, onBarcodeScanned }: Barcod
     const handleBarCodeScanned = async ({ data }: BarcodeScanningResult) => {
         try {
             setScanned(true);
+            console.log('Barcode scanned:', data);
+            
+            const dbResponse = await getIngredientByBarcode(data);
+            console.log('database response', dbResponse);
+            
+            if (dbResponse){
+                const productInfo: ProductInfo = {
+                    Ing_id: dbResponse.Ing_id,
+                    Ing_barcode: dbResponse.Ing_barcode,
+                    Ing_name: dbResponse.Ing_name,
+                    Ing_brand: dbResponse.Ing_brand,
+                    Ing_keywords: dbResponse.Ing_keywords,
+                    Ing_units: dbResponse.Ing_units,
+                    status: true,
+                    In_Database: true,
+                };
+                onBarcodeScanned(productInfo);
+                return;
+            }
 
             const apiUrl = `https://world.openfoodfacts.org/api/v0/product/${data}.json`;
     
@@ -30,6 +50,7 @@ export default function BarcodeScan({ onStopScanning, onBarcodeScanned }: Barcod
                     Ing_keywords: response.data.product._keywords || ['Unknown'],
                     Ing_units:[],
                     status: true,
+                    In_Database: false,
                 };
                 onBarcodeScanned(productInfo);
             } else {
@@ -38,9 +59,8 @@ export default function BarcodeScan({ onStopScanning, onBarcodeScanned }: Barcod
                     Ing_barcode: 'Product not found',
                     Ing_brand: 'Product not found',
                     status: false,
+                    In_Database: false,
                 };
-    
-                console.log('Product Info:', productInfo);
                 onBarcodeScanned(productInfo);
             }
         } catch (error) {
@@ -63,6 +83,7 @@ export default function BarcodeScan({ onStopScanning, onBarcodeScanned }: Barcod
                 Ing_barcode: 'Product not found',
                 Ing_brand: 'Product not found',
                 status: false,
+                In_Database: false,
             };
 
             onBarcodeScanned(productInfo);

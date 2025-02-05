@@ -21,3 +21,12 @@ export const addIngredient = async (ingredient: ProductInfo) => {
         throw error;
     }
 }
+
+export const getIngredientByBarcode = async (barcode: string) => {
+    try {
+        const response = await axiosInstance.get(`/ingredient/barcode/${barcode}`);
+        return response.data;
+    } catch (error) {
+        return null;
+    }
+}

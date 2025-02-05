@@ -6,6 +6,7 @@ export interface ProductInfo {
     Ing_keywords?: string[];
     Ing_units?: string[];
     status: boolean;
+    In_Database: boolean;
   }
 
   export interface Ingredient {

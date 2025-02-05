@@ -1,6 +1,5 @@
 import { ProductInfo } from '@/types/ingredient';
 import { Modal, View, Text, Button, StyleSheet, TextInput } from 'react-native';
-import { addIngredient } from '@/services/ingredientsService';
 import { useState } from 'react';
 
 interface IngredientModalProps {
