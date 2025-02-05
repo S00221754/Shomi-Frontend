@@ -17,8 +17,6 @@ export default function RecipeDetails() {
       try {
         const data = await getRecipeById(id as string);
         setRecipe(data);
-        console.log(data);
-
       } catch (err) {
         setError("Failed to load recipe.");
       } finally {
