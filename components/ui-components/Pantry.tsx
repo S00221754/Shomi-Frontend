@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Modal, View, Text, Button, ActivityIndicator, FlatList, StyleSheet, TouchableOpacity } from "react-native";
+import { Modal, View, Text, Button, ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { useGetUserIngredients } from "@/hooks/useGetUserIngredients";
 import { useAuth } from "@/context/AuthContext";
 import ConfirmationModal from "./ConfirmationModal";
@@ -10,7 +10,6 @@ const Pantry: React.FC = () => {
   const { userId } = useAuth();
   const { userIngredients, loading, fetchUserIngredients } = useGetUserIngredients(userId || "");
   const { handleDeleteUserIngredient } = useDeleteUserIngredient();
-
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(null);
@@ -28,44 +27,54 @@ const Pantry: React.FC = () => {
     }
   };
 
-
-  // temp solution for demo purposes - to be replaced with a proper solution
   useFocusEffect(
     useCallback(() => {
-        fetchUserIngredients();
+      fetchUserIngredients();
     }, [])
-);
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#ffd33d" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My Pantry</Text>
 
-      {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : userIngredients.length === 0 ? ( // Check if the list is empty
+      {userIngredients.length === 0 ? (
         <Text style={styles.emptyText}>No ingredients in your pantry</Text>
       ) : (
-        <FlatList
-          data={userIngredients}
-          keyExtractor={(item) => item.id || "unknown"}
-          renderItem={({ item }) => (
-            <View style={styles.ingredientItem}>
-              <Text style={styles.ingredientText}>Product: {item.ingredient.Ing_name}</Text>
-              <Text style={styles.ingredientText}>Amount: {item.totalAmount || "Unknown"}</Text>
-              <Text style={styles.ingredientText}>Quantity: {item.unitQuantity || "N/A"}</Text>
-              <Text style={styles.ingredientText}>Unit Type: {item.unitType || "N/A"}</Text>
-              <Text style={styles.ingredientText}>Expiry Date: {item.expiryDate || "N/A"}</Text>
-
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => handleDeletePress(item.id)}
-              >
-                <Text style={styles.deleteButtonText}>Remove</Text>
-              </TouchableOpacity>
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.tableContainer}>
+            {/* Table Header */}
+            <View style={styles.tableHeader}>
+              <Text style={styles.headerText}>Name</Text>
+              <Text style={styles.headerText}>Amount</Text>
+              <Text style={styles.headerText}>Unit Type</Text>
+              <Text style={styles.headerText}>Expiry Date</Text>
+              <Text style={styles.headerText}>Action</Text>
             </View>
-          )}
-        />
-      )}
 
+            {/* Table Rows */}
+            {userIngredients.map((item) => (
+              <View key={item.id} style={styles.tableRow}>
+                <Text style={styles.cellText}>{item.ingredient.Ing_name}</Text>
+                <Text style={styles.cellText}>{item.totalAmount || "Unknown"}</Text>
+                <Text style={styles.cellText}>{item.unitType || "N/A"}</Text>
+                <Text style={styles.cellText}>{item.expiryDate || "N/A"}</Text>
+                <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeletePress(item.id)}>
+                  <Text style={styles.deleteButtonText}>Remove</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+
+      )}
 
       <ConfirmationModal
         visible={modalVisible}
@@ -80,40 +89,60 @@ const Pantry: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: "#25292e",
+    padding: 20,
+  },
+  tableContainer: {
+    flex: 1,
+    width: "100%",
+  },
+  scrollView: {
+    flex: 1,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 10,
-    color: "white",
+    color: "#ffd33d",
+    marginBottom: 15,
   },
-  ingredientItem: {
-    backgroundColor: "#fff",
-    padding: 15,
-    marginVertical: 5,
+  tableHeader: {
+    flexDirection: "row",
+    backgroundColor: "#333",
+    paddingVertical: 10,
+    paddingHorizontal: 5,
     borderRadius: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 2,
   },
-  ingredientText: {
+  tableRow: {
+    flexDirection: "row",
+    backgroundColor: "#444",
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+    borderRadius: 8,
+    marginTop: 5,
+  },
+  headerText: {
+    flex: 1,
     fontSize: 16,
+    fontWeight: "bold",
+    color: "#ffd33d",
+    textAlign: "center",
+  },
+  cellText: {
+    flex: 1,
+    fontSize: 14,
+    color: "#fff",
+    textAlign: "center",
   },
   deleteButton: {
     backgroundColor: "red",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
     borderRadius: 5,
-    marginTop: 10,
     alignItems: "center",
   },
   deleteButtonText: {
     color: "white",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
   },
   emptyText: {
@@ -123,7 +152,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     color: "white",
   },
-  
 });
+
 
 export default Pantry;
