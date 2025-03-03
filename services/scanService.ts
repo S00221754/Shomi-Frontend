@@ -1,11 +1,14 @@
+import axiosInstance from "./api";
 import axios from "axios";
 import { ProductInfo } from "../types/ingredient";
 
 // fetch ingredient info from database
 export const getIngredientByBarcode = async (barcode: string): Promise<ProductInfo | null> => {
+    console.log('using getIngredientByBarcode');
+    
     try {
-        const response = await fetch(`YOUR_DATABASE_ENDPOINT?barcode=${barcode}`);
-        return response.ok ? await response.json() : null;
+        const response = await axiosInstance.get(`/ingredient/barcode/${barcode}`);  
+        return response.data;
     } catch (error) {
         console.error("Database lookup failed:", error);
         return null;
