@@ -7,8 +7,8 @@ import { useDeleteUserIngredient } from "@/hooks/useDeleteUserIngredient";
 import { useFocusEffect } from "expo-router";
 
 const Pantry: React.FC = () => {
-  const { userId } = useAuth();
-  const { userIngredients, loading, fetchUserIngredients } = useGetUserIngredients(userId || "");
+  const { user } = useAuth();
+  const { userIngredients, loading, fetchUserIngredients } = useGetUserIngredients(user?.uid || "");
   const { handleDeleteUserIngredient } = useDeleteUserIngredient();
 
   const [modalVisible, setModalVisible] = useState(false);

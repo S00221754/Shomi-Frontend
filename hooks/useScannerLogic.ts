@@ -7,11 +7,11 @@ import { UserIngredientInput } from "@/types/user-ingredient";
 import { useGetUserIngredients } from "./useGetUserIngredients";
 
 export const useScannerLogic = (setIsAddIngredientModalVisible: (visible: boolean) => void, setIsAddUserIngredientModalVisible: (visible: boolean) => void) => {
-    const { userId } = useAuth();
+    const { user } = useAuth();
     const [scannedData, setScannedData] = useState<ProductInfo | null>(null);
     const [userIngredient, setUserIngredient] = useState<UserIngredientInput | null>(null);
 
-    const { fetchUserIngredients } = useGetUserIngredients(userId!);
+    const { fetchUserIngredients } = useGetUserIngredients(user?.uid!);
 
     const handleBarcodeScanned = async (productInfo: ProductInfo) => {
         setScannedData(productInfo);
@@ -20,7 +20,7 @@ export const useScannerLogic = (setIsAddIngredientModalVisible: (visible: boolea
             setIsAddIngredientModalVisible(true);
         } else {
             setUserIngredient({
-                userId: userId!,
+                userId: user?.uid!,
                 ingredientId: productInfo.Ing_id!,
                 unitQuantity: 1,
                 totalAmount: 1,
@@ -40,7 +40,7 @@ export const useScannerLogic = (setIsAddIngredientModalVisible: (visible: boolea
 
             if (newIngredient) {
                 setUserIngredient({
-                    userId: userId!,
+                    userId: user?.uid!,
                     ingredientId: newIngredient.Ing_id!,
                     unitQuantity: 1,
                     totalAmount: 1,

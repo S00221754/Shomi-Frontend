@@ -7,19 +7,13 @@ import { ActivityIndicator, View } from 'react-native';
 
 export default function TabLayout() {
 
-  const { userToken, isLoading } = useAuth();
+  const { isLoading } = useAuth();
 
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" />
       </View>
-    );
-  }
-
-  if (!userToken) {
-    return (
-      <Stack.Screen options={{ title: 'Login' }} />
     );
   }
 
