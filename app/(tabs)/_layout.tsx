@@ -38,7 +38,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="scan"
+        name="scanScreen"
         options={{
           title: 'Scanner',
           tabBarIcon: ({ color, focused }) => (
@@ -56,7 +56,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="pantry"
+        name="pantryScreen"
         options={{
           title: 'Pantry Storage',
           tabBarIcon: ({ color, focused }) => (
@@ -65,7 +65,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="recipes"
+        name="recipesScreen"
         options={{
           title: 'Recipes',
           tabBarIcon: ({ color, focused }) => (

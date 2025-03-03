@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { Modal, View, Text, Button, ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { useGetUserIngredients } from "@/hooks/useGetUserIngredients";
 import { useAuth } from "@/context/AuthContext";
-import ConfirmationModal from "./ConfirmationModal";
+import ConfirmationModal from "../modals/ConfirmationModal";
 import { useDeleteUserIngredient } from "@/hooks/useDeleteUserIngredient";
 import { useFocusEffect } from "expo-router";
 

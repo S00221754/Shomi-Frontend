@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
-import { View, Button, StyleSheet, Modal, Text, TouchableOpacity } from 'react-native';
-import BarcodeScan from '../../components/functionality-components/BarcodeScan';
-import ReceiptScan from '../../components/functionality-components/ReceiptScan';
-import { ProductInfo } from '@/types/ingredient';
-import IngredientModal from '@/components/ui-components/IngredientModal';
-import { useIngredientScanner } from '@/hooks/useIngredientScanner';
-import UserIngredientModal from '@/components/ui-components/UserIngredientModal';
-import { UserIngredientInput } from '@/types/user-ingredient';
+import React from 'react';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import BarcodeScan from '../../components/scan/BarcodeScan';
+import IngredientModal from '@/components/modals/IngredientModal';
+import UserIngredientModal from '@/components/modals/UserIngredientModal';
+import { useScannerState } from '@/hooks/useScannerState';
+import { useScannerLogic } from '@/hooks/useScannerLogic';
 
 enum ScanningMode {
     Barcode = 'barcode',
@@ -17,18 +15,23 @@ enum ScanningMode {
 export default function ScannerScreen() {
     const {
         scanningMode,
-        scannedData,
-        userIngredient,
         isAddIngredientModalVisible,
         isAddUserIngredientModalVisible,
         handleScanProduct,
         handleStopScanning,
         closeIngredientModal,
         closeUserIngredientModal,
+        setIsAddIngredientModalVisible,
+        setIsAddUserIngredientModalVisible,
+    } = useScannerState();
+
+    const {
+        scannedData,
+        userIngredient,
         handleBarcodeScanned,
         handleAddIngredient,
         handleAddUserIngredient,
-    } = useIngredientScanner();
+    } = useScannerLogic(setIsAddIngredientModalVisible, setIsAddUserIngredientModalVisible);
 
     return (
         <View style={styles.container}>
@@ -52,22 +55,19 @@ export default function ScannerScreen() {
                 <BarcodeScan onStopScanning={handleStopScanning} onBarcodeScanned={handleBarcodeScanned} />
             )}
 
-            {scanningMode === "Receipt" && <ReceiptScan onStopScanning={handleStopScanning} />}
-
             <UserIngredientModal
                 visible={isAddUserIngredientModalVisible}
                 onClose={closeUserIngredientModal}
-                userIngredient={userIngredient as UserIngredientInput}
+                userIngredient={userIngredient}
                 onAddUserIngredient={handleAddUserIngredient}
             />
 
             <IngredientModal
                 visible={isAddIngredientModalVisible}
                 onClose={closeIngredientModal}
-                ingredient={scannedData as ProductInfo}
-                onAddIngredient={handleAddIngredient} />
-
-
+                ingredient={scannedData}
+                onAddIngredient={handleAddIngredient}
+            />
         </View>
     );
 }

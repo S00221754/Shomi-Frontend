@@ -6,30 +6,19 @@ import { addUserIngredient } from "@/services/user-ingredientService";
 import { UserIngredientInput } from "@/types/user-ingredient";
 import { useGetUserIngredients } from "./useGetUserIngredients";
 
-export const useIngredientScanner = () => {
+export const useScannerLogic = (setIsAddIngredientModalVisible: (visible: boolean) => void, setIsAddUserIngredientModalVisible: (visible: boolean) => void) => {
     const { userId } = useAuth();
-    const [scanningMode, setScanningMode] = useState<"None" | "Barcode" | "Receipt">("None");
-    const [userIngredient, setUserIngredient] = useState<UserIngredientInput | null>(null);
     const [scannedData, setScannedData] = useState<ProductInfo | null>(null);
-    const [isAddIngredientModalVisible, setIsAddIngredientModalVisible] = useState(false);
-    const [isAddUserIngredientModalVisible, setIsAddUserIngredientModalVisible] = useState(false);
+    const [userIngredient, setUserIngredient] = useState<UserIngredientInput | null>(null);
 
-    const {fetchUserIngredients} = useGetUserIngredients(userId!);
-
-    const handleScanProduct = () => setScanningMode("Barcode");
-    const handleStopScanning = () => setScanningMode("None");
-
-    const closeIngredientModal = () => setIsAddIngredientModalVisible(false);
-    const closeUserIngredientModal = () => setIsAddUserIngredientModalVisible(false);
+    const { fetchUserIngredients } = useGetUserIngredients(userId!);
 
     const handleBarcodeScanned = async (productInfo: ProductInfo) => {
         setScannedData(productInfo);
 
-        if (!productInfo.In_Database){
-            setIsAddUserIngredientModalVisible(true);
+        if (!productInfo.In_Database) {
             setIsAddIngredientModalVisible(true);
-        }
-        else {
+        } else {
             setUserIngredient({
                 userId: userId!,
                 ingredientId: productInfo.Ing_id!,
@@ -37,8 +26,7 @@ export const useIngredientScanner = () => {
                 totalAmount: 1,
                 unitType: productInfo.Ing_units ? productInfo.Ing_units[0] : "",
                 expiryDate: "",
-            })
-
+            });
             setIsAddUserIngredientModalVisible(true);
         }
     };
@@ -63,37 +51,29 @@ export const useIngredientScanner = () => {
                 setIsAddUserIngredientModalVisible(true);
             }
 
-            closeIngredientModal();
+            setIsAddIngredientModalVisible(false);
         } catch (error) {
             console.error("Error adding ingredient:", error);
         }
     };
 
-    const handleAddUserIngredient = async (userIngredient: UserIngredientInput, ) => {
+    const handleAddUserIngredient = async (userIngredient: UserIngredientInput) => {
         console.log("useringredient", userIngredient);
-        
+
         try {
             await addUserIngredient(userIngredient);
             fetchUserIngredients();
-            closeUserIngredientModal();
+            setIsAddUserIngredientModalVisible(false);
         } catch (error) {
-            console.error("Error adding ingredient:", error);
+            console.error("Error adding user ingredient:", error);
         }
-    }
+    };
 
     return {
-        scanningMode,
         scannedData,
         userIngredient,
-        isAddIngredientModalVisible,
-        isAddUserIngredientModalVisible,
-        handleScanProduct,
-        handleStopScanning,
-        closeIngredientModal,
-        closeUserIngredientModal,
         handleBarcodeScanned,
         handleAddIngredient,
         handleAddUserIngredient,
-
     };
 };
