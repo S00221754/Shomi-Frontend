@@ -7,42 +7,36 @@ import { ActivityIndicator, View } from 'react-native';
 
 export default function TabLayout() {
 
-  const {userToken, isLoading} = useAuth();
+  const { isLoading } = useAuth();
 
-  if(isLoading) {
+  if (isLoading) {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" />
       </View>
     );
   }
 
-  if(!userToken) {
-    return (
-      <Stack.Screen options={{ title: 'Login' }} />
-    );
-  }
-
   return (
-        <Tabs
-        screenOptions={{
-            tabBarActiveTintColor: '#ffd33d',
-            headerStyle: {
-            backgroundColor: '#25292e',
-            },
-            headerShadowVisible: false,
-            headerTintColor: '#fff',
-            tabBarStyle: {
-            backgroundColor: '#25292e',
-            },
-        }}
-        >
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: '#ffd33d',
+        headerStyle: {
+          backgroundColor: '#25292e',
+        },
+        headerShadowVisible: false,
+        headerTintColor: '#fff',
+        tabBarStyle: {
+          backgroundColor: '#25292e',
+        },
+      }}
+    >
       <Tabs.Screen
-        name="scan"
+        name="scanScreen"
         options={{
           title: 'Scanner',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'barcode' : 'barcode-outline'} color={color} size={24}/>
+            <Ionicons name={focused ? 'barcode' : 'barcode-outline'} color={color} size={24} />
           ),
         }}
       />
@@ -56,11 +50,20 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="pantry"
+        name="pantryScreen"
         options={{
           title: 'Pantry Storage',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'information-circle' : 'information-circle-outline'} color={color} size={24}/>
+            <Ionicons name={focused ? 'basket' : 'basket-outline'} color={color} size={24} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="recipesScreen"
+        options={{
+          title: 'Recipes',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'book' : 'book-outline'} color={color} size={24} />
           ),
         }}
       />

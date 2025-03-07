@@ -1,4 +1,4 @@
-import Pantry from '@/components/ui-components/Pantry';
+import Pantry from '@/components/pantry/Pantry';
 import { Text, View, StyleSheet } from 'react-native';
 
 export default function PantryScreen() {
@@ -13,8 +13,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#25292e',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   text: {
     color: '#fff',
