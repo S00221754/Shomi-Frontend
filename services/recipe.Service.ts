@@ -19,11 +19,13 @@ export const getRecipeById = async (id: string): Promise<Recipe> => {
     }
 };
 
-export const getRecommendedRecipes = async (userId: string): Promise<Recipe[]> => {
+export const getRecommendedRecipes = async (userId: string, selectedIngredients: string[] = []): Promise<Recipe[]> => {
     try {
-        const response = await axiosInstance.get<Recipe[]>(`/recipes/recommended/${userId}`);
+        const response = await axiosInstance.post<Recipe[]>(`/recipes/recommended/${userId}`, {
+            selectedIngredients,
+        });
         return response.data;
     } catch (error) {
         throw error;
     }
-}
+};
