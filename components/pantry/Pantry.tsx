@@ -1,13 +1,14 @@
 import React, { useCallback, useState } from "react";
-import { Modal, View, Text, Button, ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { Modal, View, Text, Button, ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, ScrollView, Pressable } from "react-native";
 import { useGetUserIngredients } from "@/hooks/useGetUserIngredients";
 import { useAuth } from "@/context/AuthContext";
 import ConfirmationModal from "../modals/ConfirmationModal";
 import { useDeleteUserIngredient } from "@/hooks/useDeleteUserIngredient";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 
 const Pantry: React.FC = () => {
   const { user } = useAuth();
+    const router = useRouter();
   const { userIngredients, loading, fetchUserIngredients } = useGetUserIngredients(user?.uid || "");
   const { handleDeleteUserIngredient } = useDeleteUserIngredient();
 
@@ -44,6 +45,10 @@ const Pantry: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My Pantry</Text>
+
+      <TouchableOpacity style={styles.button} onPress={() => router.push({ pathname:`/recipes/recommendedRecipesScreen`})}>
+        <Text>Recommend Recipes</Text>
+      </TouchableOpacity>
 
       {userIngredients.length === 0 ? (
         <Text style={styles.emptyText}>No ingredients in your pantry</Text>
@@ -151,6 +156,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: 20,
     color: "white",
+  },
+  button: {
+    backgroundColor: "#ffd33d",
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 10,
+    alignItems: "center",
   },
 });
 

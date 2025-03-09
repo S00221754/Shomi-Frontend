@@ -17,7 +17,17 @@ export default function RootLayout() {
           options={{
             headerShown: true,
             headerStyle: { backgroundColor: "#25292e" },
-            headerTintColor: "#ffd33d", 
+            headerTintColor: "#ffd33d",
+            headerShadowVisible: false,
+            headerTitle: "",
+          }}
+        />
+        <Stack.Screen
+          name="recipes/recommendedRecipesScreen"
+          options={{
+            headerShown: true,
+            headerStyle: { backgroundColor: "#25292e" },
+            headerTintColor: "#ffd33d",
             headerShadowVisible: false,
             headerTitle: "",
           }}
