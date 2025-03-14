@@ -10,18 +10,22 @@ export default function RecommendedRecipesScreen() {
     const [loading, setLoading] = useState<boolean>(true);
     const { user } = useAuth();
     const router = useRouter();
+    const params = useLocalSearchParams();
+
+    const selectedIngredients = params.selectedIngredients ? JSON.parse(params.selectedIngredients as string) : [];
+
     useEffect(() => {
         const fetchRecipes = async () => {
             try {
-                const data = await getRecommendedRecipes(user?.uid || "");
+                const data = await getRecommendedRecipes(user?.uid || "", selectedIngredients);
                 setRecipes(data);
             } catch (error) {
-                console.log(error);
+                console.error("Error Fetching Recipes:", error);
             } finally {
                 setLoading(false);
             }
         };
-
+    
         fetchRecipes();
     }, [user?.uid]);
 
@@ -43,7 +47,6 @@ export default function RecommendedRecipesScreen() {
                         <Text style={styles.recipeDescription}>{recipe.recipe_description}</Text>
                         <Text style={styles.recipeTime}>⏱ {recipe.cooking_time} mins</Text>
                     </TouchableOpacity>
-
                 </View>
             ))}
         </ScrollView>
