@@ -1,16 +1,26 @@
-import { Text, View, StyleSheet, Button, TouchableOpacity } from "react-native";
+import { Text, View, StyleSheet, Alert } from "react-native";
 import { useAuth } from "@/context/AuthContext";
+import { Button, useTheme } from "@rneui/themed";
+import { useAppTheme } from "@/context/ThemeContext";
+
 export default function Index() {
   const { logout } = useAuth();
+  const { theme } = useTheme();
+  const { toggleTheme, isDarkMode } = useAppTheme();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to</Text>
-      <Text style={styles.appName}>Shomi</Text>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Text style={[styles.title, { color: theme.colors.black }]}>Welcome to</Text>
+      <Text style={[styles.appName, { color: theme.colors.primary }]}>Shomi</Text>
 
-      <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-        <Text style={styles.logoutButtonText}>Logout</Text>
-      </TouchableOpacity>
+      {/* Toggle Theme Button */}
+      <Button
+        title={`Switch to ${isDarkMode ? "Light" : "Dark"} Mode`}
+        onPress={toggleTheme}
+        containerStyle={styles.buttonContainer}
+      />
+      {/* Logout Button */}
+      <Button title="Logout" onPress={logout} containerStyle={styles.buttonContainer} buttonStyle={{ backgroundColor: theme.colors.error }} />
     </View>
   );
 }
@@ -18,38 +28,21 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#25292e",
     justifyContent: "center",
     alignItems: "center",
   },
   title: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#fff",
     marginBottom: 5,
   },
   appName: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "#ffd33d",
     marginBottom: 30,
   },
-  logoutButton: {
-    backgroundColor: "#d32f2f",
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 10,
-    alignItems: "center",
-    width: 150,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-  },
-  logoutButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
+  buttonContainer: {
+    marginTop: 10,
+    width: 200,
   },
 });

@@ -1,69 +1,58 @@
-import { Tabs } from 'expo-router';
-
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { Stack } from 'expo-router';
-import { useAuth } from '../../context/AuthContext';
-import { ActivityIndicator, View } from 'react-native';
+import { Tabs } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "@rneui/themed";
 
 export default function TabLayout() {
-
-  const { isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
+  const { theme } = useTheme(); // Get active theme
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#ffd33d',
+        tabBarActiveTintColor: theme.colors.primary,
         headerStyle: {
-          backgroundColor: '#25292e',
+          backgroundColor: theme.colors.background, // Dynamic background color
         },
         headerShadowVisible: false,
-        headerTintColor: '#fff',
+        headerTintColor: theme.colors.white, // Dynamic text color
         tabBarStyle: {
-          backgroundColor: '#25292e',
+          backgroundColor: theme.colors.background, // Dynamic tab bar color
         },
+        tabBarInactiveTintColor: theme.colors.grey3, // Optional: tweak inactive tab color
       }}
     >
       <Tabs.Screen
         name="scanScreen"
         options={{
-          title: 'Scanner',
+          title: "Scanner",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'barcode' : 'barcode-outline'} color={color} size={24} />
+            <Ionicons name={focused ? "barcode" : "barcode-outline"} color={color} size={24} />
           ),
         }}
       />
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: "Home",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'home-sharp' : 'home-outline'} color={color} size={24} />
+            <Ionicons name={focused ? "home-sharp" : "home-outline"} color={color} size={24} />
           ),
         }}
       />
       <Tabs.Screen
         name="pantryScreen"
         options={{
-          title: 'Pantry Storage',
+          title: "Pantry Storage",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'basket' : 'basket-outline'} color={color} size={24} />
+            <Ionicons name={focused ? "basket" : "basket-outline"} color={color} size={24} />
           ),
         }}
       />
       <Tabs.Screen
         name="recipesScreen"
         options={{
-          title: 'Recipes',
+          title: "Recipes",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'book' : 'book-outline'} color={color} size={24} />
+            <Ionicons name={focused ? "book" : "book-outline"} color={color} size={24} />
           ),
         }}
       />
