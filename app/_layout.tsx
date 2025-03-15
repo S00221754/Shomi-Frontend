@@ -3,12 +3,16 @@ import { ThemeProviderWrapper } from "@/context/ThemeContext";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-
+import { useColorScheme } from "react-native";
 export default function RootLayout() {
+  const colorScheme = useColorScheme();
+  const statusBarStyle = colorScheme === 'dark' ? 'light' : 'dark';
+  const statusBarBackground = colorScheme === 'dark' ? '#121212' : '#FAF1E6';
+
   return (
     <ThemeProviderWrapper>
       <AuthProvider>
-        <StatusBar style="auto" />
+      <StatusBar style={statusBarStyle} backgroundColor={statusBarBackground} />
         <Stack>
           <Stack.Screen name="login" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -17,7 +21,7 @@ export default function RootLayout() {
             options={{
               headerShown: true,
               headerStyle: { backgroundColor: "#25292e" },
-              headerTintColor: "#ffd33d",
+              headerTintColor: "#FAF1E6",
               headerShadowVisible: false,
               headerTitle: "",
             }}
@@ -27,7 +31,7 @@ export default function RootLayout() {
             options={{
               headerShown: true,
               headerStyle: { backgroundColor: "#25292e" },
-              headerTintColor: "#ffd33d",
+              headerTintColor: "#FAF1E6",
               headerShadowVisible: false,
               headerTitle: "",
             }}

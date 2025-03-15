@@ -1,23 +1,39 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "@rneui/themed";
+import { Button, Icon, useTheme } from "@rneui/themed";
+import { useAppTheme } from "@/context/ThemeContext";
 
 export default function TabLayout() {
   const { theme } = useTheme(); // Get active theme
-
+  const { toggleTheme, isDarkMode } = useAppTheme();
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: theme.colors.primary,
         headerStyle: {
-          backgroundColor: theme.colors.background, // Dynamic background color
+          backgroundColor: theme.colors.background, // Dynamic background colord
         },
-        headerShadowVisible: false,
-        headerTintColor: theme.colors.white, // Dynamic text color
+        headerShadowVisible: true,
+        headerTintColor: theme.colors.primary, // Dynamic text color
         tabBarStyle: {
           backgroundColor: theme.colors.background, // Dynamic tab bar color
         },
-        tabBarInactiveTintColor: theme.colors.grey3, // Optional: tweak inactive tab color
+        tabBarInactiveTintColor: theme.mode === "dark" ? theme.colors.white : theme.colors.black, // Dynamic inactive tab color
+        headerRight: () => (
+          <Button
+            type="clear"
+            onPress={toggleTheme}
+            icon={
+              <Icon
+                name={isDarkMode ? "sunny" : "moon"}
+                type="ionicon"
+                color={theme.colors.primary}
+                size={22}
+              />
+            }
+            buttonStyle={{ marginRight: 10 }}
+          />
+        ),
       }}
     >
       <Tabs.Screen
