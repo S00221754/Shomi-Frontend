@@ -8,6 +8,11 @@ import { useDeleteUserIngredient } from "@/hooks/useDeleteUserIngredient";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useTheme } from "@rneui/themed";
 import { FAB } from "react-native-paper";
+import BarcodeScan from "@/components/scan/BarcodeScan";
+import IngredientModal from "@/components/modals/IngredientModal";
+import UserIngredientModal from "@/components/modals/UserIngredientModal";
+import { useScannerState } from "@/hooks/useScannerState";
+import { useScannerLogic } from "@/hooks/useScannerLogic";
 
 const Pantry: React.FC = () => {
   const { theme } = useTheme();
@@ -22,6 +27,7 @@ const Pantry: React.FC = () => {
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
   const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>({});
   const [fabOpen, setFabOpen] = useState(false);
+  const [scanning, setScanning] = useState(false);
 
   const handleDeletePress = (id: string) => {
     setSelectedIngredientId(id);
@@ -66,6 +72,25 @@ const Pantry: React.FC = () => {
     }, [])
   );
 
+  const {
+    isAddIngredientModalVisible,
+    isAddUserIngredientModalVisible,
+    handleScanProduct,
+    handleStopScanning,
+    closeIngredientModal,
+    closeUserIngredientModal,
+    setIsAddIngredientModalVisible,
+    setIsAddUserIngredientModalVisible,
+  } = useScannerState();
+
+  const {
+    scannedData,
+    userIngredient,
+    handleBarcodeScanned,
+    handleAddIngredient,
+    handleAddUserIngredient,
+  } = useScannerLogic(setIsAddIngredientModalVisible, setIsAddUserIngredientModalVisible);
+
   if (loading) {
     return (
       <View style={{ flex: 1, backgroundColor: theme.colors.background, justifyContent: "center", alignItems: "center" }}>
@@ -74,12 +99,16 @@ const Pantry: React.FC = () => {
     );
   }
 
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background, padding: 10 }}>
-      {userIngredients.length === 0 ? (
-        <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "bold", marginTop: 20, color: theme.colors.black }}>
-          No ingredients in your pantry
-        </Text>
+      {scanning ? (
+        <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 999 }}>
+          <BarcodeScan
+            onStopScanning={() => setScanning(false)}
+            onBarcodeScanned={handleBarcodeScanned}
+          />
+        </View>
       ) : (
         <ScrollView stickyHeaderIndices={[0]}>
           {/* 🔹 Sticky Header */}
@@ -245,7 +274,7 @@ const Pantry: React.FC = () => {
               {
                 icon: "barcode-scan",
                 label: "Scan Barcode",
-                onPress: () => console.log("Navigate to Barcode Scanner"),
+                onPress: () => setScanning(true),
                 labelStyle: {
                   backgroundColor: theme.colors.grey4,
                   color: theme.colors.black,
@@ -286,9 +315,22 @@ const Pantry: React.FC = () => {
       />
       <ConfirmationModal
         visible={modalVisible}
-        onClose={() => {setModalVisible(false), setFabOpen(false)}}
+        onClose={() => { setModalVisible(false), setFabOpen(false) }}
         onConfirm={handleConfirmDelete}
         message="Are you sure you want to remove this ingredient?"
+      />
+
+      <UserIngredientModal
+        visible={isAddUserIngredientModalVisible}
+        onClose={closeUserIngredientModal}
+        userIngredient={userIngredient}
+        onAddUserIngredient={handleAddUserIngredient}
+      />
+      <IngredientModal
+        visible={isAddIngredientModalVisible}
+        onClose={closeIngredientModal}
+        ingredient={scannedData}
+        onAddIngredient={handleAddIngredient}
       />
     </View>
   );
