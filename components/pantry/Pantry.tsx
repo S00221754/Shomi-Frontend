@@ -20,7 +20,6 @@ const Pantry: React.FC = () => {
   const router = useRouter();
   const { userIngredients, loading, fetchUserIngredients } = useGetUserIngredients(user?.uid || "");
   const { handleDeleteUserIngredient } = useDeleteUserIngredient();
-  const screenWidth = Dimensions.get("window").width;
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(null);
@@ -306,9 +305,9 @@ const Pantry: React.FC = () => {
         onPress={() => {
           if (selectedIngredients.length > 0) {
             console.log("Selected Ingredients to Remove:", selectedIngredients);
-            setModalVisible(true); // ✅ Show confirmation modal for deletion
+            setModalVisible(true);
           } else {
-            setFabOpen(!fabOpen); // ✅ Toggle normal FAB
+            setFabOpen(!fabOpen);
           }
         }}
         onStateChange={({ open }) => setFabOpen(open)}
@@ -325,6 +324,7 @@ const Pantry: React.FC = () => {
         onClose={closeUserIngredientModal}
         userIngredient={userIngredient}
         onAddUserIngredient={handleAddUserIngredient}
+        ingredient={scannedData}
       />
       <IngredientModal
         visible={isAddIngredientModalVisible}

@@ -4,7 +4,8 @@ export interface ProductInfo {
     Ing_name: string;
     Ing_brand?: string;
     Ing_keywords?: string[];
-    Ing_units?: string[];
+    Ing_quantity?: number;
+    Ing_quantity_units?: string
     status: boolean;
     In_Database: boolean;
   }
