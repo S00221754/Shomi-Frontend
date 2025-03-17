@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import { View, ScrollView, ActivityIndicator } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { getRecipeById } from "../../services/recipe.Service";
 import { Recipe } from "../../types/recipe";
+import { Text, Button, Card, Divider } from "@rneui/themed";
+import { useTheme } from "@rneui/themed";
 
 export default function RecipeDetails() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const { theme } = useTheme();
 
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -29,108 +32,82 @@ export default function RecipeDetails() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#ffd33d" />
+      <View style={{ flex: 1, backgroundColor: theme.colors.background, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }
 
-  if (error) {
+  if (error || !recipe) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>{error}</Text>
-        <Text onPress={() => router.back()} style={styles.backButton}>
-          Go Back
+      <View style={{ flex: 1, backgroundColor: theme.colors.background, justifyContent: "center", alignItems: "center", padding: 20 }}>
+        <Text style={{ fontSize: 18, color: theme.colors.error, textAlign: "center" }}>
+          {error || "Recipe not found"}
         </Text>
-      </View>
-    );
-  }
-
-  if (!recipe) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>Recipe not found</Text>
-        <Text onPress={() => router.back()} style={styles.backButton}>
-          Go Back
-        </Text>
+        <Button
+          title="Go Back"
+          onPress={() => router.back()}
+          buttonStyle={{ backgroundColor: theme.colors.primary, borderRadius: 8, marginTop: 20 }}
+          titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
+        />
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>{recipe.recipe_name}</Text>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: theme.colors.background, padding: 20 }}
+      contentContainerStyle={{ flexGrow: 1, paddingBottom: 50 }}
+    >
+      <Text h2 style={{ fontSize: 28, fontWeight: "bold", color: theme.colors.primary, marginBottom: 15 }}>
+        {recipe.recipe_name}
+      </Text>
 
-      <Text style={styles.subtitle}>Description</Text>
-      <Text style={styles.description}>{recipe.recipe_description}</Text>
+      <Card containerStyle={{ backgroundColor: theme.colors.white, borderRadius: 10, padding: 20 }}>
+        <Card.Title style={{ fontSize: 20, fontWeight: "bold", color: theme.colors.black, textAlign: "center" }}>
+          Recipe Details
+        </Card.Title>
+        <Divider style={{ marginBottom: 10 }} />
 
-      <Text style={styles.subtitle}>Cooking Time</Text>
-      <Text style={styles.detail}>⏱ {recipe.cooking_time} minutes</Text>
+        <Text style={{ fontSize: 18, fontWeight: "bold", color: theme.colors.black, marginTop: 10 }}>
+          Description
+        </Text>
+        <Text style={{ fontSize: 16, color: theme.colors.grey3, marginTop: 5 }}>
+          {recipe.recipe_description}
+        </Text>
 
-      <Text style={styles.subtitle}>Ingredients</Text>
-      <View style={styles.ingredientsContainer}>
+        <Text style={{ fontSize: 18, fontWeight: "bold", color: theme.colors.black, marginTop: 15 }}>
+          Cooking Time
+        </Text>
+        <Text style={{ fontSize: 16, color: theme.colors.primary, marginTop: 5 }}>
+          ⏱ {recipe.cooking_time} minutes
+        </Text>
+
+        <Text style={{ fontSize: 18, fontWeight: "bold", color: theme.colors.black, marginTop: 15 }}>
+          Ingredients
+        </Text>
+        <Divider style={{ marginVertical: 5 }} />
         {recipe.ingredients.map((ingredient, index) => (
-          <Text key={index} style={styles.ingredientText}>
+          <Text key={index} style={{ fontSize: 16, color: theme.colors.black, marginVertical: 3 }}>
             • {ingredient.quantity} {ingredient.unit} {ingredient.ingredient_name}
           </Text>
         ))}
-      </View>
 
-      <Text style={styles.subtitle}>Instructions</Text>
-      <Text style={styles.detail}>{recipe.recipe_instructions}</Text>
+        <Text style={{ fontSize: 18, fontWeight: "bold", color: theme.colors.black, marginTop: 15 }}>
+          Instructions
+        </Text>
+        <Divider style={{ marginVertical: 5 }} />
+        <Text style={{ fontSize: 16, color: theme.colors.black, marginTop: 5 }}>
+          {recipe.recipe_instructions}
+        </Text>
+      </Card>
+
+      <Button
+        title="Go Back"
+        onPress={() => router.back()}
+        buttonStyle={{ backgroundColor: theme.colors.primary, borderRadius: 8, marginTop: 20 }}
+        titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
+      />
     </ScrollView>
-
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#25292e",
-    padding: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#ffd33d",
-    marginBottom: 20,
-  },
-  subtitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#fff",
-    marginTop: 15,
-  },
-  description: {
-    fontSize: 16,
-    color: "#ccc",
-    marginTop: 10,
-  },
-  detail: {
-    fontSize: 16,
-    color: "#fff",
-    marginTop: 10,
-  },
-  errorText: {
-    fontSize: 18,
-    color: "red",
-    textAlign: "center",
-  },
-  backButton: {
-    fontSize: 16,
-    color: "#ffd33d",
-    textAlign: "center",
-    marginTop: 20,
-  },
-  ingredientsContainer: {
-    backgroundColor: "#333",
-    padding: 10,
-    borderRadius: 8,
-    marginTop: 10,
-  },
-  ingredientText: {
-    fontSize: 16,
-    color: "#fff",
-    marginBottom: 5,
-  },
-});

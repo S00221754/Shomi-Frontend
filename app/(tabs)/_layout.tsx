@@ -37,11 +37,11 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="scanScreen"
+        name="recipesScreen"
         options={{
-          title: "Scanner",
+          title: "Recipes",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? "barcode" : "barcode-outline"} color={color} size={24} />
+            <Ionicons name={focused ? "book" : "book-outline"} color={color} size={24} />
           ),
         }}
       />
@@ -57,18 +57,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="pantryScreen"
         options={{
-          title: "Pantry Storage",
+          title: "Pantry",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? "basket" : "basket-outline"} color={color} size={24} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="recipesScreen"
-        options={{
-          title: "Recipes",
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? "book" : "book-outline"} color={color} size={24} />
           ),
         }}
       />

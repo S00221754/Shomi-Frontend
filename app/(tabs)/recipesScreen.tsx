@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
+import { View, FlatList, ActivityIndicator } from "react-native";
+import { Text, Card, Button } from "@rneui/themed";
 import axiosInstance from "../../services/api";
 import { Recipe } from "../../types/recipe";
 import { useRouter } from "expo-router";
+import { useTheme } from "@rneui/themed";
 
 export default function RecipeScreen() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { theme } = useTheme();
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -27,78 +30,46 @@ export default function RecipeScreen() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#ffd33d" />
+      <View style={{ flex: 1, backgroundColor: theme.colors.background, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>{error}</Text>
+      <View style={{ flex: 1, backgroundColor: theme.colors.background, justifyContent: "center", alignItems: "center" }}>
+        <Text style={{ fontSize: 18, color: theme.colors.error, textAlign: "center" }}>{error}</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>List of Recipes</Text>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background, padding: 20 }}>
       <FlatList
         data={recipes}
         keyExtractor={(item) => item.recipe_id}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.recipeCard}
-            onPress={() => router.push({ pathname: `/recipes/[id]`, params: { id: item.recipe_id } })}
-          >
-            <Text style={styles.recipeTitle}>{item.recipe_name}</Text>
-            <Text style={styles.recipeDescription}>{item.recipe_description}</Text>
-            <Text style={styles.recipeTime}>⏱ {item.cooking_time} mins</Text>
-          </TouchableOpacity>
+          <Card containerStyle={{ backgroundColor: theme.colors.white, borderRadius: 10, padding: 15, shadowColor: theme.colors.black, elevation: 3 }}>
+            <Card.Title style={{ fontSize: 18, fontWeight: "bold", color: theme.colors.black, textAlign: "center" }}>
+              {item.recipe_name}
+            </Card.Title>
+            <Card.Divider />
+            <Text style={{ fontSize: 14, color: theme.colors.grey3, textAlign: "center", marginBottom: 5 }}>
+              {item.recipe_description}
+            </Text>
+            <Text style={{ fontSize: 14, color: theme.colors.primary, textAlign: "center", marginBottom: 10 }}>
+              ⏱ {item.cooking_time} mins
+            </Text>
+            <Button
+              title="View Recipe"
+              buttonStyle={{ backgroundColor: theme.colors.primary, borderRadius: 8, paddingVertical: 10 }}
+              titleStyle={{ fontWeight: "bold", color: theme.colors.white }}
+              onPress={() => router.push({ pathname: `/recipes/[id]`, params: { id: item.recipe_id } })}
+            />
+          </Card>
         )}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#25292e",
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#ffd33d",
-    marginBottom: 15,
-  },
-  recipeCard: {
-    backgroundColor: "#333",
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  recipeTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  recipeDescription: {
-    fontSize: 14,
-    color: "#ccc",
-    marginTop: 5,
-  },
-  recipeTime: {
-    fontSize: 14,
-    color: "#ffd33d",
-    marginTop: 5,
-  },
-  errorText: {
-    fontSize: 18,
-    color: "red",
-    textAlign: "center",
-  },
-});
-
