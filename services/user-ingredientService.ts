@@ -1,4 +1,4 @@
-import { UserIngredientInput } from "@/types/user-ingredient";
+import { UserIngredientInput, UserIngredientUpdate } from "@/types/user-ingredient";
 import axiosInstance from "./api";
 import { UserIngredient } from "@/types/ingredient";
 
@@ -23,6 +23,19 @@ export const deleteUserIngredient = async (userIngredientId : string) => {
 export const addUserIngredient = async (userIngredient: UserIngredientInput) => {
     try {
         const response = await axiosInstance.post(`/user-ingredient`, {
+            userIngredient
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const updateUserIngredient = async (userIngredientId:string, userIngredient: UserIngredientUpdate) => {
+    console.log("api call", userIngredient);
+    
+    try {
+        const response = await axiosInstance.patch(`/user-ingredient/${userIngredientId}`, {
             userIngredient
         });
         return response.data;

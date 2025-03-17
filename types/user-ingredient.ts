@@ -7,3 +7,10 @@ export type UserIngredientInput = {
     unitType: string,
     expiryDate: string
 }
+
+export type UserIngredientUpdate = {
+    unitQuantity?: number,
+    totalAmount?: number,
+    unitType: string,
+    expiryDate?: string
+}

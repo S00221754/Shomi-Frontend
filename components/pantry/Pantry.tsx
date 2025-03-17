@@ -13,6 +13,11 @@ import IngredientModal from "@/components/modals/IngredientModal";
 import UserIngredientModal from "@/components/modals/UserIngredientModal";
 import { useScannerState } from "@/hooks/useScannerState";
 import { useScannerLogic } from "@/hooks/useScannerLogic";
+import { useUpdateUserIngredient } from "@/hooks/useUpdateUserIngredient";
+import { UserIngredientUpdate } from "@/types/user-ingredient";
+import { updateUserIngredient } from "@/services/user-ingredientService";
+import UpdateUserIngredientModal from "../modals/UpdateUserIngredientModal";
+import { UserIngredient } from "@/types/ingredient";
 
 const Pantry: React.FC = () => {
   const { theme } = useTheme();
@@ -20,6 +25,7 @@ const Pantry: React.FC = () => {
   const router = useRouter();
   const { userIngredients, loading, fetchUserIngredients } = useGetUserIngredients(user?.uid || "");
   const { handleDeleteUserIngredient } = useDeleteUserIngredient();
+  const { handleUpdateUserIngredient } = useUpdateUserIngredient();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(null);
@@ -27,6 +33,10 @@ const Pantry: React.FC = () => {
   const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>({});
   const [fabOpen, setFabOpen] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const [isUpdateUserIngredientModalVisible, setIsUpdateUserIngredientModalVisible] = useState(false);
+  const [selectedUserIngredient, setSelectedUserIngredient] = useState<UserIngredient | null>(null);
+  const [selectedUserIngredientId, setSelectedUserIngredientId] = useState<string | null>(null);
+
 
   const handleDeletePress = (id: string) => {
     setSelectedIngredientId(id);
@@ -64,6 +74,17 @@ const Pantry: React.FC = () => {
       params: { selectedIngredients: JSON.stringify(selectedIngIds) },
     });
   };
+
+  const handleUpdateIngredient = async (userIngredientId: string, userIngredient: UserIngredientUpdate) => {
+    try {
+      await updateUserIngredient(userIngredientId, userIngredient);
+      fetchUserIngredients();
+      setIsUpdateUserIngredientModalVisible(false);
+    } catch (error) {
+      console.error("Error updating ingredient:", error);
+    }
+  };
+
 
   useFocusEffect(
     useCallback(() => {
@@ -186,16 +207,22 @@ const Pantry: React.FC = () => {
 
                 {/* 🔹 Buttons */}
                 <Button
-                  title="Edit for Later"
+                  title="Edit"
                   buttonStyle={{
-                    backgroundColor: theme.colors.secondary,
+                    backgroundColor: theme.colors.warning,
                     paddingVertical: 8,
                     borderRadius: 5,
                     marginTop: 5,
                   }}
-                  titleStyle={{ color: theme.colors.black, fontWeight: "bold" }}
-                  onPress={() => console.log("Edit Later")}
+                  icon={<Icon name="pencil" type="material-community" color={theme.colors.white} />}
+                  titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
+                  onPress={() => {
+                    setSelectedUserIngredient(item);
+                    setSelectedUserIngredientId(item.id);
+                    setIsUpdateUserIngredientModalVisible(true);
+                  }}
                 />
+
                 <Button
                   title="Remove"
                   buttonStyle={{
@@ -204,6 +231,7 @@ const Pantry: React.FC = () => {
                     borderRadius: 5,
                     marginTop: 5,
                   }}
+                  icon={<Icon name="delete" type="material-community" color={theme.colors.white} />}
                   titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
                   onPress={() => handleDeletePress(item.id)}
                 />
@@ -312,6 +340,7 @@ const Pantry: React.FC = () => {
         }}
         onStateChange={({ open }) => setFabOpen(open)}
       />
+      {/* Modals */}
       <ConfirmationModal
         visible={modalVisible}
         onClose={() => { setModalVisible(false), setFabOpen(false) }}
@@ -331,6 +360,13 @@ const Pantry: React.FC = () => {
         onClose={closeIngredientModal}
         ingredient={scannedData}
         onAddIngredient={handleAddIngredient}
+      />
+      <UpdateUserIngredientModal
+        visible={isUpdateUserIngredientModalVisible}
+        onClose={() => setIsUpdateUserIngredientModalVisible(false)}
+        userIngredient={selectedUserIngredient}
+        userIngredientId={selectedUserIngredientId}
+        onUpdateUserIngredient={handleUpdateIngredient}
       />
     </View>
   );

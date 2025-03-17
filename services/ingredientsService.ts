@@ -28,3 +28,12 @@ export const getIngredientByBarcode = async (barcode: string) => {
         return null;
     }
 }
+
+export const getIngredientById = async (id: number) => {
+    try {
+        const response = await axiosInstance.get(`/ingredient/${id}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}

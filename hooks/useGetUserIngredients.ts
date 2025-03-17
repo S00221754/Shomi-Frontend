@@ -7,6 +7,7 @@ export const useGetUserIngredients = (userId: string) => {
     const [loading, setLoading] = useState(true);
   
     const fetchUserIngredients = async () => {
+      if (!userId) return;
       setLoading(true);
       try {
         const data = await getUserIngredients(userId);
