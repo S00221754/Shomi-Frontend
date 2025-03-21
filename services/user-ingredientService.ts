@@ -43,3 +43,12 @@ export const updateUserIngredient = async (userIngredientId:string, userIngredie
         throw error;
     }
 };
+
+export const getUserIngredientByIngredientId = async (userId: string, ingredientId: number) => {
+    try {
+        const response = await axiosInstance.get<UserIngredient>(`/user-ingredient/${userId}/${ingredientId}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};

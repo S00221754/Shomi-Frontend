@@ -11,14 +11,14 @@ interface ConfirmationModalProps {
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ visible, onClose, onConfirm, message }) => {
-  const { theme } = useTheme(); // ✅ Get theme colors
+  const { theme } = useTheme();
 
   return (
     <Overlay
       isVisible={visible}
       onBackdropPress={onClose}
       overlayStyle={{
-        width: "85%", // ✅ Makes the modal responsive
+        width: "85%",
         backgroundColor: theme.colors.background,
         padding: 20,
         borderRadius: 10,

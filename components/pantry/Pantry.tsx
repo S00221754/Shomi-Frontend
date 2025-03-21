@@ -109,7 +109,7 @@ const Pantry: React.FC = () => {
     handleBarcodeScanned,
     handleAddIngredient,
     handleAddUserIngredient,
-  } = useScannerLogic(setIsAddIngredientModalVisible, setIsAddUserIngredientModalVisible);
+  } = useScannerLogic(setIsAddIngredientModalVisible, setIsAddUserIngredientModalVisible, setSelectedUserIngredient, setSelectedUserIngredientId, setIsUpdateUserIngredientModalVisible);
 
   if (loading) {
     return (

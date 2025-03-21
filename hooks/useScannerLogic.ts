@@ -1,12 +1,18 @@
 import { useState } from "react";
-import { ProductInfo } from "../types/ingredient";
+import { ProductInfo, UserIngredient } from "../types/ingredient";
 import { addIngredient } from "../services/ingredientsService";
 import { useAuth } from "@/context/AuthContext";
-import { addUserIngredient } from "@/services/user-ingredientService";
+import { addUserIngredient, getUserIngredientByIngredientId } from "@/services/user-ingredientService";
 import { UserIngredientInput } from "@/types/user-ingredient";
 import { useGetUserIngredients } from "./useGetUserIngredients";
 
-export const useScannerLogic = (setIsAddIngredientModalVisible: (visible: boolean) => void, setIsAddUserIngredientModalVisible: (visible: boolean) => void) => {
+export const useScannerLogic = (
+    setIsAddIngredientModalVisible: (visible: boolean) => void,
+    setIsAddUserIngredientModalVisible: (visible: boolean) => void,
+    setSelectedUserIngredient: (ingredient: UserIngredient) => void,
+    setSelectedUserIngredientId: (id: string) => void,
+    setIsUpdateUserIngredientModalVisible: (visible: boolean) => void
+) => {
     const { user } = useAuth();
     const [scannedData, setScannedData] = useState<ProductInfo | null>(null);
     const [userIngredient, setUserIngredient] = useState<UserIngredientInput | null>(null);
@@ -44,6 +50,17 @@ export const useScannerLogic = (setIsAddIngredientModalVisible: (visible: boolea
                 }
             }
         } else {
+
+            // Check if ingredient is already in user's pantry
+            const inPantry = await getUserIngredientByIngredientId(user?.uid!, productInfo.Ing_id!);
+
+            if (inPantry) {
+                setSelectedUserIngredient(inPantry);
+                setSelectedUserIngredientId(inPantry.id);
+                setIsUpdateUserIngredientModalVisible(true);
+                return;
+            }
+
             // If already in DB, just ask user how many they have
             setUserIngredient({
                 userId: user?.uid!,

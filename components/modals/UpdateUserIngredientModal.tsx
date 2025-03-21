@@ -88,7 +88,7 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
             }}
         >
             <Text h4 style={{ color: theme.colors.primary, textAlign: "center", marginBottom: 10 }}>
-                Update Pantry Item
+                Update "{userIngredient.ingredient.Ing_name}"
             </Text>
 
             {/* Unit Quantity Input */}
