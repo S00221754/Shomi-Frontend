@@ -5,10 +5,11 @@ import { Button, useTheme } from "@rneui/themed";
 export default function Index() {
   const { logout } = useAuth();
   const { theme } = useTheme();
+  const textColor = theme.mode === "dark" ? "white" : "black";
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Text style={[styles.title, { color: theme.colors.white }]}>Welcome to</Text>
+      <Text style={[styles.title, { color: textColor }]}>Welcome to</Text>
       <Text style={[styles.appName, { color: theme.colors.primary }]}>Shomi</Text>
       {/* Logout Button */}
       <Button title="Logout" onPress={logout} containerStyle={styles.buttonContainer} buttonStyle={{ backgroundColor: theme.colors.error }} />

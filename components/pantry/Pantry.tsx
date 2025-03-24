@@ -273,7 +273,7 @@ const Pantry: React.FC = () => {
             ? "delete"
             : fabOpen
               ? "close"
-              : "plus"
+              : "menu"
         }
         color={theme.colors.white}
         fabStyle={{
@@ -287,7 +287,7 @@ const Pantry: React.FC = () => {
               {
                 icon: "plus",
                 label: "Add Ingredient Manually",
-                onPress: () => console.log("Navigate to Add Ingredient Screen"),
+                onPress: () => router.push("/ingredients/ingredient-list"),
                 labelStyle: {
                   backgroundColor: theme.colors.grey4,
                   color: theme.colors.black,

@@ -3,7 +3,6 @@ import { ThemeProvider, createTheme, CreateThemeOptions } from "@rneui/themed";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useColorScheme } from "react-native";
 
-// ✅ Light Theme (Cream & Green)
 const lightTheme: CreateThemeOptions = {
   mode: "light",
   lightColors: {
@@ -28,9 +27,6 @@ const lightTheme: CreateThemeOptions = {
   },
 };
 
-
-
-// ✅ Dark Theme (Modify as needed)
 const darkTheme: CreateThemeOptions = {
   mode: "dark",
   darkColors: {

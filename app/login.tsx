@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const { login, isLoading } = useAuth();
-  const { theme } = useTheme(); // ✅ Use theme for styling
+  const { theme } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 

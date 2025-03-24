@@ -36,6 +36,12 @@ export default function RootLayout() {
               headerTitle: "",
             }}
           />
+          <Stack.Screen 
+            name="ingredients/ingredient-list"
+            options={{
+              headerTitle: ""
+            }}
+          />
         </Stack>
       </AuthProvider>
     </ThemeProviderWrapper>

@@ -14,7 +14,6 @@ interface IngredientModalProps {
 const IngredientModal: React.FC<IngredientModalProps> = ({ visible, onClose, ingredient, onAddIngredient }) => {
     const { theme } = useTheme();
 
-    // ✅ Initialize state and update when a new ingredient is scanned
     const [unitType, setUnitType] = useState("");
     const [quantity, setQuantity] = useState("");
 
