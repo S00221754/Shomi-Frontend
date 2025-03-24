@@ -4,8 +4,6 @@ import { ProductInfo } from "../types/ingredient";
 
 // fetch ingredient info from database
 export const getIngredientByBarcode = async (barcode: string): Promise<ProductInfo | null> => {
-    console.log('using getIngredientByBarcode');
-    
     try {
         const response = await axiosInstance.get(`/ingredient/barcode/${barcode}`);  
         return response.data;
@@ -27,7 +25,8 @@ export const fetchIngredientFromAPI = async (barcode: string): Promise<ProductIn
                 Ing_name: response.data.product.product_name || "Unknown",
                 Ing_brand: response.data.product.brands || "Unknown",
                 Ing_keywords: response.data.product._keywords || ["Unknown"],
-                Ing_units: [],
+                Ing_quantity: response.data.product.product_quantity || 0,
+                Ing_quantity_units: response.data.product.product_quantity_unit || "",
                 status: true,
                 In_Database: false,
             };

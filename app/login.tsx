@@ -1,95 +1,59 @@
-import { View, Text, TextInput, ActivityIndicator, TouchableOpacity, StyleSheet } from "react-native";
-import { useState } from "react";
+import React, { useState } from "react";
+import { View, ActivityIndicator } from "react-native";
+import { useTheme, Text, Input, Button } from "@rneui/themed";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const { login, isLoading } = useAuth();
+  const { theme } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background, justifyContent: "center", alignItems: "center", paddingHorizontal: 20 }}>
 
-      <Text style={styles.label}>Email:</Text>
-      <TextInput
-        style={styles.input}
+      <Text h3 style={{ color: theme.colors.primary, marginBottom: 20 }}>Welcome To Shomi</Text>
+
+      <Input
+        label="Email"
         placeholder="Enter your email"
-        placeholderTextColor="#bbb"
+        leftIcon={{ type: "material", name: "email", color: theme.colors.grey3 }}
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
+        inputStyle={{ color: theme.colors.black }}
+        containerStyle={{ width: "100%", marginBottom: 10 }}
       />
 
-      <Text style={styles.label}>Password:</Text>
-      <TextInput
-        style={styles.input}
+      <Input
+        label="Password"
         placeholder="Enter your password"
-        placeholderTextColor="#bbb"
-        secureTextEntry
+        leftIcon={{ type: "material", name: "lock", color: theme.colors.grey3 }}
         value={password}
         onChangeText={setPassword}
+        secureTextEntry
+        inputStyle={{ color: theme.colors.black }}
+        containerStyle={{ width: "100%", marginBottom: 20 }}
       />
 
-      <TouchableOpacity style={styles.loginButton} onPress={() => login(email, password)} disabled={isLoading}>
-        {isLoading ? (
-          <ActivityIndicator size="small" color="#25292e" />
-        ) : (
-          <Text style={styles.loginButtonText}>Login</Text>
-        )}
-      </TouchableOpacity>
+      <Button
+        title={'Login'}
+        onPress={() => login(email, password)}
+        disabled={isLoading}
+        loading={isLoading}
+        buttonStyle={{
+          backgroundColor: isLoading ? theme.colors.grey3 : theme.colors.primary,
+          borderRadius: 10,
+          paddingVertical: 12,
+          width: "100%",
+        }}
+        containerStyle={{
+          width: 200,
+          marginHorizontal: 50,
+          marginVertical: 10,
+        }}
+      />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#25292e",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: "#ffd33d",
-    marginBottom: 30,
-  },
-  label: {
-    fontSize: 16,
-    color: "#fff",
-    alignSelf: "flex-start",
-    marginBottom: 5,
-  },
-  input: {
-    width: "100%",
-    backgroundColor: "#333",
-    color: "#fff",
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#666",
-    marginBottom: 15,
-  },
-  loginButton: {
-    backgroundColor: "#ffd33d",
-    paddingVertical: 12,
-    width: "100%",
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-  },
-  loginButtonText: {
-    color: "#25292e",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-});

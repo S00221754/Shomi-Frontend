@@ -1,40 +1,73 @@
-import { AuthProvider } from '@/context/AuthContext';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { useColorScheme } from 'react-native';
+import { AuthProvider } from "@/context/AuthContext";
+import { ThemeProviderWrapper, useAppTheme } from "@/context/ThemeContext";
+import { useTheme } from "@rneui/themed";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import Toast from 'react-native-toast-message';
+import React from "react";
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+function AppLayout() {
+  const { isDarkMode } = useAppTheme();
+  const { theme } = useTheme();
+
+  const statusBarStyle = isDarkMode ? "light" : "dark";
+  const statusBarBackground = theme.colors.background;
+  const primaryColor = theme.colors.primary;
+
   return (
-    <AuthProvider>
-      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+    <>
+      <StatusBar style={statusBarStyle} backgroundColor={statusBarBackground} />
       <Stack>
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+
         <Stack.Screen
           name="recipes/[id]"
           options={{
             headerShown: true,
-            headerStyle: { backgroundColor: "#25292e" },
-            headerTintColor: "#ffd33d",
+            headerStyle: { backgroundColor: theme.colors.background },
+            headerTintColor: primaryColor,
             headerShadowVisible: false,
             headerTitle: "",
           }}
         />
+
         <Stack.Screen
           name="recipes/recommendedRecipesScreen"
           options={{
             headerShown: true,
-            headerStyle: { backgroundColor: "#25292e" },
-            headerTintColor: "#ffd33d",
+            headerStyle: { backgroundColor: theme.colors.background },
+            headerTintColor: primaryColor,
             headerShadowVisible: false,
             headerTitle: "",
           }}
         />
 
-
+        <Stack.Screen
+          name="ingredients/ingredient-list"
+          options={{
+            headerTitle: "Ingredient List",
+            headerTitleStyle: {
+              color: primaryColor,
+            },
+            headerStyle: {
+              backgroundColor: theme.colors.background,
+            },
+            headerTintColor: primaryColor,
+          }}
+        />
       </Stack>
-    </AuthProvider>
-  )
+    </>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <ThemeProviderWrapper>
+      <AuthProvider>
+        <AppLayout />
+        <Toast />
+      </AuthProvider>
+    </ThemeProviderWrapper>
+  );
 }

@@ -1,5 +1,7 @@
 import React from "react";
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View } from "react-native";
+import { Overlay, Button, Text } from "@rneui/themed";
+import { useTheme } from "@rneui/themed";
 
 interface ConfirmationModalProps {
   visible: boolean;
@@ -8,93 +10,52 @@ interface ConfirmationModalProps {
   message?: string;
 }
 
-const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
-  visible,
-  onClose,
-  onConfirm,
-  message,
-}) => {
+const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ visible, onClose, onConfirm, message }) => {
+  const { theme } = useTheme();
+
   return (
-    <Modal transparent animationType="fade" visible={visible} onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.title}>Are you sure?</Text>
-          <Text style={styles.message}>
-            {message || "Are you sure you want to remove this item?"}
-          </Text>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onClose}>
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.button, styles.confirmButton]} onPress={onConfirm}>
-              <Text style={styles.confirmButtonText}>Remove</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+    <Overlay
+      isVisible={visible}
+      onBackdropPress={onClose}
+      overlayStyle={{
+        width: "85%",
+        backgroundColor: theme.colors.background,
+        padding: 20,
+        borderRadius: 10,
+      }}
+    >
+      <Text h4 style={{ color: theme.colors.primary, textAlign: "center", marginBottom: 10 }}>
+        Are you sure?
+      </Text>
+      <Text style={{ color: theme.colors.black, textAlign: "center", marginBottom: 20 }}>
+        {message || "Are you sure you want to remove this item?"}
+      </Text>
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <Button
+          title="Cancel"
+          onPress={onClose}
+          buttonStyle={{
+            backgroundColor: theme.colors.grey3,
+            borderRadius: 10,
+            paddingVertical: 10,
+            paddingHorizontal: 15,
+          }}
+          titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
+        />
+        <Button
+          title="Remove"
+          onPress={onConfirm}
+          buttonStyle={{
+            backgroundColor: theme.colors.error,
+            borderRadius: 10,
+            paddingVertical: 10,
+            paddingHorizontal: 15,
+          }}
+          titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
+        />
       </View>
-    </Modal>
+    </Overlay>
   );
 };
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContainer: {
-    width: 320,
-    backgroundColor: "#333",
-    padding: 20,
-    borderRadius: 12,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#ffd33d",
-    marginBottom: 10,
-  },
-  message: {
-    fontSize: 16,
-    color: "#fff",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    marginHorizontal: 5,
-  },
-  cancelButton: {
-    backgroundColor: "#555",
-  },
-  confirmButton: {
-    backgroundColor: "#d32f2f",
-  },
-  cancelButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  confirmButtonText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-});
 
 export default ConfirmationModal;

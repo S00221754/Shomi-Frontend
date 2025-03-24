@@ -1,23 +1,16 @@
-import React, { useState } from "react";
-import {
-    Modal,
-    View,
-    Text,
-    TextInput,
-    Button,
-    StyleSheet,
-    TouchableOpacity,
-} from "react-native";
-import { ProductInfo } from "@/types/ingredient";
+import React, { useState, useEffect, useRef } from "react";
+import { View } from "react-native";
+import { Overlay, Button, Text, Input } from "@rneui/themed";
+import { useTheme } from "@rneui/themed";
 import { UserIngredientInput } from "@/types/user-ingredient";
+import { ProductInfo } from "@/types/ingredient";
 
 interface UserIngredientModalProps {
     visible: boolean;
     onClose: () => void;
     userIngredient: UserIngredientInput | null;
-    onAddUserIngredient: (
-        userIngredient: UserIngredientInput
-    ) => void;
+    onAddUserIngredient: (userIngredient: UserIngredientInput) => Promise<void>;
+    ingredient: ProductInfo | null;
 }
 
 const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
@@ -25,146 +18,121 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
     onClose,
     userIngredient,
     onAddUserIngredient,
+    ingredient,
 }) => {
+    const { theme } = useTheme();
+    const prevIngredientRef = useRef<ProductInfo | null>(null);
+
     const [unitQuantity, setUnitQuantity] = useState("");
     const [totalAmount, setTotalAmount] = useState("");
     const [unitType, setUnitType] = useState("");
-    const [expiryDate, setExpiryDate] = useState("");
 
-    if (!userIngredient) return null;
+    useEffect(() => {
+        if (ingredient && ingredient !== prevIngredientRef.current) {
+            prevIngredientRef.current = ingredient;
 
-    const handleAddClick = async () => {
+            setTotalAmount(ingredient.Ing_quantity?.toString() || "");
+            
+            setUnitType(ingredient.Ing_quantity_units || "");
+        }
+    }, [ingredient, visible]);
+
+    useEffect(() => {
+        if (unitQuantity && ingredient?.Ing_quantity) {
+            const newTotal = (parseFloat(unitQuantity) * ingredient.Ing_quantity).toString();
+            if (newTotal !== totalAmount) setTotalAmount(newTotal);
+        }
+    }, [unitQuantity, ingredient]);
+
+    if (!userIngredient || !ingredient) return null;
+
+    const handleAddClick = async () => {        
+        if (!unitQuantity || !unitType) return;
 
         userIngredient.unitQuantity = parseFloat(unitQuantity);
-        userIngredient.totalAmount = parseFloat(totalAmount);
+        userIngredient.totalAmount = parseFloat(totalAmount) || 0;
         userIngredient.unitType = unitType;
-        
+
         await onAddUserIngredient(userIngredient);
     };
 
     return (
-        <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
-            <View style={styles.overlay}>
-                <View style={styles.modalContainer}>
-                    <Text style={styles.title}>Add to Pantry</Text>
-                    <Text style={styles.subText}>Ingredient ID: {userIngredient.ingredientId}</Text>
+        <Overlay
+            isVisible={visible}
+            onBackdropPress={onClose}
+            overlayStyle={{
+                width: "85%",
+                backgroundColor: theme.colors.background,
+                padding: 20,
+                borderRadius: 10,
+            }}
+        >
+            <Text h4 style={{ color: theme.colors.primary, textAlign: "center", marginBottom: 10 }}>
+                Add to Pantry
+            </Text>
 
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter Quantity"
-                        placeholderTextColor="#bbb"
-                        keyboardType="numeric"
-                        value={unitQuantity}
-                        onChangeText={setUnitQuantity}
-                    />
+            <Text style={{ color: theme.colors.black, textAlign: "center", marginBottom: 10 }}>
+                Ingredient Name: {ingredient?.Ing_name}
+            </Text>
 
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter Total Amount"
-                        placeholderTextColor="#bbb"
-                        keyboardType="numeric"
-                        value={totalAmount}
-                        onChangeText={setTotalAmount}
-                    />
+            {/* Unit Quantity Input */}
+            <Input
+                placeholder="Enter Quantity"
+                placeholderTextColor={theme.colors.grey3}
+                keyboardType="numeric"
+                value={unitQuantity}
+                onChangeText={setUnitQuantity}
+                inputStyle={{ color: theme.colors.black }}
+                containerStyle={{ marginBottom: 10 }}
+            />
 
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter Unit Type (e.g., ml, g)"
-                        placeholderTextColor="#bbb"
-                        value={unitType}
-                        onChangeText={setUnitType}
-                    />
+            {/* Total Amount Input (Readonly) */}
+            <Input
+                placeholder="Total Amount"
+                placeholderTextColor={theme.colors.grey3}
+                value={totalAmount}
+                disabled 
+                inputStyle={{ color: theme.colors.black }}
+                containerStyle={{ marginBottom: 10 }}
+            />
 
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter Expiry Date (YYYY-MM-DD)"
-                        placeholderTextColor="#bbb"
-                        value={expiryDate}
-                        onChangeText={setExpiryDate}
-                    />
+            {/* Unit Type Input (Readonly) */}
+            <Input
+                placeholder="Unit Type"
+                placeholderTextColor={theme.colors.grey3}
+                value={unitType}
+                disabled
+                inputStyle={{ color: theme.colors.black }}
+                containerStyle={{ marginBottom: 10 }}
+            />
 
-                    <View style={styles.buttonContainer}>
-                        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                            <Text style={styles.buttonText}>Close</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.addButton, {marginLeft: 5}]} onPress={handleAddClick}>
-                            <Text style={styles.buttonText}>Add to Pantry</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
+            {/* Buttons */}
+            <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 10 }}>
+                <Button
+                    title="Cancel"
+                    onPress={onClose}
+                    buttonStyle={{
+                        backgroundColor: theme.colors.grey3,
+                        borderRadius: 10,
+                        paddingVertical: 10,
+                        paddingHorizontal: 15,
+                    }}
+                    titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
+                />
+                <Button
+                    title="Save"
+                    onPress={handleAddClick}
+                    buttonStyle={{
+                        backgroundColor: theme.colors.primary,
+                        borderRadius: 10,
+                        paddingVertical: 10,
+                        paddingHorizontal: 15,
+                    }}
+                    titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
+                />
             </View>
-        </Modal>
+        </Overlay>
     );
 };
-
-const styles = StyleSheet.create({
-    overlay: {
-        flex: 1,
-        backgroundColor: "rgba(0, 0, 0, 0.6)",
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    modalContainer: {
-        backgroundColor: "#333",
-        width: "85%",
-        padding: 20,
-        borderRadius: 12,
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: "bold",
-        color: "#ffd33d",
-        marginBottom: 10,
-    },
-    subText: {
-        fontSize: 14,
-        color: "#ccc",
-        marginBottom: 15,
-    },
-    input: {
-        width: "100%",
-        backgroundColor: "#444",
-        color: "#fff",
-        paddingVertical: 12,
-        paddingHorizontal: 15,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: "#666",
-        marginBottom: 10,
-    },
-    buttonContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        width: "100%",
-        marginTop: 10,
-    },
-    addButton: {
-        flex: 1,
-        backgroundColor: "#ffd33d",
-        paddingVertical: 12,
-        borderRadius: 8,
-        alignItems: "center",
-        marginRight: 5,
-    },
-    closeButton: {
-        flex: 1,
-        backgroundColor: "#d32f2f",
-        paddingVertical: 12,
-        borderRadius: 8,
-        alignItems: "center",
-        marginLeft: 5,
-    },
-    buttonText: {
-        color: "white",
-        fontSize: 16,
-        fontWeight: "bold",
-    },
-});
 
 export default UserIngredientModal;

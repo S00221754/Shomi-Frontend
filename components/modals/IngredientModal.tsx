@@ -1,127 +1,211 @@
-import { ProductInfo } from '@/types/ingredient';
-import { Modal, View, Text, Button, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import { View } from "react-native";
+import { Overlay, Button, Text, Input, Icon } from "@rneui/themed";
+import { useTheme, BottomSheet, SearchBar, ListItem } from "@rneui/themed";
+import { ProductInfo } from "@/types/ingredient";
+import { useGetUnitTypes } from "@/hooks/useGetUnitTypes";
+import { UnitType } from "@/types/unit-type";
 
 interface IngredientModalProps {
     visible: boolean;
     onClose: () => void;
     ingredient: ProductInfo | null;
-    onAddIngredient: (ingredient: ProductInfo, unitInput: string) => Promise<void>;
+    onAddIngredient: (ingredient: ProductInfo) => Promise<void>;
 }
 
-const IngredientModal: React.FC<IngredientModalProps> = ({
-    visible,
-    onClose,
-    ingredient,
-    onAddIngredient,
-  }) => {
-    const [unitInput, setUnitInput] = useState("");
-  
+const IngredientModal: React.FC<IngredientModalProps> = ({ visible, onClose, ingredient, onAddIngredient }) => {
+    const { theme } = useTheme();
+
+    const { unitTypes } = useGetUnitTypes();
+
+    const [isSheetVisible, setIsSheetVisible] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [filteredUnitTypes, setFilteredUnitTypes] = useState<UnitType[]>([]);
+
+    const [unitType, setUnitType] = useState("");
+    const [quantity, setQuantity] = useState("");
+
+    useEffect(() => {
+        if (ingredient) {
+            setUnitType(ingredient.Ing_quantity_units || "");
+            setQuantity(
+                ingredient.Ing_quantity && ingredient.Ing_quantity !== 0
+                    ? ingredient.Ing_quantity.toString()
+                    : ""
+            );
+        } else {
+            setUnitType("");
+            setQuantity("");
+        }
+    }, [ingredient, visible]);
+
+    useEffect(() => {
+        setFilteredUnitTypes(unitTypes);
+    }, [unitTypes]);
+
+    useEffect(() => {
+        const filtered = unitTypes.filter((type) =>
+            type.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredUnitTypes(filtered);
+    }, [searchTerm]);
+
     if (!ingredient) return null;
-  
+
     const handleAddClick = async () => {
-      if (!unitInput) return;
-      await onAddIngredient(ingredient, unitInput);
+        if (!unitType || !quantity) return;
+
+        ingredient.Ing_quantity_units = unitType;
+        ingredient.Ing_quantity = parseFloat(quantity);
+
+        await onAddIngredient(ingredient);
     };
-  
+
     return (
-      <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
-        <View style={styles.overlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.title}>Ingredient Details</Text>
-            <Text style={styles.subText}>{ingredient.Ing_name}</Text>
-            <Text style={styles.subText}>{ingredient.Ing_brand}</Text>
-  
-            <TextInput
-              style={styles.input}
-              placeholder="Enter unit (e.g., ml, g)"
-              placeholderTextColor="#bbb"
-              value={unitInput}
-              onChangeText={setUnitInput}
-            />
-  
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.addButton} onPress={handleAddClick}>
-                <Text style={styles.buttonText}>Add</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                <Text style={styles.buttonText}>Close</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        <>
+            <Overlay
+                isVisible={visible}
+                onBackdropPress={onClose}
+                overlayStyle={{
+                    width: "85%",
+                    backgroundColor: theme.colors.background,
+                    padding: 20,
+                    borderRadius: 10,
+                }}
+            >
+                <Text h4 style={{ color: theme.colors.primary, textAlign: "center", marginBottom: 10 }}>
+                    Enter Missing Details
+                </Text>
+
+                <Text style={{ color: theme.colors.black, textAlign: "center", marginBottom: 10 }}>
+                    {ingredient.Ing_name} {ingredient.Ing_brand ? `(${ingredient.Ing_brand})` : ""}
+                </Text>
+
+                {/* Quantity Input (Only show if missing) */}
+                {!ingredient.Ing_quantity && (
+                    <Input
+                        placeholder="Enter quantity"
+                        placeholderTextColor={theme.colors.grey3}
+                        keyboardType="numeric"
+                        value={quantity}
+                        onChangeText={setQuantity}
+                        inputStyle={{ color: theme.colors.black }}
+                        containerStyle={{ marginBottom: 10 }}
+                    />
+                )}
+
+                {/* Unit Type Input (Only show if missing) */}
+                {!ingredient.Ing_quantity_units && (
+                    <>
+                        <Text style={{ color: theme.colors.black, marginBottom: 5 }}>Select Unit Type</Text>
+                        <Button
+                            title={unitType ? unitType : "Select a unit type"}
+                            onPress={() => setIsSheetVisible(true)}
+                            type="outline"
+                            buttonStyle={{
+                                borderColor: theme.colors.grey3,
+                                borderRadius: 8,
+                                backgroundColor: theme.colors.white,
+                                marginBottom: 10,
+                            }}
+                            titleStyle={{
+                                color: unitType ? theme.colors.black : theme.colors.grey2,
+                                textAlign: "left",
+                            }}
+                        />
+                    </>
+                )}
+
+                <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 10 }}>
+                    <Button
+                        title="Cancel"
+                        onPress={onClose}
+                        buttonStyle={{
+                            backgroundColor: theme.colors.error,
+                            borderRadius: 10,
+                            paddingVertical: 10,
+                            paddingHorizontal: 15,
+                        }}
+                        titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
+                    />
+                    <Button
+                        title="Save"
+                        onPress={handleAddClick}
+                        buttonStyle={{
+                            backgroundColor: theme.colors.primary,
+                            borderRadius: 10,
+                            paddingVertical: 10,
+                            paddingHorizontal: 15,
+                        }}
+                        titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
+                    />
+                </View>
+            </Overlay>
+            {/* Bottom Sheet goes here OUTSIDE Overlay */}
+            <BottomSheet
+                isVisible={isSheetVisible}
+                onBackdropPress={() => {
+                    setIsSheetVisible(false);
+                  }}
+            >
+                <View
+                    style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 5, // or use marginLeft
+                        backgroundColor: theme.colors.background,
+                        borderBottomColor: theme.colors.grey3,
+                    }}
+                >
+                    <View style={{ flex: 1 }}>
+                        <SearchBar
+                            placeholder="Search unit types..."
+                            onChangeText={setSearchTerm}
+                            value={searchTerm}
+                            lightTheme
+                            round
+                            inputStyle={{ color: theme.colors.black }}
+                            containerStyle={{
+                                backgroundColor: theme.colors.background,
+                                borderTopColor: "transparent",
+                            }}
+                            inputContainerStyle={{ backgroundColor: "#eee", borderRadius: 20 }}
+                        />
+                    </View>
+
+                    <Icon
+                        name="close"
+                        type="material"
+                        size={26}
+                        color={theme.colors.white}
+                        containerStyle={{
+                            backgroundColor: theme.colors.error,
+                            borderRadius: 20,
+                            padding: 6,
+                            marginRight: 5,
+                          }}
+                        onPress={() => setIsSheetVisible(false)}
+                    />
+                </View>
+                {filteredUnitTypes.map((type) => (
+                    <ListItem
+                        key={type.id}
+                        bottomDivider
+                        onPress={() => {
+                            setUnitType(type.name);
+                            setIsSheetVisible(false);
+                        }}
+                    >
+                        <ListItem.Content>
+                            <ListItem.Title style={{ color: theme.colors.black }}>
+                                {type.name}
+                            </ListItem.Title>
+                        </ListItem.Content>
+                    </ListItem>
+                ))}
+            </BottomSheet>
+        </>
     );
-  };
-  
-  const styles = StyleSheet.create({
-    overlay: {
-      flex: 1,
-      backgroundColor: "rgba(0, 0, 0, 0.6)",
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    modalContainer: {
-      backgroundColor: "#333",
-      width: "85%",
-      padding: 20,
-      borderRadius: 12,
-      alignItems: "center",
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
-      elevation: 5,
-    },
-    title: {
-      fontSize: 20,
-      fontWeight: "bold",
-      color: "#ffd33d",
-      marginBottom: 10,
-    },
-    subText: {
-      fontSize: 16,
-      color: "#ccc",
-      marginBottom: 10,
-    },
-    input: {
-      width: "100%",
-      backgroundColor: "#444", 
-      color: "#fff",
-      paddingVertical: 12,
-      paddingHorizontal: 15,
-      borderRadius: 8,
-      borderWidth: 1,
-      borderColor: "#666",
-      marginBottom: 10,
-    },
-    buttonContainer: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      width: "100%",
-      marginTop: 10,
-    },
-    addButton: {
-      flex: 1,
-      backgroundColor: "#ffd33d",
-      paddingVertical: 12,
-      borderRadius: 8,
-      alignItems: "center",
-      marginRight: 5,
-    },
-    closeButton: {
-      flex: 1,
-      backgroundColor: "#d32f2f",
-      paddingVertical: 12,
-      borderRadius: 8,
-      alignItems: "center",
-      marginLeft: 5,
-    },
-    buttonText: {
-      color: "#25292e",
-      fontSize: 16,
-      fontWeight: "bold",
-    },
-  });
-  
-  export default IngredientModal;
+};
+
+export default IngredientModal;

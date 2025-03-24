@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import BarcodeScan from '../../components/scan/BarcodeScan';
+import BarcodeScan from '../components/scan/BarcodeScan';
 import IngredientModal from '@/components/modals/IngredientModal';
 import UserIngredientModal from '@/components/modals/UserIngredientModal';
 import { useScannerState } from '@/hooks/useScannerState';

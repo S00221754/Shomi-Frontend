@@ -5,8 +5,6 @@ import axiosInstance from "./api";
 export const getIngredients = async () => {
     try {
         const response = await axiosInstance.get(`/ingredient`);
-        console.log(response.data);
-        
         return response.data;
     } catch (error) {
         throw error;
@@ -28,5 +26,14 @@ export const getIngredientByBarcode = async (barcode: string) => {
         return response.data;
     } catch (error) {
         return null;
+    }
+}
+
+export const getIngredientById = async (id: number) => {
+    try {
+        const response = await axiosInstance.get(`/ingredient/${id}`);
+        return response.data;
+    } catch (error) {
+        throw error;
     }
 }

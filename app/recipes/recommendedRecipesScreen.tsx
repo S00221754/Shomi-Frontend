@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Touchable, TouchableOpacity } from "react-native";
+import { View, ScrollView, ActivityIndicator } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { getRecommendedRecipes } from "../../services/recipe.Service";
 import { Recipe } from "../../types/recipe";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme, Text, Card, Button } from "@rneui/themed";
 
 export default function RecommendedRecipesScreen() {
     const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -11,6 +12,7 @@ export default function RecommendedRecipesScreen() {
     const { user } = useAuth();
     const router = useRouter();
     const params = useLocalSearchParams();
+    const { theme } = useTheme();
 
     const selectedIngredients = params.selectedIngredients ? JSON.parse(params.selectedIngredients as string) : [];
 
@@ -31,59 +33,38 @@ export default function RecommendedRecipesScreen() {
 
     if (loading) {
         return (
-            <View style={styles.container}>
-                <ActivityIndicator size="large" color="#ffd33d" />
+            <View style={{ flex: 1, backgroundColor: theme.colors.background, justifyContent: "center", alignItems: "center" }}>
+                <ActivityIndicator size="large" color={theme.colors.primary} />
             </View>
         );
     }
 
     return (
-        <ScrollView style={styles.container}>
-            <Text style={styles.title}>Recommended Recipes</Text>
+        <ScrollView style={{ flex: 1, backgroundColor: theme.colors.background, padding: 20 }} contentContainerStyle={{ flexGrow: 1, paddingBottom: 50 }}>
+            <Text h3 style={{ fontSize: 24, fontWeight: "bold", color: theme.colors.primary, marginBottom: 15 }}>
+                Recommended Recipes
+            </Text>
+            
             {recipes.map((recipe) => (
-                <View key={recipe.recipe_id} style={styles.recipeCard}>
-                    <TouchableOpacity onPress={() => router.push({ pathname: `/recipes/[id]`, params: { id: recipe.recipe_id } })}>
-                        <Text style={styles.recipeTitle}>{recipe.recipe_name}</Text>
-                        <Text style={styles.recipeDescription}>{recipe.recipe_description}</Text>
-                        <Text style={styles.recipeTime}>⏱ {recipe.cooking_time} mins</Text>
-                    </TouchableOpacity>
-                </View>
+                <Card key={recipe.recipe_id} containerStyle={{ backgroundColor: theme.colors.white, borderRadius: 10, padding: 15 }}>
+                    <Card.Title style={{ fontSize: 18, fontWeight: "bold", color: theme.colors.black }}>
+                        {recipe.recipe_name}
+                    </Card.Title>
+                    <Card.Divider />
+                    <Text style={{ fontSize: 14, color: theme.colors.grey3, marginBottom: 5 }}>
+                        {recipe.recipe_description}
+                    </Text>
+                    <Text style={{ fontSize: 14, color: theme.colors.primary, marginBottom: 10 }}>
+                        ⏱ {recipe.cooking_time} mins
+                    </Text>
+                    <Button
+                        title="View Recipe"
+                        buttonStyle={{ backgroundColor: theme.colors.primary, borderRadius: 8, paddingVertical: 10 }}
+                        titleStyle={{ fontWeight: "bold", color: theme.colors.white }}
+                        onPress={() => router.push({ pathname: `/recipes/[id]`, params: { id: recipe.recipe_id } })}
+                    />
+                </Card>
             ))}
         </ScrollView>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#25292e",
-        padding: 20,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: "bold",
-        color: "#ffd33d",
-        marginBottom: 15,
-    },
-    recipeCard: {
-        backgroundColor: "#333",
-        padding: 15,
-        borderRadius: 10,
-        marginBottom: 10,
-    },
-    recipeTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "#fff",
-    },
-    recipeDescription: {
-        fontSize: 14,
-        color: "#ccc",
-        marginTop: 5,
-    },
-    recipeTime: {
-        fontSize: 14,
-        color: "#ffd33d",
-        marginTop: 5,
-    },
-});

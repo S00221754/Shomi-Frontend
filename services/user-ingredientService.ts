@@ -1,4 +1,4 @@
-import { UserIngredientInput } from "@/types/user-ingredient";
+import { UserIngredientInput, UserIngredientUpdate } from "@/types/user-ingredient";
 import axiosInstance from "./api";
 import { UserIngredient } from "@/types/ingredient";
 
@@ -11,9 +11,11 @@ export const getUserIngredients = async (userId : string): Promise<UserIngredien
     }
 };
 
-export const deleteUserIngredient = async (userIngredientId : string) => {
+export const deleteUserIngredient = async (userIngredientIds : string[]) => {
     try {
-        const response = await axiosInstance.delete(`/user-ingredient/${userIngredientId}`);
+        const response = await axiosInstance.delete(`/user-ingredient/`, {
+            data: { userIngredientIds }
+        });
         return response.data;
     } catch (error) {
         throw error;
@@ -25,6 +27,26 @@ export const addUserIngredient = async (userIngredient: UserIngredientInput) => 
         const response = await axiosInstance.post(`/user-ingredient`, {
             userIngredient
         });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const updateUserIngredient = async (userIngredientId:string, userIngredient: UserIngredientUpdate) => {
+    try {
+        const response = await axiosInstance.patch(`/user-ingredient/${userIngredientId}`, {
+            userIngredient
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const getUserIngredientByIngredientId = async (userId: string, ingredientId: number) => {
+    try {
+        const response = await axiosInstance.get<UserIngredient>(`/user-ingredient/${userId}/${ingredientId}`);
         return response.data;
     } catch (error) {
         throw error;
