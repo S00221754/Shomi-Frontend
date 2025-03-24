@@ -18,9 +18,13 @@ const IngredientModal: React.FC<IngredientModalProps> = ({ visible, onClose, ing
     const [quantity, setQuantity] = useState("");
 
     useEffect(() => {
-        if (ingredient) {
+        if (ingredient) {    
             setUnitType(ingredient.Ing_quantity_units || "");
-            setQuantity(ingredient.Ing_quantity?.toString() || "");
+            setQuantity(
+                ingredient.Ing_quantity && ingredient.Ing_quantity !== 0
+                  ? ingredient.Ing_quantity.toString()
+                  : ""
+              );
         } else {
             setUnitType("");
             setQuantity("");
