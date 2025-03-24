@@ -1,48 +1,70 @@
 import { AuthProvider } from "@/context/AuthContext";
-import { ThemeProviderWrapper } from "@/context/ThemeContext";
+import { ThemeProviderWrapper, useAppTheme } from "@/context/ThemeContext";
+import { useTheme } from "@rneui/themed";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { useColorScheme } from "react-native";
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const statusBarStyle = colorScheme === 'dark' ? 'light' : 'dark';
-  const statusBarBackground = colorScheme === 'dark' ? '#121212' : '#FAF1E6';
 
+function AppLayout() {
+  const { isDarkMode } = useAppTheme();
+  const { theme } = useTheme();
+
+  const statusBarStyle = isDarkMode ? "light" : "dark";
+  const statusBarBackground = theme.colors.background;
+  const primaryColor = theme.colors.primary;
+
+  return (
+    <>
+      <StatusBar style={statusBarStyle} backgroundColor={statusBarBackground} />
+      <Stack>
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+
+        <Stack.Screen
+          name="recipes/[id]"
+          options={{
+            headerShown: true,
+            headerStyle: { backgroundColor: theme.colors.background },
+            headerTintColor: primaryColor,
+            headerShadowVisible: false,
+            headerTitle: "",
+          }}
+        />
+
+        <Stack.Screen
+          name="recipes/recommendedRecipesScreen"
+          options={{
+            headerShown: true,
+            headerStyle: { backgroundColor: theme.colors.background },
+            headerTintColor: primaryColor,
+            headerShadowVisible: false,
+            headerTitle: "",
+          }}
+        />
+
+        <Stack.Screen
+          name="ingredients/ingredient-list"
+          options={{
+            headerTitle: "Ingredient List",
+            headerTitleStyle: {
+              color: primaryColor,
+            },
+            headerStyle: {
+              backgroundColor: theme.colors.background,
+            },
+            headerTintColor: primaryColor,
+          }}
+        />
+      </Stack>
+    </>
+  );
+}
+
+export default function RootLayout() {
   return (
     <ThemeProviderWrapper>
       <AuthProvider>
-      <StatusBar style={statusBarStyle} backgroundColor={statusBarBackground} />
-        <Stack>
-          <Stack.Screen name="login" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="recipes/[id]"
-            options={{
-              headerShown: true,
-              headerStyle: { backgroundColor: "#25292e" },
-              headerTintColor: "#FAF1E6",
-              headerShadowVisible: false,
-              headerTitle: "",
-            }}
-          />
-          <Stack.Screen
-            name="recipes/recommendedRecipesScreen"
-            options={{
-              headerShown: true,
-              headerStyle: { backgroundColor: "#25292e" },
-              headerTintColor: "#FAF1E6",
-              headerShadowVisible: false,
-              headerTitle: "",
-            }}
-          />
-          <Stack.Screen 
-            name="ingredients/ingredient-list"
-            options={{
-              headerTitle: ""
-            }}
-          />
-        </Stack>
+        <AppLayout />
       </AuthProvider>
     </ThemeProviderWrapper>
   );

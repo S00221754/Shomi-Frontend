@@ -52,27 +52,23 @@ const darkTheme: CreateThemeOptions = {
 };
 
 
-
-
-
-// Define Theme Context Type
-interface ThemeContextType {
-  toggleTheme: () => void;
-  isDarkMode: boolean;
-}
-
-// Create Theme Context
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
 // Storage Key
 const THEME_STORAGE_KEY = "user_theme_preference";
 
-// Theme Provider Wrapper
-export const ThemeProviderWrapper = ({ children }: { children: ReactNode }) => {
-  const systemColorScheme = useColorScheme(); // Auto-detect system theme
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(systemColorScheme === "dark"); // Manage theme state
+interface ThemeContextType {
+  toggleTheme: () => void;
+  isDarkMode: boolean;
+  theme: ReturnType<typeof createTheme>;
+}
 
-  // Load stored theme preference on app launch
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export const ThemeProviderWrapper = ({ children }: { children: ReactNode }) => {
+  const systemColorScheme = useColorScheme();
+  const [isDarkMode, setIsDarkMode] = useState(systemColorScheme === "dark");
+
+  const theme = isDarkMode ? createTheme(darkTheme) : createTheme(lightTheme);
+
   useEffect(() => {
     const loadStoredTheme = async () => {
       const storedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
@@ -83,18 +79,15 @@ export const ThemeProviderWrapper = ({ children }: { children: ReactNode }) => {
     loadStoredTheme();
   }, []);
 
-  // Toggle theme function
   const toggleTheme = async () => {
     const newMode = isDarkMode ? "light" : "dark";
     setIsDarkMode(!isDarkMode);
-    await AsyncStorage.setItem(THEME_STORAGE_KEY, newMode); // Save user preference
+    await AsyncStorage.setItem(THEME_STORAGE_KEY, newMode);
   };
 
   return (
-    <ThemeContext.Provider value={{ toggleTheme, isDarkMode }}>
-      <ThemeProvider theme={isDarkMode ? createTheme(darkTheme) : createTheme(lightTheme)}>
-        {children}
-      </ThemeProvider>
+    <ThemeContext.Provider value={{ toggleTheme, isDarkMode, theme }}>
+      <ThemeProvider theme={theme}>{children}</ThemeProvider>
     </ThemeContext.Provider>
   );
 };
