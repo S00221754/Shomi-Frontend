@@ -11,9 +11,11 @@ export const getUserIngredients = async (userId : string): Promise<UserIngredien
     }
 };
 
-export const deleteUserIngredient = async (userIngredientId : string) => {
+export const deleteUserIngredient = async (userIngredientIds : string[]) => {
     try {
-        const response = await axiosInstance.delete(`/user-ingredient/${userIngredientId}`);
+        const response = await axiosInstance.delete(`/user-ingredient/`, {
+            data: { userIngredientIds }
+        });
         return response.data;
     } catch (error) {
         throw error;
@@ -32,8 +34,6 @@ export const addUserIngredient = async (userIngredient: UserIngredientInput) => 
 };
 
 export const updateUserIngredient = async (userIngredientId:string, userIngredient: UserIngredientUpdate) => {
-    console.log("api call", userIngredient);
-    
     try {
         const response = await axiosInstance.patch(`/user-ingredient/${userIngredientId}`, {
             userIngredient

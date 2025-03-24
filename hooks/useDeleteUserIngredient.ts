@@ -5,7 +5,7 @@ export const useDeleteUserIngredient = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const handleDeleteUserIngredient = async (userIngredientId: string) => {
+    const handleDeleteUserIngredient = async (userIngredientId: string[]) => {
         setLoading(true);
         setError(null);
         try {

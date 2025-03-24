@@ -57,10 +57,11 @@ const Pantry: React.FC = () => {
   };
 
   const handleConfirmDelete = async () => {
-    if (selectedIngredientId) {
-      await handleDeleteUserIngredient(selectedIngredientId);
+    if (selectedIngredients) {
+      await handleDeleteUserIngredient(selectedIngredients);
       setModalVisible(false);
       fetchUserIngredients();
+      setSelectedIngredients([]);
     }
   };
 
@@ -121,7 +122,7 @@ const Pantry: React.FC = () => {
 
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background, padding: 10 }}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background, paddingBottom: 0 }}>
       {scanning ? (
         <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 999 }}>
           <BarcodeScan
@@ -130,7 +131,11 @@ const Pantry: React.FC = () => {
           />
         </View>
       ) : (
-        <ScrollView stickyHeaderIndices={[0]}>
+        <ScrollView
+          stickyHeaderIndices={[0]}
+          contentContainerStyle={{
+            paddingBottom: selectedIngredients.length > 0 ? 100 : 10,
+          }}>
           {/* 🔹 Sticky Header */}
           <View style={{ backgroundColor: theme.colors.grey4 }}>
             <View
