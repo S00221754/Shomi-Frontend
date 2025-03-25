@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { View, ScrollView, ActivityIndicator, Pressable, Animated, Dimensions } from "react-native";
 import { Text, Button, Card, ListItem, Icon, CheckBox } from "@rneui/themed";
 import { useGetUserIngredients } from "@/hooks/useGetUserIngredients";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/providers/AuthProvider";
 import ConfirmationModal from "../modals/ConfirmationModal";
 import { useDeleteUserIngredient } from "@/hooks/useDeleteUserIngredient";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -21,9 +21,9 @@ import { UserIngredient } from "@/types/ingredient";
 
 const Pantry: React.FC = () => {
   const { theme } = useTheme();
-  const { user } = useAuth();
+  const { userId } = useAuth();
   const router = useRouter();
-  const { userIngredients, loading, fetchUserIngredients } = useGetUserIngredients(user?.uid || "");
+  const { userIngredients, loading, fetchUserIngredients } = useGetUserIngredients(userId || "");
   const { handleDeleteUserIngredient } = useDeleteUserIngredient();
   const { handleUpdateUserIngredient } = useUpdateUserIngredient();
 
@@ -37,6 +37,8 @@ const Pantry: React.FC = () => {
   const [selectedUserIngredient, setSelectedUserIngredient] = useState<UserIngredient | null>(null);
   const [selectedUserIngredientId, setSelectedUserIngredientId] = useState<string | null>(null);
 
+  console.log("getting ingredients for user", userId);
+  
 
   const handleDeletePress = (id: string) => {
     setSelectedIngredientId(id);

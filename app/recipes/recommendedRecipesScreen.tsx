@@ -3,13 +3,13 @@ import { View, ScrollView, ActivityIndicator } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { getRecommendedRecipes } from "../../services/recipe.Service";
 import { Recipe } from "../../types/recipe";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/providers/AuthProvider";
 import { useTheme, Text, Card, Button } from "@rneui/themed";
 
 export default function RecommendedRecipesScreen() {
     const [recipes, setRecipes] = useState<Recipe[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const { user } = useAuth();
+    const { userId } = useAuth();
     const router = useRouter();
     const params = useLocalSearchParams();
     const { theme } = useTheme();
@@ -19,7 +19,7 @@ export default function RecommendedRecipesScreen() {
     useEffect(() => {
         const fetchRecipes = async () => {
             try {
-                const data = await getRecommendedRecipes(user?.uid || "", selectedIngredients);
+                const data = await getRecommendedRecipes(userId || "", selectedIngredients);
                 setRecipes(data);
             } catch (error) {
                 console.error("Error Fetching Recipes:", error);
@@ -29,7 +29,7 @@ export default function RecommendedRecipesScreen() {
         };
     
         fetchRecipes();
-    }, [user?.uid]);
+    }, [userId]);
 
     if (loading) {
         return (

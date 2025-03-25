@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ProductInfo, UserIngredient } from "../types/ingredient";
 import { addIngredient } from "../services/ingredientsService";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/providers/AuthProvider";
 import { addUserIngredient, getUserIngredientByIngredientId } from "@/services/user-ingredientService";
 import { UserIngredientInput } from "@/types/user-ingredient";
 import { useGetUserIngredients } from "./useGetUserIngredients";
@@ -13,11 +13,11 @@ export const useScannerLogic = (
     setSelectedUserIngredientId: (id: string) => void,
     setIsUpdateUserIngredientModalVisible: (visible: boolean) => void
 ) => {
-    const { user } = useAuth();
+    const { userId } = useAuth();
     const [scannedData, setScannedData] = useState<ProductInfo | null>(null);
     const [userIngredient, setUserIngredient] = useState<UserIngredientInput | null>(null);
 
-    const { fetchUserIngredients } = useGetUserIngredients(user?.uid!);
+    const { fetchUserIngredients } = useGetUserIngredients(userId!);
 
     const handleBarcodeScanned = async (productInfo: ProductInfo) => {
         setScannedData(productInfo);
@@ -36,7 +36,7 @@ export const useScannerLogic = (
 
                     if (newIngredient) {
                         setUserIngredient({
-                            userId: user?.uid!,
+                            userId: userId!,
                             ingredientId: newIngredient.Ing_id!,
                             unitQuantity: 1,
                             totalAmount: productInfo.Ing_quantity || 1,
@@ -52,7 +52,7 @@ export const useScannerLogic = (
         } else {
 
             // Check if ingredient is already in user's pantry
-            const inPantry = await getUserIngredientByIngredientId(user?.uid!, productInfo.Ing_id!);
+            const inPantry = await getUserIngredientByIngredientId(userId!, productInfo.Ing_id!);
 
             if (inPantry) {
                 setSelectedUserIngredient(inPantry);
@@ -63,7 +63,7 @@ export const useScannerLogic = (
 
             // If already in DB, just ask user how many they have
             setUserIngredient({
-                userId: user?.uid!,
+                userId: userId!,
                 ingredientId: productInfo.Ing_id!,
                 unitQuantity: 1,
                 totalAmount: productInfo.Ing_quantity || 1,
@@ -90,7 +90,7 @@ export const useScannerLogic = (
                 };
 
                 setUserIngredient({
-                    userId: user?.uid!,
+                    userId: userId!,
                     ingredientId: updatedIngredient.Ing_id!,
                     unitQuantity: 1,
                     totalAmount: updatedIngredient.Ing_quantity || 1,

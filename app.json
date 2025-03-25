@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Prj400-Mobile",
-    "slug": "Prj400-Mobile",
+    "name": "Shomi",
+    "slug": "Shomi",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "ie.shomi",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -15,7 +15,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "ie.shomi"
     },
     "web": {
       "bundler": "metro",
