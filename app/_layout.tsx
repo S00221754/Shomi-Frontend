@@ -1,4 +1,4 @@
-import { AuthProvider } from "@/context/AuthContext";
+import { AuthProvider } from "@/providers/AuthProvider";
 import { ThemeProviderWrapper, useAppTheme } from "@/context/ThemeContext";
 import { useTheme } from "@rneui/themed";
 import { Stack } from "expo-router";
@@ -20,7 +20,7 @@ function AppLayout() {
       <Stack>
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-
+        <Stack.Screen name="auth-callback" options={{ headerShown: false }} />
         <Stack.Screen
           name="recipes/[id]"
           options={{

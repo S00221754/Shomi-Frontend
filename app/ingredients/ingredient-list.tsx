@@ -6,11 +6,11 @@ import { getUserIngredientByIngredientId, addUserIngredient } from "@/services/u
 import { ProductInfo } from "@/types/ingredient"; 
 import { UserIngredientInput } from "@/types/user-ingredient";
 import UserIngredientModal from "@/components//modals/UserIngredientModal";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/providers/AuthProvider";
 import { showToast } from "@/utils/toast";
 
 const IngredientList = () => {
-  const { user } = useAuth();
+  const { userId } = useAuth();
   const { theme } = useTheme();
   const [ingredients, setIngredients] = useState<ProductInfo[]>([]);
   const [filteredIngredients, setFilteredIngredients] = useState<ProductInfo[]>([]);
@@ -43,7 +43,7 @@ const IngredientList = () => {
 
   const handleOpenModal = async (ingredient: ProductInfo) => {
     try {
-      const exists = await getUserIngredientByIngredientId(user?.uid!, ingredient.Ing_id!);
+      const exists = await getUserIngredientByIngredientId(userId!, ingredient.Ing_id!);
 
       if (exists) {
         showToast("error", "Ingredint In Pantry", `You already have ${ingredient?.Ing_name}.`);
@@ -52,7 +52,7 @@ const IngredientList = () => {
       }
 
       const newUserIngredient: UserIngredientInput = {
-        userId: user?.uid!,
+        userId: userId!,
         ingredientId: ingredient.Ing_id!,
         unitQuantity: 0,
         unitType: ingredient.Ing_quantity_units ?? "",
