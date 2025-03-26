@@ -37,9 +37,6 @@ const Pantry: React.FC = () => {
   const [selectedUserIngredient, setSelectedUserIngredient] = useState<UserIngredient | null>(null);
   const [selectedUserIngredientId, setSelectedUserIngredientId] = useState<string | null>(null);
 
-  console.log("getting ingredients for user", userId);
-  
-
   const handleDeletePress = (id: string) => {
     setSelectedIngredientId(id);
     setModalVisible(true);
