@@ -1,7 +1,7 @@
-import Toast, { ToastOptions } from 'react-native-toast-message';
-import { TextStyle } from 'react-native';
+import Toast, { ToastOptions } from "react-native-toast-message";
+import { TextStyle } from "react-native";
 
-type CustomToastType = 'success' | 'error' | 'info';
+type CustomToastType = "success" | "error" | "info";
 
 // Default text styles
 const defaultText1Style: TextStyle = {
@@ -24,7 +24,7 @@ export const showToast = (
     type,
     text1: title,
     text2: message,
-    position: 'bottom',
+    position: "bottom",
     autoHide: true,
     visibilityTime: 2000,
     swipeable: true,

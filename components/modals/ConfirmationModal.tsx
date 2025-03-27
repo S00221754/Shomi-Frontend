@@ -10,7 +10,12 @@ interface ConfirmationModalProps {
   message?: string;
 }
 
-const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ visible, onClose, onConfirm, message }) => {
+const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
+  visible,
+  onClose,
+  onConfirm,
+  message,
+}) => {
   const { theme } = useTheme();
 
   return (
@@ -24,10 +29,23 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ visible, onClose,
         borderRadius: 10,
       }}
     >
-      <Text h4 style={{ color: theme.colors.primary, textAlign: "center", marginBottom: 10 }}>
+      <Text
+        h4
+        style={{
+          color: theme.colors.primary,
+          textAlign: "center",
+          marginBottom: 10,
+        }}
+      >
         Are you sure?
       </Text>
-      <Text style={{ color: theme.colors.black, textAlign: "center", marginBottom: 20 }}>
+      <Text
+        style={{
+          color: theme.colors.black,
+          textAlign: "center",
+          marginBottom: 20,
+        }}
+      >
         {message || "Are you sure you want to remove this item?"}
       </Text>
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>

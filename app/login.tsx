@@ -6,7 +6,6 @@ import Auth from "@/components/auth/Auth";
 import EmailForm from "@/components/auth/Email.Form";
 
 export default function Login() {
-
   return (
     <>
       <EmailForm />

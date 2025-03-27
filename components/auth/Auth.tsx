@@ -1,82 +1,85 @@
-import { Button } from 'react-native'
-import { useEffect } from 'react'
-import { router, useRouter } from 'expo-router'
-import { makeRedirectUri } from 'expo-auth-session'
-import * as QueryParams from 'expo-auth-session/build/QueryParams'
-import * as WebBrowser from 'expo-web-browser'
-import * as Linking from 'expo-linking'
-import { supabase } from '../../lib/supabase'
+import { Button } from "react-native";
+import { useEffect } from "react";
+import { router, useRouter } from "expo-router";
+import { makeRedirectUri } from "expo-auth-session";
+import * as QueryParams from "expo-auth-session/build/QueryParams";
+import * as WebBrowser from "expo-web-browser";
+import * as Linking from "expo-linking";
+import { supabase } from "../../lib/supabase";
 
-WebBrowser.maybeCompleteAuthSession()
+WebBrowser.maybeCompleteAuthSession();
 
 const redirectTo = makeRedirectUri({
-  scheme: 'ie.shomi',
-  path: 'auth-callback'
-})
+  scheme: "ie.shomi",
+  path: "auth-callback",
+});
 
 const createSessionFromUrl = async (url: string) => {
-  const { params, errorCode } = QueryParams.getQueryParams(url)
+  const { params, errorCode } = QueryParams.getQueryParams(url);
 
-  if (errorCode) throw new Error(errorCode)
-  const { access_token, refresh_token } = params
+  if (errorCode) throw new Error(errorCode);
+  const { access_token, refresh_token } = params;
 
-  if (!access_token) return null
+  if (!access_token) return null;
 
   const { data, error } = await supabase.auth.setSession({
     access_token,
-    refresh_token
-  })
+    refresh_token,
+  });
 
-  if (error) throw error
-  return data.session
-}
+  if (error) throw error;
+  return data.session;
+};
 
 const performOAuth = async () => {
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
+    provider: "google",
     options: {
       redirectTo,
-      skipBrowserRedirect: true
-    }
-  })
-  if (error) throw error
+      skipBrowserRedirect: true,
+    },
+  });
+  if (error) throw error;
 
-  const res = await WebBrowser.openAuthSessionAsync(data?.url ?? '', redirectTo)
+  const res = await WebBrowser.openAuthSessionAsync(
+    data?.url ?? "",
+    redirectTo
+  );
 
-  if (res.type === 'success') {
-    const { url } = res
-    const session = await createSessionFromUrl(url)
-    if (session) router.replace('/(tabs)')
+  if (res.type === "success") {
+    const { url } = res;
+    const session = await createSessionFromUrl(url);
+    if (session) router.replace("/(tabs)");
   }
-}
+};
 
 const sendMagicLink = async () => {
   const { error } = await supabase.auth.signInWithOtp({
-    email: 'example@email.com',
+    email: "example@email.com",
     options: {
-      emailRedirectTo: redirectTo
-    }
-  })
+      emailRedirectTo: redirectTo,
+    },
+  });
 
-  if (error) throw error
-}
+  if (error) throw error;
+};
 
 export default function Auth() {
-  const url = Linking.useURL()
-  const router = useRouter()
+  const url = Linking.useURL();
+  const router = useRouter();
 
   useEffect(() => {
     if (url) {
       createSessionFromUrl(url).then((session) => {
-        if (session) router.replace('/(tabs)')
-      })
+        if (session) router.replace("/(tabs)");
+      });
     }
-  }, [url])
+  }, [url]);
 
   return (
     <>
       <Button onPress={performOAuth} title="Sign in with Google" />
       {/* <Button onPress={sendMagicLink} title="Send Magic Link" /> */}
     </>
-  )
+  );
 }

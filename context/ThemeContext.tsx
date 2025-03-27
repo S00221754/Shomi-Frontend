@@ -1,4 +1,10 @@
-import React, { createContext, useContext, ReactNode, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  ReactNode,
+  useEffect,
+  useState,
+} from "react";
 import { ThemeProvider, createTheme, CreateThemeOptions } from "@rneui/themed";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useColorScheme } from "react-native";
@@ -50,7 +56,6 @@ const darkTheme: CreateThemeOptions = {
     divider: "#333333", // Soft grey divider for sections
   },
 };
-
 
 // Storage Key
 const THEME_STORAGE_KEY = "user_theme_preference";

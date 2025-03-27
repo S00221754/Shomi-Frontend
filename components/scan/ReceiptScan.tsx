@@ -12,7 +12,6 @@
 //     const [receiptText, setReceiptText] = useState('');
 //     const [imageUri, setImageUri] = useState<string | null>(null);
 
-
 //     // needs testing
 //     const requestPermissions = async () => {
 //         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -25,7 +24,6 @@
 //             alert('Sorry, we need camera permissions to make this work!');
 //         }
 //     };
-
 
 //     // allows user to take a photo and upload it to the ocr
 //     const takePhoto = async () => {
@@ -44,7 +42,6 @@
 //         }
 //         setIsLoading(false);
 //     };
-
 
 //     // allows user to upload a photo from their gallery
 //     const pickImage = async () => {
@@ -70,8 +67,7 @@
 //             const apiKey = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
 //             const apiUrl = `${process.env.EXPO_PUBLIC_GOOGLE_API_URL}?key=${apiKey}`;
 //             console.log('API URL:', apiUrl);
-            
-            
+
 //             const base64ImageData = await convertImageToBase64(uri);
 
 //             const requestData = {
@@ -92,7 +88,7 @@
 
 //             const response = await axios.post(apiUrl, requestData);
 //             console.log('Response:', response.data);
-            
+
 //             const text = response.data.responses[0].fullTextAnnotation?.text || 'No text found';
 //             setReceiptText(text);
 //         } catch (error) {
@@ -100,7 +96,6 @@
 //             setReceiptText('Failed to process the receipt. Please try again.');
 //         }
 //     };
-
 
 //     // converts the image to base64
 //     const convertImageToBase64 = async (uri: string) => {
