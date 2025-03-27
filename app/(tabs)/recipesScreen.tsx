@@ -30,7 +30,14 @@ export default function RecipeScreen() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, backgroundColor: theme.colors.background, justifyContent: "center", alignItems: "center" }}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: theme.colors.background,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
@@ -38,34 +45,89 @@ export default function RecipeScreen() {
 
   if (error) {
     return (
-      <View style={{ flex: 1, backgroundColor: theme.colors.background, justifyContent: "center", alignItems: "center" }}>
-        <Text style={{ fontSize: 18, color: theme.colors.error, textAlign: "center" }}>{error}</Text>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: theme.colors.background,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 18,
+            color: theme.colors.error,
+            textAlign: "center",
+          }}
+        >
+          {error}
+        </Text>
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background, padding: 20 }}>
+    <View
+      style={{ flex: 1, backgroundColor: theme.colors.background, padding: 20 }}
+    >
       <FlatList
         data={recipes}
         keyExtractor={(item) => item.recipe_id}
         renderItem={({ item }) => (
-          <Card containerStyle={{ backgroundColor: theme.colors.white, borderRadius: 10, padding: 15, shadowColor: theme.colors.black, elevation: 3 }}>
-            <Card.Title style={{ fontSize: 18, fontWeight: "bold", color: theme.colors.black, textAlign: "center" }}>
+          <Card
+            containerStyle={{
+              backgroundColor: theme.colors.white,
+              borderRadius: 10,
+              padding: 15,
+              shadowColor: theme.colors.black,
+              elevation: 3,
+            }}
+          >
+            <Card.Title
+              style={{
+                fontSize: 18,
+                fontWeight: "bold",
+                color: theme.colors.black,
+                textAlign: "center",
+              }}
+            >
               {item.recipe_name}
             </Card.Title>
             <Card.Divider />
-            <Text style={{ fontSize: 14, color: theme.colors.grey3, textAlign: "center", marginBottom: 5 }}>
+            <Text
+              style={{
+                fontSize: 14,
+                color: theme.colors.grey3,
+                textAlign: "center",
+                marginBottom: 5,
+              }}
+            >
               {item.recipe_description}
             </Text>
-            <Text style={{ fontSize: 14, color: theme.colors.primary, textAlign: "center", marginBottom: 10 }}>
+            <Text
+              style={{
+                fontSize: 14,
+                color: theme.colors.primary,
+                textAlign: "center",
+                marginBottom: 10,
+              }}
+            >
               ⏱ {item.cooking_time} mins
             </Text>
             <Button
               title="View Recipe"
-              buttonStyle={{ backgroundColor: theme.colors.primary, borderRadius: 8, paddingVertical: 10 }}
+              buttonStyle={{
+                backgroundColor: theme.colors.primary,
+                borderRadius: 8,
+                paddingVertical: 10,
+              }}
               titleStyle={{ fontWeight: "bold", color: theme.colors.white }}
-              onPress={() => router.push({ pathname: `/recipes/[id]`, params: { id: item.recipe_id } })}
+              onPress={() =>
+                router.push({
+                  pathname: `/recipes/[id]`,
+                  params: { id: item.recipe_id },
+                })
+              }
             />
           </Card>
         )}

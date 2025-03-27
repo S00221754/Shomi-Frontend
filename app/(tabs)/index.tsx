@@ -6,14 +6,25 @@ export default function Index() {
   const textColor = theme.mode === "dark" ? "white" : "black";
   const { logout, user } = useAuth();
   const displayName =
-  user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email;
+    user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email;
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <Text style={[styles.title, { color: textColor }]}>Welcome to</Text>
-      <Text style={[styles.appName, { color: theme.colors.primary }]}>Shomi</Text>
+      <Text style={[styles.appName, { color: theme.colors.primary }]}>
+        Shomi
+      </Text>
       {/* Logout Button */}
-      <Text style={[styles.title, { color: textColor }]}>Hello {displayName}</Text>
-      <Button title="Logout" onPress={logout} containerStyle={styles.buttonContainer} buttonStyle={{ backgroundColor: theme.colors.error }} />
+      <Text style={[styles.title, { color: textColor }]}>
+        Hello {displayName}
+      </Text>
+      <Button
+        title="Logout"
+        onPress={logout}
+        containerStyle={styles.buttonContainer}
+        buttonStyle={{ backgroundColor: theme.colors.error }}
+      />
     </View>
   );
 }

@@ -2,8 +2,11 @@ import React, { useEffect, useState } from "react";
 import { View, ScrollView, TextInput, Alert } from "react-native";
 import { ListItem, Button, useTheme } from "@rneui/themed";
 import { getIngredients } from "@/services/ingredientsService";
-import { getUserIngredientByIngredientId, addUserIngredient } from "@/services/user-ingredientService";
-import { ProductInfo } from "@/types/ingredient"; 
+import {
+  getUserIngredientByIngredientId,
+  addUserIngredient,
+} from "@/services/user-ingredientService";
+import { ProductInfo } from "@/types/ingredient";
 import { UserIngredientInput } from "@/types/user-ingredient";
 import UserIngredientModal from "@/components//modals/UserIngredientModal";
 import { useAuth } from "@/providers/AuthProvider";
@@ -13,11 +16,15 @@ const IngredientList = () => {
   const { userId } = useAuth();
   const { theme } = useTheme();
   const [ingredients, setIngredients] = useState<ProductInfo[]>([]);
-  const [filteredIngredients, setFilteredIngredients] = useState<ProductInfo[]>([]);
+  const [filteredIngredients, setFilteredIngredients] = useState<ProductInfo[]>(
+    []
+  );
   const [search, setSearch] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedIngredient, setSelectedIngredient] = useState<ProductInfo | null>(null);
-  const [userIngredient, setUserIngredient] = useState<UserIngredientInput | null>(null);
+  const [selectedIngredient, setSelectedIngredient] =
+    useState<ProductInfo | null>(null);
+  const [userIngredient, setUserIngredient] =
+    useState<UserIngredientInput | null>(null);
 
   useEffect(() => {
     const fetchIngredients = async () => {
@@ -43,10 +50,17 @@ const IngredientList = () => {
 
   const handleOpenModal = async (ingredient: ProductInfo) => {
     try {
-      const exists = await getUserIngredientByIngredientId(userId!, ingredient.Ing_id!);
+      const exists = await getUserIngredientByIngredientId(
+        userId!,
+        ingredient.Ing_id!
+      );
 
       if (exists) {
-        showToast("error", "Ingredint In Pantry", `You already have ${ingredient?.Ing_name}.`);
+        showToast(
+          "error",
+          "Ingredint In Pantry",
+          `You already have ${ingredient?.Ing_name}.`
+        );
 
         return;
       }
@@ -72,7 +86,11 @@ const IngredientList = () => {
     try {
       await addUserIngredient(data);
       setModalVisible(false);
-      showToast("success", "Added to Pantry", `${selectedIngredient?.Ing_name} added successfully.`);
+      showToast(
+        "success",
+        "Added to Pantry",
+        `${selectedIngredient?.Ing_name} added successfully.`
+      );
     } catch (error) {
       console.error("Failed to add ingredient:", error);
       showToast("error", "Failed to add", "Please try again later.");
@@ -80,7 +98,9 @@ const IngredientList = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background, padding: 10 }}>
+    <View
+      style={{ flex: 1, backgroundColor: theme.colors.background, padding: 10 }}
+    >
       <TextInput
         placeholder="Search ingredients..."
         placeholderTextColor={theme.colors.grey3}
@@ -102,7 +122,11 @@ const IngredientList = () => {
           <ListItem
             key={index}
             bottomDivider
-            containerStyle={{ backgroundColor: theme.colors.white, borderRadius: 10, marginBottom: 8 }}
+            containerStyle={{
+              backgroundColor: theme.colors.white,
+              borderRadius: 10,
+              marginBottom: 8,
+            }}
           >
             <ListItem.Content>
               <ListItem.Title style={{ color: theme.colors.black }}>
