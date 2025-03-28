@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -8,8 +8,11 @@ import {
   ScrollView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { Button, Icon, Input } from "@rneui/themed";
-import ShomiTentapEditor from "@/components/common/ShomiTentapEditor";
+import { Button, Icon, Input, useTheme } from "@rneui/themed";
+import ShomiTentapEditor, {
+  ShomiTentapEditorRef,
+} from "@/components/common/ShomiTentapEditor";
+import ConfirmationModal from "@/components/modals/ConfirmationModal";
 
 type SelectedIngredient = {
   ingredient_id: string;
@@ -18,12 +21,20 @@ type SelectedIngredient = {
   unit: string;
 };
 
+const stripHtml = (html: string) => html.replace(/<[^>]*>?/gm, "").trim();
+
 const RecipeFormScreen = () => {
+  const { theme } = useTheme();
+
   const [images, setImages] = useState<string[]>([]);
   const [recipeName, setRecipeName] = useState("");
   const [description, setDescription] = useState("");
   const [instructions, setInstructions] = useState("");
   const [cookingTime, setCookingTime] = useState("");
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+  // ref is related to the reset functionality of the editor
+  const editorRef = useRef<ShomiTentapEditorRef>(null);
 
   const pickImage = async () => {
     if (images.length >= 3) return;
@@ -90,15 +101,43 @@ const RecipeFormScreen = () => {
       <Text style={{ fontWeight: "bold", marginBottom: 4 }}>Instructions</Text>
 
       <ShomiTentapEditor
+        ref={editorRef}
         initialValue={instructions}
         onChange={(val) => setInstructions(val)}
       />
+
+      {stripHtml(instructions).length > 0 && (
+        <Button
+          title="Clear Instructions"
+          onPress={() => setShowClearConfirm(true)}
+          type="solid"
+          buttonStyle={{
+            marginBottom: 8,
+            backgroundColor: theme.colors.error,
+            borderRadius: 8,
+          }}
+          titleStyle={{ color: "white", fontWeight: "bold" }}
+          icon={{ name: "delete", color: "white" }}
+          iconRight
+        />
+      )}
 
       <Input
         label="Cooking Time (mins)"
         value={cookingTime}
         onChangeText={setCookingTime}
         keyboardType="numeric"
+      />
+
+      <ConfirmationModal
+        visible={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        onConfirm={() => {
+          setInstructions("");
+          editorRef.current?.clear?.();
+          setShowClearConfirm(false);
+        }}
+        message="Are you sure you want to clear all instructions?"
       />
     </ScrollView>
   );
