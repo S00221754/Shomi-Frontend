@@ -5,11 +5,13 @@ import axiosInstance from "../../services/api";
 import { Recipe } from "../../types/recipe";
 import { useRouter } from "expo-router";
 import { useTheme } from "@rneui/themed";
+import ShomiFAB from "@/components/common/ShomiFAB";
 
 export default function RecipeScreen() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [fabOpen, setFabOpen] = useState(false);
   const router = useRouter();
   const { theme } = useTheme();
 
@@ -131,6 +133,29 @@ export default function RecipeScreen() {
             />
           </Card>
         )}
+      />
+      <ShomiFAB
+        fabOpen={fabOpen}
+        setFabOpen={setFabOpen}
+        actions={[
+          {
+            icon: "plus",
+            label: "Add New Recipe",
+            onPress: () =>
+              router.push({ pathname: "/recipes/recipeFormScreen" }),
+          },
+          {
+            icon: "magnify",
+            label: "Use Pantry Recipe Search",
+            onPress: () =>
+              router.push({ pathname: "/recipes/recommendedRecipesScreen" }),
+          },
+          {
+            icon: "bookmark",
+            label: "View Bookmarked Recipes",
+            onPress: () => console.log("View Bookmarked Recipes"),
+          },
+        ]}
       />
     </View>
   );

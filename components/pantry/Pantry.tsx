@@ -25,6 +25,7 @@ import { UserIngredientUpdate } from "@/types/user-ingredient";
 import { updateUserIngredient } from "@/services/user-ingredientService";
 import UpdateUserIngredientModal from "../modals/UpdateUserIngredientModal";
 import { UserIngredient } from "@/types/ingredient";
+import ShomiFAB from "../common/ShomiFAB";
 
 const Pantry: React.FC = () => {
   const { theme } = useTheme();
@@ -390,80 +391,31 @@ const Pantry: React.FC = () => {
         </Animated.View>
       )}
 
-      <FAB.Group
-        open={fabOpen}
-        visible={true}
-        icon={
-          selectedIngredients.length > 0 ? "delete" : fabOpen ? "close" : "menu"
-        }
-        color={theme.colors.white}
-        fabStyle={{
-          backgroundColor:
-            selectedIngredients.length > 0
-              ? theme.colors.error
-              : theme.colors.primary,
-        }}
-        backdropColor="rgba(0,0,0,0.5)"
-        actions={
-          selectedIngredients.length > 0
-            ? []
-            : [
-                {
-                  icon: "plus",
-                  label: "Add Ingredient Manually",
-                  onPress: () => router.push("/ingredients/ingredient-list"),
-                  labelStyle: {
-                    backgroundColor: theme.colors.grey4,
-                    color: theme.colors.black,
-                    fontSize: 16,
-                    fontWeight: "bold",
-                    paddingVertical: 6,
-                    paddingHorizontal: 10,
-                    borderRadius: 6,
-                  },
-                },
-                {
-                  icon: "barcode-scan",
-                  label: "Scan Barcode",
-                  onPress: () => setScanning(true),
-                  labelStyle: {
-                    backgroundColor: theme.colors.grey4,
-                    color: theme.colors.black,
-                    fontSize: 16,
-                    fontWeight: "bold",
-                    paddingVertical: 6,
-                    paddingHorizontal: 10,
-                    borderRadius: 6,
-                  },
-                },
-                {
-                  icon: "magnify",
-                  label: "Search Recipes with Pantry",
-                  onPress: () => {
-                    router.push("/recipes/recommendedRecipesScreen");
-                  },
-                  labelStyle: {
-                    backgroundColor: theme.colors.grey4,
-                    color: theme.colors.black,
-                    fontSize: 16,
-                    fontWeight: "bold",
-                    paddingVertical: 6,
-                    paddingHorizontal: 10,
-                    borderRadius: 6,
-                  },
-                },
-              ]
-        }
-        onPress={() => {
-          if (selectedIngredients.length > 0) {
-            console.log("Selected Ingredients to Remove:", selectedIngredients);
-            setModalVisible(true);
-          } else {
-            setFabOpen(!fabOpen);
-          }
-        }}
-        onStateChange={({ open }) => setFabOpen(open)}
+      <ShomiFAB
+        selectedItems={selectedIngredients}
+        onDelete={() => setModalVisible(true)}
+        fabOpen={fabOpen}
+        setFabOpen={setFabOpen}
+        allowDelete={true}
+        actions={[
+          {
+            icon: "plus",
+            label: "Add Ingredient Manually",
+            onPress: () => router.push("/ingredients/ingredient-list"),
+          },
+          {
+            icon: "barcode-scan",
+            label: "Scan Barcode",
+            onPress: () => setScanning(true),
+          },
+          {
+            icon: "magnify",
+            label: "Search Recipes with Pantry",
+            onPress: () => router.push("/recipes/recommendedRecipesScreen"),
+          },
+        ]}
       />
+
       {/* Modals */}
       <ConfirmationModal
         visible={modalVisible}
