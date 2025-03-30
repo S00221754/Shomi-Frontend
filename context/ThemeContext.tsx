@@ -13,7 +13,7 @@ const lightTheme: CreateThemeOptions = {
   mode: "light",
   lightColors: {
     primary: "#99BC85", // #a5d38b
-    secondary: "#E4EFE7", // #c1d0b5
+    secondary: "#BEE3B4", //rgb(105, 124, 90)
     background: "#FDFAF6", // #fcf5ee
     white: "#FFFFFF", // Fixed extra space issue
     black: "hsl(0, 0%, 14%)", // #242424

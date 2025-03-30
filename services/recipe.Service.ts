@@ -1,5 +1,5 @@
 import axiosInstance from "./api";
-import { Recipe, Ingredient } from "@/types/recipe";
+import { Recipe, Ingredient, RecipeDTO } from "@/types/recipe";
 
 export const getRecipes = async (): Promise<Recipe[]> => {
   try {
@@ -32,6 +32,16 @@ export const getRecommendedRecipes = async (
     );
     return response.data;
   } catch (error) {
+    throw error;
+  }
+};
+
+export const createRecipe = async (payload: RecipeDTO): Promise<Recipe> => {
+  try {
+    const response = await axiosInstance.post<Recipe>("/recipes", payload);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating recipe:", error);
     throw error;
   }
 };

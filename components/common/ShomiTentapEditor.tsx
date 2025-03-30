@@ -53,8 +53,6 @@ const ShomiTentapEditor = React.forwardRef<
         editor={editor}
         shouldHideDisabledToolbarItems
         items={[
-          DEFAULT_TOOLBAR_ITEMS[0], // Bold
-          DEFAULT_TOOLBAR_ITEMS[1], // Italic
           DEFAULT_TOOLBAR_ITEMS[9], // Ordered List
           DEFAULT_TOOLBAR_ITEMS[10], // Bullet List
           DEFAULT_TOOLBAR_ITEMS[13], // Undo

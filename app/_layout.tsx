@@ -1,3 +1,5 @@
+import "react-native-get-random-values";
+import { Buffer } from "buffer";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { ThemeProviderWrapper, useAppTheme } from "@/context/ThemeContext";
 import { useTheme } from "@rneui/themed";
@@ -5,6 +7,12 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import Toast from "react-native-toast-message";
 import React from "react";
+
+// @ts-ignore
+if (typeof global.Buffer === "undefined") {
+  // @ts-ignore
+  global.Buffer = Buffer;
+}
 
 function AppLayout() {
   const { isDarkMode } = useAppTheme();
@@ -54,6 +62,17 @@ function AppLayout() {
               backgroundColor: theme.colors.background,
             },
             headerTintColor: primaryColor,
+          }}
+        />
+
+        <Stack.Screen
+          name="recipes/recipeFormScreen"
+          options={{
+            headerShown: true,
+            headerStyle: { backgroundColor: theme.colors.background },
+            headerTintColor: primaryColor,
+            headerShadowVisible: true,
+            headerTitle: "Add Recipe",
           }}
         />
       </Stack>

@@ -5,6 +5,7 @@ import { useTheme, BottomSheet, SearchBar, ListItem } from "@rneui/themed";
 import { ProductInfo } from "@/types/ingredient";
 import { useGetUnitTypes } from "@/hooks/useGetUnitTypes";
 import { UnitType } from "@/types/unit-type";
+import ShomiBottomSheet from "../common/ShomiBottomSheet";
 
 interface IngredientModalProps {
   visible: boolean;
@@ -168,72 +169,19 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
           />
         </View>
       </Overlay>
-      {/* Bottom Sheet goes here OUTSIDE Overlay */}
-      <BottomSheet
+      {/* Needs testings */}
+      <ShomiBottomSheet
         isVisible={isSheetVisible}
-        onBackdropPress={() => {
+        onClose={() => setIsSheetVisible(false)}
+        data={filteredUnitTypes}
+        onSelect={(unit) => {
+          setUnitType(unit.name);
           setIsSheetVisible(false);
         }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 5, // or use marginLeft
-            backgroundColor: theme.colors.background,
-            borderBottomColor: theme.colors.grey3,
-          }}
-        >
-          <View style={{ flex: 1 }}>
-            <SearchBar
-              placeholder="Search unit types..."
-              onChangeText={setSearchTerm}
-              value={searchTerm}
-              lightTheme
-              round
-              inputStyle={{ color: theme.colors.black }}
-              containerStyle={{
-                backgroundColor: theme.colors.background,
-                borderTopColor: "transparent",
-              }}
-              inputContainerStyle={{
-                backgroundColor: "#eee",
-                borderRadius: 20,
-              }}
-            />
-          </View>
-
-          <Icon
-            name="close"
-            type="material"
-            size={26}
-            color={theme.colors.white}
-            containerStyle={{
-              backgroundColor: theme.colors.error,
-              borderRadius: 20,
-              padding: 6,
-              marginRight: 5,
-            }}
-            onPress={() => setIsSheetVisible(false)}
-          />
-        </View>
-        {filteredUnitTypes.map((type) => (
-          <ListItem
-            key={type.id}
-            bottomDivider
-            onPress={() => {
-              setUnitType(type.name);
-              setIsSheetVisible(false);
-            }}
-          >
-            <ListItem.Content>
-              <ListItem.Title style={{ color: theme.colors.black }}>
-                {type.name}
-              </ListItem.Title>
-            </ListItem.Content>
-          </ListItem>
-        ))}
-      </BottomSheet>
+        keyExtractor={(unit) => unit.id}
+        labelExtractor={(unit) => unit.name}
+        placeholder="Search unit types..."
+      />
     </>
   );
 };

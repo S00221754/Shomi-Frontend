@@ -1,15 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, ActivityIndicator } from "react-native";
+import {
+  View,
+  ScrollView,
+  ActivityIndicator,
+  useWindowDimensions,
+  Image,
+} from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { getRecipeById } from "../../services/recipe.Service";
 import { Recipe } from "../../types/recipe";
-import { Text, Button, Card, Divider } from "@rneui/themed";
+import { Text, Button, Divider } from "@rneui/themed";
 import { useTheme } from "@rneui/themed";
+import ImageCarousel from "@/components/Recipe/ImageCarousel";
+import { htmlParser } from "@/utils/htmlparser";
 
 export default function RecipeDetails() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const { theme } = useTheme();
+  const { width } = useWindowDimensions();
 
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -32,7 +41,14 @@ export default function RecipeDetails() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, backgroundColor: theme.colors.background, justifyContent: "center", alignItems: "center" }}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: theme.colors.background,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
@@ -40,14 +56,32 @@ export default function RecipeDetails() {
 
   if (error || !recipe) {
     return (
-      <View style={{ flex: 1, backgroundColor: theme.colors.background, justifyContent: "center", alignItems: "center", padding: 20 }}>
-        <Text style={{ fontSize: 18, color: theme.colors.error, textAlign: "center" }}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: theme.colors.background,
+          justifyContent: "center",
+          alignItems: "center",
+          padding: 20,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 18,
+            color: theme.colors.error,
+            textAlign: "center",
+          }}
+        >
           {error || "Recipe not found"}
         </Text>
         <Button
           title="Go Back"
           onPress={() => router.back()}
-          buttonStyle={{ backgroundColor: theme.colors.primary, borderRadius: 8, marginTop: 20 }}
+          buttonStyle={{
+            backgroundColor: theme.colors.primary,
+            borderRadius: 8,
+            marginTop: 20,
+          }}
           titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
         />
       </View>
@@ -59,53 +93,118 @@ export default function RecipeDetails() {
       style={{ flex: 1, backgroundColor: theme.colors.background, padding: 20 }}
       contentContainerStyle={{ flexGrow: 1, paddingBottom: 50 }}
     >
-      <Text h2 style={{ fontSize: 28, fontWeight: "bold", color: theme.colors.primary, marginBottom: 15 }}>
+      <Text
+        h2
+        style={{
+          fontSize: 28,
+          fontWeight: "bold",
+          color: theme.colors.primary,
+          marginBottom: 15,
+        }}
+      >
         {recipe.recipe_name}
       </Text>
 
-      <Card containerStyle={{ backgroundColor: theme.colors.white, borderRadius: 10, padding: 20 }}>
-        <Card.Title style={{ fontSize: 20, fontWeight: "bold", color: theme.colors.black, textAlign: "center" }}>
-          Recipe Details
-        </Card.Title>
-        <Divider style={{ marginBottom: 10 }} />
+      {/* Image Carousel */}
+      {recipe.recipe_images && recipe.recipe_images.length > 0 && (
+        <ImageCarousel images={recipe.recipe_images} width={width} />
+      )}
 
-        <Text style={{ fontSize: 18, fontWeight: "bold", color: theme.colors.black, marginTop: 10 }}>
+      {/* Recipe Description */}
+      <View style={{ marginBottom: 20 }}>
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: "bold",
+            color: theme.colors.black,
+            marginTop: 10,
+          }}
+        >
           Description
         </Text>
         <Text style={{ fontSize: 16, color: theme.colors.grey3, marginTop: 5 }}>
           {recipe.recipe_description}
         </Text>
+      </View>
 
-        <Text style={{ fontSize: 18, fontWeight: "bold", color: theme.colors.black, marginTop: 15 }}>
+      {/* Cooking Time */}
+      <View style={{ marginBottom: 20 }}>
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: "bold",
+            color: theme.colors.black,
+            marginTop: 15,
+          }}
+        >
           Cooking Time
         </Text>
         <Text style={{ fontSize: 16, color: theme.colors.primary, marginTop: 5 }}>
           ⏱ {recipe.cooking_time} minutes
         </Text>
+      </View>
 
-        <Text style={{ fontSize: 18, fontWeight: "bold", color: theme.colors.black, marginTop: 15 }}>
+      {/* Ingredients */}
+      <View style={{ marginBottom: 20 }}>
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: "bold",
+            color: theme.colors.black,
+            marginTop: 15,
+          }}
+        >
           Ingredients
         </Text>
         <Divider style={{ marginVertical: 5 }} />
         {recipe.ingredients.map((ingredient, index) => (
-          <Text key={index} style={{ fontSize: 16, color: theme.colors.black, marginVertical: 3 }}>
-            • {ingredient.quantity} {ingredient.unit} {ingredient.ingredient_name}
+          <Text
+            key={index}
+            style={{
+              fontSize: 16,
+              color: theme.colors.black,
+              marginVertical: 3,
+            }}
+          >
+            • {ingredient.quantity} {ingredient.unit}{" "}
+            {ingredient.ingredient_name}
           </Text>
         ))}
+      </View>
 
-        <Text style={{ fontSize: 18, fontWeight: "bold", color: theme.colors.black, marginTop: 15 }}>
+      {/* Instructions */}
+      <View style={{ marginBottom: 20 }}>
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: "bold",
+            color: theme.colors.black,
+            marginTop: 15,
+          }}
+        >
           Instructions
         </Text>
         <Divider style={{ marginVertical: 5 }} />
-        <Text style={{ fontSize: 16, color: theme.colors.black, marginTop: 5 }}>
-          {recipe.recipe_instructions}
-        </Text>
-      </Card>
+        {recipe && (
+          <>
+            {htmlParser(recipe.recipe_instructions).map((step, idx) => (
+              <Text key={idx}>
+                {idx + 1}. {step}
+              </Text>
+            ))}
+          </>
+        )}
+      </View>
 
+      {/* Go Back Button */}
       <Button
         title="Go Back"
         onPress={() => router.back()}
-        buttonStyle={{ backgroundColor: theme.colors.primary, borderRadius: 8, marginTop: 20 }}
+        buttonStyle={{
+          backgroundColor: theme.colors.primary,
+          borderRadius: 8,
+          marginTop: 20,
+        }}
         titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
       />
     </ScrollView>

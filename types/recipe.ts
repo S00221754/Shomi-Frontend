@@ -13,4 +13,16 @@ export interface Recipe {
   recipe_instructions: string;
   cooking_time: number;
   author_id: string;
+  recipe_images?: string[];
 }
+
+export interface RecipeDTO {
+  recipe_name: string;
+  recipe_description: string;
+  ingredients: Ingredient[];
+  recipe_instructions: string;
+  cooking_time: number;
+  author_id: string;
+  recipe_images?: string[];
+}
+

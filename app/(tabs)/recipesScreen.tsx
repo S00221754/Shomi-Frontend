@@ -85,6 +85,20 @@ export default function RecipeScreen() {
               elevation: 3,
             }}
           >
+            {Array.isArray(item.recipe_images) &&
+              item.recipe_images.length > 0 && (
+                <Card.Image
+                  source={{ uri: item.recipe_images[0] }}
+                  style={{
+                    width: "100%",
+                    height: 180,
+                    borderRadius: 10,
+                    marginBottom: 12,
+                  }}
+                  resizeMode="cover"
+                />
+              )}
+
             <Card.Title
               style={{
                 fontSize: 18,
@@ -95,7 +109,9 @@ export default function RecipeScreen() {
             >
               {item.recipe_name}
             </Card.Title>
+
             <Card.Divider />
+
             <Text
               style={{
                 fontSize: 14,
@@ -106,6 +122,7 @@ export default function RecipeScreen() {
             >
               {item.recipe_description}
             </Text>
+
             <Text
               style={{
                 fontSize: 14,
@@ -116,6 +133,7 @@ export default function RecipeScreen() {
             >
               ⏱ {item.cooking_time} mins
             </Text>
+
             <Button
               title="View Recipe"
               buttonStyle={{

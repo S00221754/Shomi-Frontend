@@ -1,5 +1,5 @@
 export interface ProductInfo {
-  Ing_id?: number;
+  Ing_id: number;
   Ing_barcode: string;
   Ing_name: string;
   Ing_brand?: string;
@@ -24,3 +24,12 @@ export interface UserIngredient {
   expiryDate?: string | null;
   addedAt: string;
 }
+
+export type SelectedIngredient = {
+  ingredient_id: string;
+  ingredient_name: string;
+  quantity: number;
+  unit: string;
+};
+
+
