@@ -46,24 +46,23 @@ export default function RecipeDetails() {
 
   useFocusEffect(
     useCallback(() => {
-      setIsBookmarked(bookmarked === "true");
-    }, [bookmarked])
+      const fetchRecipe = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const data = await getRecipeById(id as string);
+          setRecipe(data);
+          setIsBookmarked(bookmarked === "true");
+        } catch (err) {
+          setError("Failed to load recipe.");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchRecipe();
+    }, [id, bookmarked])
   );
-
-  useEffect(() => {
-    const fetchRecipe = async () => {
-      try {
-        const data = await getRecipeById(id as string);
-        setRecipe(data);
-      } catch (err) {
-        setError("Failed to load recipe.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRecipe();
-  }, [id]);
 
   useLayoutEffect(() => {
     if (recipe) {
