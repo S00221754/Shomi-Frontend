@@ -18,7 +18,10 @@ if (typeof global.Buffer === "undefined") {
 const originalWarn = console.warn;
 console.warn = (...args) => {
   const message = args[0];
-  if (typeof message === "string" && message.includes("Editor isn't ready yet")) {
+  if (
+    typeof message === "string" &&
+    message.includes("Editor isn't ready yet")
+  ) {
     return;
   }
   originalWarn(...args);
@@ -83,6 +86,17 @@ function AppLayout() {
             headerTintColor: primaryColor,
             headerShadowVisible: true,
             headerTitle: "Add Recipe",
+          }}
+        />
+
+        <Stack.Screen
+          name="recipes/bookmarkedRecipesScreen"
+          options={{
+            headerShown: true,
+            headerStyle: { backgroundColor: theme.colors.background },
+            headerTintColor: primaryColor,
+            headerShadowVisible: true,
+            headerTitle: "Bookmarked Recipes",
           }}
         />
       </Stack>

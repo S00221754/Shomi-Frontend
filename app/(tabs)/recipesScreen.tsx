@@ -235,7 +235,7 @@ export default function RecipeScreen() {
           {
             icon: "bookmark",
             label: "View Bookmarked Recipes",
-            onPress: () => console.log("View Bookmarked Recipes"),
+            onPress: () => router.push("/recipes/bookmarkedRecipesScreen"),
           },
         ]}
       />
