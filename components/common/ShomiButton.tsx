@@ -3,7 +3,7 @@ import { Button, Icon, useTheme } from "@rneui/themed";
 import { ViewStyle, TextStyle } from "react-native";
 
 interface ShomiButtonProps {
-  title: string;
+  title?: string;
   onPress: () => void;
   icon?: string;
   color?: string;
@@ -15,7 +15,7 @@ interface ShomiButtonProps {
 }
 
 const ShomiButton: React.FC<ShomiButtonProps> = ({
-  title,
+  title = "",
   onPress,
   icon,
   color,
@@ -25,8 +25,8 @@ const ShomiButton: React.FC<ShomiButtonProps> = ({
   buttonStyle,
   titleStyle,
 }) => {
-
-  const {theme} = useTheme();
+  const { theme } = useTheme();
+  const isIconOnly = !title?.trim();
 
   return (
     <Button
@@ -37,7 +37,7 @@ const ShomiButton: React.FC<ShomiButtonProps> = ({
               name: icon,
               type: "material-community",
               color: "white",
-              size: 24,
+              size: 22,
             }
           : undefined
       }
@@ -45,21 +45,24 @@ const ShomiButton: React.FC<ShomiButtonProps> = ({
       onPress={onPress}
       loading={loading}
       disabled={disabled}
-      containerStyle={containerStyle}
+      containerStyle={[isIconOnly && { width: 40, height: 40 }, containerStyle]}
       buttonStyle={{
         backgroundColor: color || theme.colors.primary,
-        borderRadius: 12,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        flexDirection: "row",
+        borderRadius: isIconOnly ? 20 : 12,
+        width: isIconOnly ? 40 : undefined,
+        height: isIconOnly ? 40 : undefined,
+        paddingVertical: isIconOnly ? 0 : 12,
+        paddingHorizontal: isIconOnly ? 0 : 16,
+        justifyContent: "center",
         alignItems: "center",
+        flexDirection: "row",
         ...buttonStyle,
       }}
       titleStyle={{
         fontSize: 16,
         fontWeight: "600",
-        marginLeft: icon ? 8 : 0,
         color: "white",
+        marginLeft: icon && !isIconOnly ? 8 : 0,
         ...titleStyle,
       }}
     />

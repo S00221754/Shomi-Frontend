@@ -1,4 +1,9 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 import {
   View,
   ScrollView,
@@ -7,7 +12,12 @@ import {
   Image,
   Pressable,
 } from "react-native";
-import { useRouter, useLocalSearchParams, useNavigation } from "expo-router";
+import {
+  useRouter,
+  useLocalSearchParams,
+  useNavigation,
+  useFocusEffect,
+} from "expo-router";
 import { getRecipeById } from "../../services/recipe.Service";
 import { Recipe } from "../../types/recipe";
 import { Text, Button, Divider, Icon } from "@rneui/themed";
@@ -16,9 +26,11 @@ import ImageCarousel from "@/components/Recipe/ImageCarousel";
 import { htmlParser } from "@/utils/htmlparser";
 import { useAuth } from "@/providers/AuthProvider";
 import ShomiButton from "@/components/common/ShomiButton";
+import { addBookmark, removeBookmark } from "@/services/bookmarkRecipeService";
+import { showToast } from "@/utils/toast";
 
 export default function RecipeDetails() {
-  const { id } = useLocalSearchParams();
+  const { id, bookmarked } = useLocalSearchParams();
   const router = useRouter();
   const { theme } = useTheme();
   const { width } = useWindowDimensions();
@@ -28,6 +40,15 @@ export default function RecipeDetails() {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(
+    bookmarked === "true"
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      setIsBookmarked(bookmarked === "true");
+    }, [bookmarked])
+  );
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -51,6 +72,27 @@ export default function RecipeDetails() {
       });
     }
   }, [recipe, userId, navigation, theme]);
+
+  const toggleBookmark = async () => {
+    if (!recipe) return;
+
+    try {
+      if (isBookmarked) {
+        await removeBookmark(userId!, recipe.recipe_id);
+        setIsBookmarked(false);
+      } else {
+        await addBookmark(userId!, recipe.recipe_id);
+        setIsBookmarked(true);
+      }
+      showToast(
+        "success",
+        "Bookmark Updated",
+        isBookmarked ? "Removed" : "Added"
+      );
+    } catch (err) {
+      console.error("Failed to toggle bookmark:", err);
+    }
+  };
 
   if (loading) {
     return (
@@ -217,10 +259,10 @@ export default function RecipeDetails() {
 
       {/* Bookmark Recipe Button */}
       <ShomiButton
-        title="Bookmark Recipe"
-        icon="bookmark-outline"
+        title={isBookmarked ? "Remove Bookmark" : "Bookmark Recipe"}
+        icon={isBookmarked ? "bookmark" : "bookmark-outline"}
         color={theme.colors.primary}
-        onPress={() => console.log("Bookmark pressed")}
+        onPress={toggleBookmark}
       />
     </ScrollView>
   );

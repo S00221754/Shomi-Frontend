@@ -18,13 +18,14 @@ export const showToast = (
   type: CustomToastType,
   title: string,
   message?: string,
+  position: "top" | "bottom" = "bottom",
   options: Partial<ToastOptions> = {}
 ) => {
   Toast.show({
     type,
     text1: title,
     text2: message,
-    position: "bottom",
+    position: position,
     autoHide: true,
     visibilityTime: 2000,
     swipeable: true,

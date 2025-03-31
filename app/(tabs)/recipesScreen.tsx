@@ -6,32 +6,78 @@ import { Recipe } from "../../types/recipe";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useTheme } from "@rneui/themed";
 import ShomiFAB from "@/components/common/ShomiFAB";
+import { useAuth } from "@/providers/AuthProvider";
+import {
+  getBookmarkRecipes,
+  addBookmark,
+  removeBookmark,
+} from "@/services/bookmarkRecipeService";
+import { getRecipes } from "@/services/recipe.Service";
+import ShomiButton from "@/components/common/ShomiButton";
+import { showToast } from "@/utils/toast";
 
 export default function RecipeScreen() {
+  const router = useRouter();
+  const { theme } = useTheme();
+  const { userId } = useAuth();
+
+  const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [fabOpen, setFabOpen] = useState(false);
-  const router = useRouter();
-  const { theme } = useTheme();
 
   useFocusEffect(
     useCallback(() => {
-      const fetchRecipes = async () => {
+      const fetchData = async () => {
         try {
           setLoading(true);
-          const response = await axiosInstance.get<Recipe[]>("/recipes");
-          setRecipes(response.data);
+
+          const [recipesRes, bookmarkedRecipes] = await Promise.all([
+            getRecipes(),
+            getBookmarkRecipes(userId!),
+          ]);
+
+          setRecipes(recipesRes);
+
+          const ids = new Set(bookmarkedRecipes.map((r) => r.recipe_id));
+          setBookmarkedIds(ids);
         } catch (err) {
+          console.error("Error fetching recipes or bookmarks", err);
           setError("Failed to load recipes.");
         } finally {
           setLoading(false);
         }
       };
 
-      fetchRecipes();
-    }, [])
+      fetchData();
+    }, [userId])
   );
+
+  const toggleBookmark = async (recipeId: string) => {
+    const isBookmarked = bookmarkedIds.has(recipeId);
+
+    try {
+      if (isBookmarked) {
+        await removeBookmark(userId!, recipeId);
+        setBookmarkedIds((prev) => {
+          const updated = new Set(prev);
+          updated.delete(recipeId);
+          return updated;
+        });
+      } else {
+        await addBookmark(userId!, recipeId);
+        setBookmarkedIds((prev) => new Set(prev).add(recipeId));
+      }
+      showToast(
+        "success",
+        "Bookmark Updated",
+        isBookmarked ? "Removed" : "Added"
+      );
+    } catch (err) {
+      console.error("Failed to toggle bookmark:", err);
+    }
+  };
 
   if (loading) {
     return (
@@ -137,21 +183,36 @@ export default function RecipeScreen() {
               ⏱ {item.cooking_time} mins
             </Text>
 
-            <Button
-              title="View Recipe"
-              buttonStyle={{
-                backgroundColor: theme.colors.primary,
-                borderRadius: 8,
-                paddingVertical: 10,
-              }}
-              titleStyle={{ fontWeight: "bold", color: theme.colors.white }}
-              onPress={() =>
-                router.push({
-                  pathname: `/recipes/[id]`,
-                  params: { id: item.recipe_id },
-                })
-              }
-            />
+            <View style={{ flexDirection: "row", gap: 10, marginTop: 10 }}>
+              <ShomiButton
+                title="View Recipe"
+                onPress={() =>
+                  router.push({
+                    pathname: `/recipes/[id]`,
+                    params: {
+                      id: item.recipe_id,
+                      bookmarked: bookmarkedIds.has(item.recipe_id).toString(),
+                    },
+                  })
+                }
+                containerStyle={{ flex: 1 }}
+                buttonStyle={{
+                  backgroundColor: theme.colors.primary,
+                  borderRadius: 8,
+                  paddingVertical: 10,
+                }}
+                titleStyle={{ fontWeight: "bold", color: theme.colors.white }}
+              />
+
+              <ShomiButton
+                icon={
+                  bookmarkedIds.has(item.recipe_id)
+                    ? "bookmark"
+                    : "bookmark-outline"
+                }
+                onPress={() => toggleBookmark(item.recipe_id)}
+              />
+            </View>
           </Card>
         )}
       />
