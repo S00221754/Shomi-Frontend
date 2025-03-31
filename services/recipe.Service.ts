@@ -45,3 +45,18 @@ export const createRecipe = async (payload: RecipeDTO): Promise<Recipe> => {
     throw error;
   }
 };
+
+export const updateRecipe = async (
+  recipeId: string,
+  recipe: RecipeDTO
+): Promise<Recipe> => {
+  try {
+    const response = await axiosInstance.patch<Recipe>(
+      `/recipes/${recipeId}`,
+      recipe
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

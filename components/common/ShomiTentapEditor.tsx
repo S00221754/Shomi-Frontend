@@ -1,9 +1,5 @@
 import React, { useEffect, useImperativeHandle } from "react";
-import {
-  SafeAreaView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { SafeAreaView, StyleSheet, View } from "react-native";
 import {
   useEditorBridge,
   useEditorContent,
@@ -42,7 +38,7 @@ const ShomiTentapEditor = React.forwardRef<
 
   // This effect will run when the content changes and will call the onChange prop with the new content
   useEffect(() => {
-    if (typeof content === "string" && content.trim().length > 0) {
+    if (typeof content === "string") {
       onChange?.(content);
     }
   }, [content]);

@@ -14,6 +14,16 @@ if (typeof global.Buffer === "undefined") {
   global.Buffer = Buffer;
 }
 
+// Suppress 10tap editor "not ready" warning reason: there is an internal issue with the package that causes this warning to be shown even when the editor is ready.
+const originalWarn = console.warn;
+console.warn = (...args) => {
+  const message = args[0];
+  if (typeof message === "string" && message.includes("Editor isn't ready yet")) {
+    return;
+  }
+  originalWarn(...args);
+};
+
 function AppLayout() {
   const { isDarkMode } = useAppTheme();
   const { theme } = useTheme();
@@ -35,7 +45,7 @@ function AppLayout() {
             headerShown: true,
             headerStyle: { backgroundColor: theme.colors.background },
             headerTintColor: primaryColor,
-            headerShadowVisible: false,
+            headerShadowVisible: true,
             headerTitle: "",
           }}
         />
@@ -46,7 +56,7 @@ function AppLayout() {
             headerShown: true,
             headerStyle: { backgroundColor: theme.colors.background },
             headerTintColor: primaryColor,
-            headerShadowVisible: false,
+            headerShadowVisible: true,
             headerTitle: "",
           }}
         />

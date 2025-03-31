@@ -5,6 +5,11 @@ export interface Ingredient {
   unit: string;
 }
 
+export interface Author {
+  id: string;
+  full_name: string;
+}
+
 export interface Recipe {
   recipe_id: string;
   recipe_name: string;
@@ -12,7 +17,7 @@ export interface Recipe {
   ingredients: Ingredient[];
   recipe_instructions: string;
   cooking_time: number;
-  author_id: string;
+  author: Author;
   recipe_images?: string[];
 }
 
@@ -25,4 +30,3 @@ export interface RecipeDTO {
   author_id: string;
   recipe_images?: string[];
 }
-

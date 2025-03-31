@@ -1,15 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { View, Image, TouchableOpacity, ScrollView, Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import {
-  Button,
-  Icon,
-  Input,
-  useTheme,
-  Text,
-  Card,
-  Divider,
-} from "@rneui/themed";
+import { Button, Icon, Input, useTheme, Text } from "@rneui/themed";
 import ShomiTentapEditor, {
   ShomiTentapEditorRef,
 } from "@/components/common/ShomiTentapEditor";
@@ -18,10 +10,15 @@ import IngredientRow from "@/components/Ingredients/IngredientRow";
 import RecipeIngredientModal from "@/components/modals/RecipeIngredientModal";
 import { SelectedIngredient } from "@/types/ingredient";
 import { useAuth } from "@/providers/AuthProvider";
-import { createRecipe } from "@/services/recipe.Service";
+import {
+  createRecipe,
+  getRecipeById,
+  updateRecipe,
+} from "@/services/recipe.Service";
 import { uploadRecipeImage } from "@/lib/supabase/uploadRecipeImage";
 import { RecipeDTO } from "@/types/recipe";
 import { showToast } from "@/utils/toast";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 
 // helper function for clear instructions
 const stripHtml = (html: string) => html.replace(/<[^>]*>?/gm, "").trim();
@@ -29,6 +26,9 @@ const stripHtml = (html: string) => html.replace(/<[^>]*>?/gm, "").trim();
 const RecipeFormScreen = () => {
   const { theme } = useTheme();
   const { userId } = useAuth();
+  const { id } = useLocalSearchParams();
+  const isEdit = !!id;
+  const router = useRouter();
 
   const [images, setImages] = useState<string[]>([]);
   const [recipeName, setRecipeName] = useState("");
@@ -47,6 +47,30 @@ const RecipeFormScreen = () => {
   const [showIngredientModal, setShowIngredientModal] = useState(false);
 
   const editorRef = useRef<ShomiTentapEditorRef>(null);
+  const initialEditorValue = useRef(instructions);
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadRecipe = async () => {
+        if (!isEdit) return;
+
+        try {
+          const data = await getRecipeById(id as string);
+          initialEditorValue.current = data.recipe_instructions;
+          setRecipeName(data.recipe_name);
+          setDescription(data.recipe_description);
+          setInstructions(data.recipe_instructions);
+          setCookingTime(data.cooking_time.toString());
+          setImages(data.recipe_images ?? []);
+          setRecipeIngredients(data.ingredients);
+        } catch (err) {
+          showToast("error", "Failed to load recipe for editing.");
+        }
+      };
+
+      loadRecipe();
+    }, [id])
+  );
 
   const pickImage = async () => {
     if (images.length >= 3) return;
@@ -96,8 +120,12 @@ const RecipeFormScreen = () => {
       const imageUrls: string[] = [];
 
       for (const uri of images) {
-        const imageUrl = await uploadRecipeImage(uri);
-        imageUrls.push(imageUrl);
+        if (uri.startsWith("http")) {
+          imageUrls.push(uri);
+        } else {
+          const uploaded = await uploadRecipeImage(uri);
+          imageUrls.push(uploaded);
+        }
       }
 
       const payload: RecipeDTO = {
@@ -110,18 +138,22 @@ const RecipeFormScreen = () => {
         recipe_images: imageUrls,
       };
 
-      await createRecipe(payload);
+      if (isEdit) {
+        await updateRecipe(id as string, payload);
+        showToast("success", "Recipe Updated", "Your recipe has been updated!");
+      } else {
+        await createRecipe(payload);
+        showToast(
+          "success",
+          "Recipe Published",
+          "Your recipe has been published!"
+        );
+      }
 
-      showToast(
-        "success",
-        "Recipe Published",
-        "Your recipe has been published!"
-      );
-
-      // Optionally reset form fields here
+      router.back();
     } catch (err) {
-      console.error("Publish error:", err);
-      showToast("error", "Publish Failed", "Please try again.");
+      console.error("Submit error:", err);
+      showToast("error", "Something went wrong", "Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -240,7 +272,7 @@ const RecipeFormScreen = () => {
           </Text>
           <ShomiTentapEditor
             ref={editorRef}
-            initialValue={instructions}
+            initialValue={initialEditorValue.current}
             onChange={(val) => setInstructions(val)}
           />
         </View>
@@ -302,7 +334,7 @@ const RecipeFormScreen = () => {
         />
 
         <Button
-          title="Publish Recipe"
+          title={isEdit ? "Update Recipe" : "Publish Recipe"}
           onPress={handlePublish}
           buttonStyle={{
             backgroundColor: theme.colors.primary,
@@ -319,6 +351,7 @@ const RecipeFormScreen = () => {
             marginBottom: 40,
             paddingHorizontal: 10,
           }}
+          disabled={submitting}
         />
       </ScrollView>
     </View>

@@ -1,24 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import {
   View,
   ScrollView,
   ActivityIndicator,
   useWindowDimensions,
   Image,
+  Pressable,
 } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, useNavigation } from "expo-router";
 import { getRecipeById } from "../../services/recipe.Service";
 import { Recipe } from "../../types/recipe";
-import { Text, Button, Divider } from "@rneui/themed";
+import { Text, Button, Divider, Icon } from "@rneui/themed";
 import { useTheme } from "@rneui/themed";
 import ImageCarousel from "@/components/Recipe/ImageCarousel";
 import { htmlParser } from "@/utils/htmlparser";
+import { useAuth } from "@/providers/AuthProvider";
+import ShomiButton from "@/components/common/ShomiButton";
 
 export default function RecipeDetails() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const { theme } = useTheme();
   const { width } = useWindowDimensions();
+  const { userId } = useAuth();
+  const navigation = useNavigation();
 
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -38,6 +43,14 @@ export default function RecipeDetails() {
 
     fetchRecipe();
   }, [id]);
+
+  useLayoutEffect(() => {
+    if (recipe) {
+      navigation.setOptions({
+        headerTitle: recipe.recipe_name,
+      });
+    }
+  }, [recipe, userId, navigation, theme]);
 
   if (loading) {
     return (
@@ -93,18 +106,6 @@ export default function RecipeDetails() {
       style={{ flex: 1, backgroundColor: theme.colors.background, padding: 20 }}
       contentContainerStyle={{ flexGrow: 1, paddingBottom: 50 }}
     >
-      <Text
-        h2
-        style={{
-          fontSize: 28,
-          fontWeight: "bold",
-          color: theme.colors.primary,
-          marginBottom: 15,
-        }}
-      >
-        {recipe.recipe_name}
-      </Text>
-
       {/* Image Carousel */}
       {recipe.recipe_images && recipe.recipe_images.length > 0 && (
         <ImageCarousel images={recipe.recipe_images} width={width} />
@@ -139,7 +140,9 @@ export default function RecipeDetails() {
         >
           Cooking Time
         </Text>
-        <Text style={{ fontSize: 16, color: theme.colors.primary, marginTop: 5 }}>
+        <Text
+          style={{ fontSize: 16, color: theme.colors.primary, marginTop: 5 }}
+        >
           ⏱ {recipe.cooking_time} minutes
         </Text>
       </View>
@@ -196,16 +199,28 @@ export default function RecipeDetails() {
         )}
       </View>
 
-      {/* Go Back Button */}
-      <Button
-        title="Go Back"
-        onPress={() => router.back()}
-        buttonStyle={{
-          backgroundColor: theme.colors.primary,
-          borderRadius: 8,
-          marginTop: 20,
-        }}
-        titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
+      <View style={{ marginBottom: 10 }}>
+        {recipe.author?.id === userId && (
+          <ShomiButton
+            title="Edit Recipe"
+            icon="pencil"
+            color={theme.colors.warning}
+            onPress={() =>
+              router.push({
+                pathname: "/recipes/recipeFormScreen",
+                params: { id: recipe.recipe_id },
+              })
+            }
+          />
+        )}
+      </View>
+
+      {/* Bookmark Recipe Button */}
+      <ShomiButton
+        title="Bookmark Recipe"
+        icon="bookmark-outline"
+        color={theme.colors.primary}
+        onPress={() => console.log("Bookmark pressed")}
       />
     </ScrollView>
   );

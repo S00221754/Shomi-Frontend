@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, FlatList, ActivityIndicator } from "react-native";
 import { Text, Card, Button } from "@rneui/themed";
 import axiosInstance from "../../services/api";
 import { Recipe } from "../../types/recipe";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useTheme } from "@rneui/themed";
 import ShomiFAB from "@/components/common/ShomiFAB";
 
@@ -15,20 +15,23 @@ export default function RecipeScreen() {
   const router = useRouter();
   const { theme } = useTheme();
 
-  useEffect(() => {
-    const fetchRecipes = async () => {
-      try {
-        const response = await axiosInstance.get<Recipe[]>("/recipes");
-        setRecipes(response.data);
-      } catch (err) {
-        setError("Failed to load recipes.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchRecipes = async () => {
+        try {
+          setLoading(true);
+          const response = await axiosInstance.get<Recipe[]>("/recipes");
+          setRecipes(response.data);
+        } catch (err) {
+          setError("Failed to load recipes.");
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    fetchRecipes();
-  }, []);
+      fetchRecipes();
+    }, [])
+  );
 
   if (loading) {
     return (
