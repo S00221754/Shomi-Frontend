@@ -22,6 +22,7 @@ import { showToast } from "@/utils/toast";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import recipeValidationSchema from "@/validation/RecipeSchema";
 import { ActivityIndicator } from "react-native-paper";
+import { deleteRecipeImage } from "@/lib/supabase/deleteRecipeImage";
 
 const stripHtml = (html: string) => html.replace(/<[^>]*>?/gm, "").trim();
 
@@ -43,6 +44,8 @@ const RecipeFormScreen = () => {
   const [formValues, setFormValues] = useState<typeof initialValues | null>(
     null
   );
+  const [originalImages, setOriginalImages] = useState<string[]>([]);
+
   const editorRef = useRef<ShomiTentapEditorRef>(null);
 
   const initialValues = {
@@ -64,6 +67,7 @@ const RecipeFormScreen = () => {
         try {
           const data = await getRecipeById(id as string);
           setImages(data.recipe_images ?? []);
+          setOriginalImages(data.recipe_images ?? []);
           setFormValues({
             recipe_name: data.recipe_name,
             recipe_description: data.recipe_description,
@@ -141,13 +145,30 @@ const RecipeFormScreen = () => {
               recipe_images: uploadedImages,
             };
 
-            if (isEdit) await updateRecipe(id as string, payload);
-            else await createRecipe(payload);
+            if (isEdit) {
+              await updateRecipe(id as string, payload);
+
+              console.log("Original images:", originalImages);
+
+              const removedImages = originalImages.filter(
+                (img) => !uploadedImages.includes(img)
+              );
+
+              console.log("Removed images:", removedImages);
+
+              for (const url of removedImages) {
+                console.log("Deleting image:", url);
+                await deleteRecipeImage(url);
+              }
+            } else {
+              await createRecipe(payload);
+            }
 
             showToast(
               "success",
               isEdit ? "Recipe Updated" : "Recipe Published"
             );
+
             router.back();
           } catch (err) {
             console.error(err);
