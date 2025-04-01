@@ -22,7 +22,10 @@ import { useScannerState } from "@/hooks/useScannerState";
 import { useScannerLogic } from "@/hooks/useScannerLogic";
 import { useUpdateUserIngredient } from "@/hooks/useUpdateUserIngredient";
 import { UserIngredientUpdate } from "@/types/user-ingredient";
-import { updateUserIngredient } from "@/services/user-ingredientService";
+import {
+  quickRestockUserIngredient,
+  updateUserIngredient,
+} from "@/services/user-ingredientService";
 import UpdateUserIngredientModal from "../modals/UpdateUserIngredientModal";
 import { UserIngredient } from "@/types/ingredient";
 import ShomiFAB from "../common/ShomiFAB";
@@ -107,6 +110,15 @@ const Pantry: React.FC = () => {
       await updateUserIngredient(userIngredientId, userIngredient);
       fetchUserIngredients();
       setIsUpdateUserIngredientModalVisible(false);
+    } catch (error) {
+      console.error("Error updating ingredient:", error);
+    }
+  };
+
+  const handleQuickRestock = async (userIngredientId: string) => {
+    try {
+      await quickRestockUserIngredient(userIngredientId);
+      fetchUserIngredients();
     } catch (error) {
       console.error("Error updating ingredient:", error);
     }
@@ -316,8 +328,38 @@ const Pantry: React.FC = () => {
                     textAlign: "center",
                   }}
                 >
+                  Quantity: {item.unitQuantity || "N/A"}
+                </Text>
+                <Text
+                  style={{
+                    color: theme.colors.black,
+                    fontSize: 14,
+                    textAlign: "center",
+                  }}
+                >
                   Expiry Date: {item.expiryDate || "N/A"}
                 </Text>
+
+                <Button
+                  title="Quick Restock"
+                  buttonStyle={{
+                    backgroundColor: theme.colors.primary,
+                    paddingVertical: 8,
+                    borderRadius: 5,
+                    marginTop: 5,
+                  }}
+                  icon={
+                    <Icon
+                      name="plus-circle-outline"
+                      type="material-community"
+                      color={theme.colors.white}
+                    />
+                  }
+                  titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
+                  onPress={() => {
+                    handleQuickRestock(item.id);
+                  }}
+                />
 
                 {/* 🔹 Buttons */}
                 <Button

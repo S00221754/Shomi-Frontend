@@ -72,3 +72,14 @@ export const getUserIngredientByIngredientId = async (
     throw error;
   }
 };
+
+export const quickRestockUserIngredient = async (useringredientId: string) => {
+  try {
+    const response = await axiosInstance.patch(
+      `/user-ingredient/${useringredientId}/quick-restock`
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
