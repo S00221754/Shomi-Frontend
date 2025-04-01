@@ -21,7 +21,9 @@ export const getUnitTypeById = async (id: string): Promise<UnitType> => {
 
 export const getUnitTypeByName = async (name: string): Promise<UnitType> => {
   try {
-    const response = await axiosInstance.get<UnitType>(`/unit-types/name/${name}`);
+    const response = await axiosInstance.get<UnitType>(
+      `/unit-types/name/${name}`
+    );
     return response.data;
   } catch (error) {
     throw error;

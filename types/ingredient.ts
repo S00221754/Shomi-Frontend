@@ -1,27 +1,35 @@
 export interface ProductInfo {
-    Ing_id?: number;
-    Ing_barcode: string;
-    Ing_name: string;
-    Ing_brand?: string;
-    Ing_keywords?: string[];
-    Ing_quantity?: number;
-    Ing_quantity_units?: string
-    status: boolean;
-    In_Database: boolean;
-  }
+  Ing_id: number;
+  Ing_barcode: string;
+  Ing_name: string;
+  Ing_brand?: string;
+  Ing_keywords?: string[];
+  Ing_quantity?: number;
+  Ing_quantity_units?: string;
+  status: boolean;
+  In_Database: boolean;
+}
 
-  export interface Ingredient {
-    Ing_id: number;
-    Ing_name: string;
-  }
-  
-  export interface UserIngredient {
-    id: string;
-    ingredient: Ingredient;
-    unitQuantity: number;
-    totalAmount: string;
-    unitType: string;
-    expiryDate?: string | null;
-    addedAt: string;
-  }
-  
+export interface Ingredient {
+  Ing_id: number;
+  Ing_name: string;
+}
+
+export interface UserIngredient {
+  id: string;
+  ingredient: Ingredient;
+  unitQuantity: number;
+  totalAmount: string;
+  unitType: string;
+  expiryDate?: string | null;
+  addedAt: string;
+}
+
+export type SelectedIngredient = {
+  ingredient_id: string;
+  ingredient_name: string;
+  quantity: number;
+  unit: string;
+};
+
+

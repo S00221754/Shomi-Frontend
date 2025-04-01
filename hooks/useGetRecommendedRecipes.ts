@@ -3,24 +3,24 @@ import { getRecommendedRecipes } from "@/services/recipe.Service";
 import { Recipe } from "@/types/recipe";
 
 export const useGetRecommendedRecipes = (userId: string) => {
-    const [recipes, setRecipes] = useState<Recipe[]>([]);
-    const [loading, setLoading] = useState(true);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchRecipes = async () => {
-            try {
-                const data = await getRecommendedRecipes(userId);
-                setRecipes(data);
-                setLoading(false);
-            } catch (error) {
-                console.log(error);
-            } finally {
-                setLoading(false);
-            }
-        };
+  useEffect(() => {
+    const fetchRecipes = async () => {
+      try {
+        const data = await getRecommendedRecipes(userId);
+        setRecipes(data);
+        setLoading(false);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        fetchRecipes();
-    }, [userId]);
+    fetchRecipes();
+  }, [userId]);
 
-    return { recipes, loading };
+  return { recipes, loading };
 };

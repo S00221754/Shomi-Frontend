@@ -10,12 +10,18 @@ interface LoginResponse {
   };
 }
 
-export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
+export const loginUser = async (
+  email: string,
+  password: string
+): Promise<LoginResponse> => {
   try {
-    const response = await axiosInstance.post<LoginResponse>("/user-account/login", {
-      email,
-      password,
-    });
+    const response = await axiosInstance.post<LoginResponse>(
+      "/user-account/login",
+      {
+        email,
+        password,
+      }
+    );
 
     const { token, user } = response.data;
 

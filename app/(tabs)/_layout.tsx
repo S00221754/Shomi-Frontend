@@ -18,7 +18,8 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: theme.colors.background, // Dynamic tab bar color
         },
-        tabBarInactiveTintColor: theme.mode === "dark" ? theme.colors.white : theme.colors.black, // Dynamic inactive tab color
+        tabBarInactiveTintColor:
+          theme.mode === "dark" ? theme.colors.white : theme.colors.black, // Dynamic inactive tab color
         headerRight: () => (
           <Button
             type="clear"
@@ -41,7 +42,11 @@ export default function TabLayout() {
         options={{
           title: "Recipes",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? "book" : "book-outline"} color={color} size={24} />
+            <Ionicons
+              name={focused ? "book" : "book-outline"}
+              color={color}
+              size={24}
+            />
           ),
         }}
       />
@@ -50,7 +55,11 @@ export default function TabLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? "home-sharp" : "home-outline"} color={color} size={24} />
+            <Ionicons
+              name={focused ? "home-sharp" : "home-outline"}
+              color={color}
+              size={24}
+            />
           ),
         }}
       />
@@ -59,7 +68,11 @@ export default function TabLayout() {
         options={{
           title: "Pantry",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? "basket" : "basket-outline"} color={color} size={24} />
+            <Ionicons
+              name={focused ? "basket" : "basket-outline"}
+              color={color}
+              size={24}
+            />
           ),
         }}
       />
