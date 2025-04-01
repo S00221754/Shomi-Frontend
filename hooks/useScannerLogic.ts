@@ -14,14 +14,13 @@ export const useScannerLogic = (
   setIsAddUserIngredientModalVisible: (visible: boolean) => void,
   setSelectedUserIngredient: (ingredient: UserIngredient) => void,
   setSelectedUserIngredientId: (id: string) => void,
-  setIsUpdateUserIngredientModalVisible: (visible: boolean) => void
+  setIsUpdateUserIngredientModalVisible: (visible: boolean) => void,
+  fetchUserIngredients: () => void
 ) => {
   const { userId } = useAuth();
   const [scannedData, setScannedData] = useState<ProductInfo | null>(null);
   const [userIngredient, setUserIngredient] =
     useState<UserIngredientInput | null>(null);
-
-  const { fetchUserIngredients } = useGetUserIngredients(userId!);
 
   const handleBarcodeScanned = async (productInfo: ProductInfo) => {
     setScannedData(productInfo);
@@ -106,6 +105,7 @@ export const useScannerLogic = (
 
         setScannedData(updatedIngredient);
         setIsAddUserIngredientModalVisible(true);
+        fetchUserIngredients();
       }
 
       setIsAddIngredientModalVisible(false);

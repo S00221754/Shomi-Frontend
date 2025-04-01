@@ -28,7 +28,7 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
   const [unitQuantity, setUnitQuantity] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
   const [unitType, setUnitType] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
+  const [expiryDate, setExpiryDate] = useState<string | null>(null);
   const [baseQuantity, setBaseQuantity] = useState(1);
 
   useEffect(() => {
@@ -70,11 +70,10 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
     if (!unitQuantity || !unitType) return;
 
     const updatedIngredient: UserIngredientUpdate = {
-      ...userIngredient,
       unitQuantity: parseFloat(unitQuantity),
       totalAmount: parseFloat(totalAmount) || 0,
       unitType,
-      expiryDate,
+      expiry_date: expiryDate || null,
     };
 
     await onUpdateUserIngredient(userIngredientId, updatedIngredient);
@@ -142,7 +141,7 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
         label="Expiry Date"
         placeholder="Enter Expiry Date (YYYY-MM-DD)"
         placeholderTextColor={theme.colors.grey3}
-        value={expiryDate}
+        value={expiryDate ?? undefined}
         onChangeText={setExpiryDate}
         inputStyle={{ color: theme.colors.black }}
         containerStyle={{ marginBottom: 10 }}

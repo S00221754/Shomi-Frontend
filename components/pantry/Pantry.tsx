@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   ScrollView,
@@ -29,13 +29,14 @@ import {
 import UpdateUserIngredientModal from "../modals/UpdateUserIngredientModal";
 import { UserIngredient } from "@/types/ingredient";
 import ShomiFAB from "../common/ShomiFAB";
+import { showToast } from "@/utils/toast";
 
 const Pantry: React.FC = () => {
   const { theme } = useTheme();
   const { userId } = useAuth();
   const router = useRouter();
   const { userIngredients, loading, fetchUserIngredients } =
-    useGetUserIngredients(userId || "");
+    useGetUserIngredients(userId ?? "");
   const { handleDeleteUserIngredient } = useDeleteUserIngredient();
   const { handleUpdateUserIngredient } = useUpdateUserIngredient();
 
@@ -83,11 +84,30 @@ const Pantry: React.FC = () => {
   };
 
   const handleConfirmDelete = async () => {
-    if (selectedIngredients) {
-      await handleDeleteUserIngredient(selectedIngredients);
-      setModalVisible(false);
+    try {
+      const idsToDelete =
+        selectedIngredients.length > 0
+          ? selectedIngredients
+          : selectedIngredientId
+          ? [selectedIngredientId] // wrap single in array
+          : [];
+
+      if (idsToDelete.length === 0) return;
+
+      await handleDeleteUserIngredient(idsToDelete);
       fetchUserIngredients();
+      showToast(
+        "success",
+        "Ingredient Removed",
+        "Ingredient removed successfully."
+      );
+    } catch (error) {
+      console.error("Delete failed:", error);
+    } finally {
+      setModalVisible(false);
       setSelectedIngredients([]);
+      setSelectedIngredientId(null);
+      setFabOpen(false);
     }
   };
 
@@ -110,6 +130,7 @@ const Pantry: React.FC = () => {
       await updateUserIngredient(userIngredientId, userIngredient);
       fetchUserIngredients();
       setIsUpdateUserIngredientModalVisible(false);
+      showToast("success", "Ingredient Updated");
     } catch (error) {
       console.error("Error updating ingredient:", error);
     }
@@ -119,6 +140,7 @@ const Pantry: React.FC = () => {
     try {
       await quickRestockUserIngredient(userIngredientId);
       fetchUserIngredients();
+      showToast("success", "Ingredient Updated");
     } catch (error) {
       console.error("Error updating ingredient:", error);
     }
@@ -127,7 +149,7 @@ const Pantry: React.FC = () => {
   useFocusEffect(
     useCallback(() => {
       fetchUserIngredients();
-    }, [])
+    }, [fetchUserIngredients])
   );
 
   const {
@@ -152,7 +174,8 @@ const Pantry: React.FC = () => {
     setIsAddUserIngredientModalVisible,
     setSelectedUserIngredient,
     setSelectedUserIngredientId,
-    setIsUpdateUserIngredientModalVisible
+    setIsUpdateUserIngredientModalVisible,
+    fetchUserIngredients
   );
 
   if (loading) {
@@ -465,7 +488,11 @@ const Pantry: React.FC = () => {
           setModalVisible(false), setFabOpen(false);
         }}
         onConfirm={handleConfirmDelete}
-        message="Are you sure you want to remove this ingredient?"
+        message={
+          selectedIngredients.length > 0
+            ? "Are you sure you want to remove these ingredients?"
+            : "Are you sure you want to remove this ingredient?"
+        }
       />
 
       <UserIngredientModal

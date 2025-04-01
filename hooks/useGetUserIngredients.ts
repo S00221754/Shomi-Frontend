@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getUserIngredients } from "@/services/user-ingredientService";
 import { UserIngredient } from "@/types/ingredient";
+import { useFocusEffect } from "expo-router";
 
 export const useGetUserIngredients = (userId: string) => {
   const [userIngredients, setUserIngredients] = useState<UserIngredient[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchUserIngredients = async () => {
+  const fetchUserIngredients = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
     try {
@@ -17,10 +18,6 @@ export const useGetUserIngredients = (userId: string) => {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchUserIngredients();
   }, [userId]);
 
   return { userIngredients, loading, fetchUserIngredients };

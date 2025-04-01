@@ -49,9 +49,7 @@ export const updateUserIngredient = async (
   try {
     const response = await axiosInstance.patch(
       `/user-ingredient/${userIngredientId}`,
-      {
-        userIngredient,
-      }
+      userIngredient
     );
     return response.data;
   } catch (error) {

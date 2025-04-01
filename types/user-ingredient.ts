@@ -12,5 +12,5 @@ export type UserIngredientUpdate = {
   unitQuantity?: number;
   totalAmount?: number;
   unitType: string;
-  expiryDate?: string;
+  expiry_date?: string | null;
 };
