@@ -28,14 +28,12 @@ export default function TabLayout() {
           tabBarInactiveTintColor:
             theme.mode === "dark" ? theme.colors.white : theme.colors.black,
 
-          // 👇 Add your logo here
           headerLeft: () => (
             <View style={{ marginLeft: 12 }}>
               <Logo width={40} height={40} />
             </View>
           ),
 
-          // ✅ This ensures title is centered even with logo present
           headerTitleAlign: "center",
 
           headerRight: () => (
@@ -71,10 +69,10 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: "Home",
+            title: "Pantry",
             tabBarIcon: ({ color, focused }) => (
               <Ionicons
-                name={focused ? "home-sharp" : "home-outline"}
+                name={focused ? "basket" : "basket-outline"}
                 color={color}
                 size={24}
               />
@@ -82,12 +80,12 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="pantryScreen"
+          name="shoppingListScreen"
           options={{
-            title: "Pantry",
+            title: "Shopping List",
             tabBarIcon: ({ color, focused }) => (
               <Ionicons
-                name={focused ? "basket" : "basket-outline"}
+                name={focused ? "list" : "list-outline"}
                 color={color}
                 size={24}
               />
