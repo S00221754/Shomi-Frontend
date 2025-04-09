@@ -1,11 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   ScrollView,
   ActivityIndicator,
   Pressable,
   Animated,
-  Dimensions,
 } from "react-native";
 import { Text, Button, Card, ListItem, Icon, CheckBox } from "@rneui/themed";
 import { useGetUserIngredients } from "@/hooks/useGetUserIngredients";
@@ -14,13 +13,11 @@ import ConfirmationModal from "../modals/ConfirmationModal";
 import { useDeleteUserIngredient } from "@/hooks/useDeleteUserIngredient";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useTheme } from "@rneui/themed";
-import { FAB } from "react-native-paper";
 import BarcodeScan from "@/components/scan/BarcodeScan";
 import IngredientModal from "@/components/modals/IngredientModal";
 import UserIngredientModal from "@/components/modals/UserIngredientModal";
 import { useScannerState } from "@/hooks/useScannerState";
 import { useScannerLogic } from "@/hooks/useScannerLogic";
-import { useUpdateUserIngredient } from "@/hooks/useUpdateUserIngredient";
 import { UserIngredientUpdate } from "@/types/user-ingredient";
 import {
   quickRestockUserIngredient,
@@ -30,6 +27,7 @@ import UpdateUserIngredientModal from "../modals/UpdateUserIngredientModal";
 import { UserIngredient } from "@/types/ingredient";
 import ShomiFAB from "../common/ShomiFAB";
 import { showToast } from "@/utils/toast";
+import ShomiButton from "../common/ShomiButton";
 
 const Pantry: React.FC = () => {
   const { theme } = useTheme();
@@ -38,7 +36,6 @@ const Pantry: React.FC = () => {
   const { userIngredients, loading, fetchUserIngredients } =
     useGetUserIngredients(userId ?? "");
   const { handleDeleteUserIngredient } = useDeleteUserIngredient();
-  const { handleUpdateUserIngredient } = useUpdateUserIngredient();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedIngredientId, setSelectedIngredientId] = useState<
@@ -89,7 +86,7 @@ const Pantry: React.FC = () => {
         selectedIngredients.length > 0
           ? selectedIngredients
           : selectedIngredientId
-          ? [selectedIngredientId] // wrap single in array
+          ? [selectedIngredientId]
           : [];
 
       if (idsToDelete.length === 0) return;
@@ -224,7 +221,6 @@ const Pantry: React.FC = () => {
             paddingBottom: selectedIngredients.length > 0 ? 100 : 10,
           }}
         >
-          {/* 🔹 Sticky Header */}
           <View style={{ backgroundColor: theme.colors.grey4 }}>
             <View
               style={{
@@ -254,180 +250,207 @@ const Pantry: React.FC = () => {
             </View>
           </View>
 
-          {/* 🔹 Table Rows with Accordion */}
           {userIngredients.map((item) => (
-            <ListItem.Accordion
+            <View
               key={item.id}
-              content={
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    flex: 1,
-                  }}
-                >
-                  {/* Checkbox */}
-                  <Pressable
-                    onPress={() =>
-                      toggleIngredientSelection(
-                        item.id,
-                        !selectedIngredients.includes(item.id)
-                      )
-                    }
-                    style={{ padding: 7 }}
+              style={{
+                borderBottomWidth: 1,
+                borderBottomColor: theme.colors.greyOutline,
+                backgroundColor: theme.colors.white,
+              }}
+            >
+              <ListItem.Accordion
+                content={
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      flex: 1,
+                    }}
                   >
+                    <Pressable
+                      onPress={() =>
+                        toggleIngredientSelection(
+                          item.id,
+                          !selectedIngredients.includes(item.id)
+                        )
+                      }
+                      style={{ padding: 7 }}
+                    >
+                      <View
+                        style={{
+                          flex: 1,
+                          alignItems: "center",
+                          flexDirection: "row",
+                        }}
+                      >
+                        <CheckBox
+                          checked={selectedIngredients.includes(item.id)}
+                          onPress={() =>
+                            toggleIngredientSelection(
+                              item.id,
+                              !selectedIngredients.includes(item.id)
+                            )
+                          }
+                          checkedColor={theme.colors.primary}
+                          uncheckedColor={theme.colors.greyOutline}
+                          containerStyle={{
+                            backgroundColor: "transparent",
+                            borderWidth: 0,
+                            padding: 0,
+                          }}
+                          size={32}
+                          iconType="material-community"
+                          checkedIcon="checkbox-marked"
+                          uncheckedIcon="checkbox-blank-outline"
+                        />
+                      </View>
+                    </Pressable>
+
+                    <View style={{ flex: 2, alignItems: "center" }}>
+                      <Text style={{ color: theme.colors.black }}>
+                        {item.ingredient.Ing_name}
+                      </Text>
+                    </View>
+
                     <View
                       style={{
                         flex: 1,
                         alignItems: "center",
                         flexDirection: "row",
+                        justifyContent: "space-between",
                       }}
                     >
-                      <CheckBox
-                        checked={selectedIngredients.includes(item.id)}
-                        onPress={() =>
-                          toggleIngredientSelection(
-                            item.id,
-                            !selectedIngredients.includes(item.id)
-                          )
-                        }
-                        checkedColor={theme.colors.primary}
-                        uncheckedColor={theme.colors.greyOutline}
-                        containerStyle={{
-                          backgroundColor: "transparent",
-                          borderWidth: 0,
-                          padding: 0,
-                        }}
-                        size={32}
-                        iconType="material-community"
-                        checkedIcon="checkbox-marked"
-                        uncheckedIcon="checkbox-blank-outline"
-                      />
+                      <Text style={{ color: theme.colors.black }}>
+                        {item.totalAmount || "Unknown"} {item.unitType || ""}
+                      </Text>
                     </View>
-                  </Pressable>
-
-                  {/* Ingredient Name */}
-                  <View style={{ flex: 2, alignItems: "center" }}>
-                    <Text style={{ color: theme.colors.black }}>
-                      {item.ingredient.Ing_name}
-                    </Text>
                   </View>
-
-                  {/* Amount */}
+                }
+                containerStyle={{
+                  backgroundColor: theme.colors.white,
+                }}
+                isExpanded={expandedRows[item.id]}
+                onPress={() => toggleRowExpansion(item.id)}
+              >
+                <View
+                  style={{
+                    padding: 10,
+                    backgroundColor: theme.colors.white,
+                    borderRadius: 5,
+                    gap: 10,
+                  }}
+                >
                   <View
                     style={{
-                      flex: 1,
-                      alignItems: "center",
                       flexDirection: "row",
-                      justifyContent: "space-between",
+                      justifyContent: item.expiryDate
+                        ? "space-between"
+                        : "flex-start",
+                      alignItems: "center",
+                      paddingHorizontal: 16,
+                      paddingVertical: 8,
+                      borderRadius: 4,
+                      marginBottom: 8,
+                      gap: 12,
                     }}
                   >
-                    <Text style={{ color: theme.colors.black }}>
-                      {item.totalAmount || "Unknown"} {item.unitType || ""}
-                    </Text>
+                    <View
+                      style={{ flexDirection: "row", alignItems: "center" }}
+                    >
+                      <Icon
+                        name="scale-balance"
+                        type="material-community"
+                        size={18}
+                        color={theme.colors.grey1}
+                        style={{ marginRight: 6 }}
+                      />
+                      <Text style={{ color: theme.colors.black, fontSize: 14 }}>
+                        Quantity:{" "}
+                        <Text style={{ fontWeight: "bold" }}>
+                          {item.unitQuantity || "N/A"}
+                        </Text>
+                      </Text>
+                    </View>
+
+                    {item.expiryDate && (
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                      >
+                        <Icon
+                          name="calendar-clock"
+                          type="material-community"
+                          size={18}
+                          color={theme.colors.grey1}
+                          style={{ marginRight: 6 }}
+                        />
+                        <Text
+                          style={{ color: theme.colors.black, fontSize: 14 }}
+                        >
+                          Expiry:{" "}
+                          <Text style={{ fontWeight: "bold" }}>
+                            {item.expiryDate}
+                          </Text>
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      gap: 8,
+                      paddingHorizontal: 16,
+                      marginTop: 8,
+                    }}
+                  >
+                    {[
+                      {
+                        title: "Restock",
+                        icon: "plus-circle-outline",
+                        color: theme.colors.primary,
+                        onPress: () => handleQuickRestock(item.id),
+                      },
+                      {
+                        title: "Edit",
+                        icon: "pencil",
+                        color: theme.colors.warning,
+                        onPress: () => {
+                          setSelectedUserIngredient(item);
+                          setSelectedUserIngredientId(item.id);
+                          setIsUpdateUserIngredientModalVisible(true);
+                        },
+                      },
+                      {
+                        title: "Delete",
+                        icon: "delete",
+                        color: theme.colors.error,
+                        onPress: () => handleDeletePress(item.id),
+                      },
+                    ].map((btn, idx) => (
+                      <View style={{ flex: 1 }} key={idx}>
+                        <ShomiButton
+                          title={btn.title}
+                          icon={btn.icon}
+                          buttonStyle={{
+                            backgroundColor: btn.color,
+                            minHeight: 48,
+                          }}
+                          titleStyle={{
+                            fontSize: 14,
+                            fontWeight: "500",
+                            textAlign: "center",
+                          }}
+                          onPress={btn.onPress}
+                        />
+                      </View>
+                    ))}
                   </View>
                 </View>
-              }
-              containerStyle={{
-                backgroundColor: theme.colors.white,
-                borderBottomWidth: 1,
-                borderBottomColor: theme.colors.greyOutline,
-              }}
-              isExpanded={expandedRows[item.id]}
-              onPress={() => toggleRowExpansion(item.id)}
-            >
-              {/* 🔹 Expanded Row Content */}
-              <View
-                style={{
-                  padding: 10,
-                  backgroundColor: theme.colors.grey5,
-                  borderRadius: 5,
-                }}
-              >
-                <Text
-                  style={{
-                    color: theme.colors.black,
-                    fontSize: 14,
-                    textAlign: "center",
-                  }}
-                >
-                  Quantity: {item.unitQuantity || "N/A"}
-                </Text>
-                <Text
-                  style={{
-                    color: theme.colors.black,
-                    fontSize: 14,
-                    textAlign: "center",
-                  }}
-                >
-                  Expiry Date: {item.expiryDate || "N/A"}
-                </Text>
-
-                <Button
-                  title="Quick Restock"
-                  buttonStyle={{
-                    backgroundColor: theme.colors.primary,
-                    paddingVertical: 8,
-                    borderRadius: 5,
-                    marginTop: 5,
-                  }}
-                  icon={
-                    <Icon
-                      name="plus-circle-outline"
-                      type="material-community"
-                      color={theme.colors.white}
-                    />
-                  }
-                  titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
-                  onPress={() => {
-                    handleQuickRestock(item.id);
-                  }}
-                />
-
-                {/* 🔹 Buttons */}
-                <Button
-                  title="Edit"
-                  buttonStyle={{
-                    backgroundColor: theme.colors.warning,
-                    paddingVertical: 8,
-                    borderRadius: 5,
-                    marginTop: 5,
-                  }}
-                  icon={
-                    <Icon
-                      name="pencil"
-                      type="material-community"
-                      color={theme.colors.white}
-                    />
-                  }
-                  titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
-                  onPress={() => {
-                    setSelectedUserIngredient(item);
-                    setSelectedUserIngredientId(item.id);
-                    setIsUpdateUserIngredientModalVisible(true);
-                  }}
-                />
-
-                <Button
-                  title="Remove"
-                  buttonStyle={{
-                    backgroundColor: theme.colors.error,
-                    paddingVertical: 8,
-                    borderRadius: 5,
-                    marginTop: 5,
-                  }}
-                  icon={
-                    <Icon
-                      name="delete"
-                      type="material-community"
-                      color={theme.colors.white}
-                    />
-                  }
-                  titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
-                  onPress={() => handleDeletePress(item.id)}
-                />
-              </View>
-            </ListItem.Accordion>
+              </ListItem.Accordion>
+            </View>
           ))}
         </ScrollView>
       )}
