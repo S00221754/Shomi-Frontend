@@ -9,7 +9,7 @@ import { Formik } from "formik";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
 import IngredientRow from "@/components/Ingredients/IngredientRow";
 import RecipeIngredientModal from "@/components/modals/RecipeIngredientModal";
-import { SelectedIngredient } from "@/types/ingredient";
+import { SelectedIngredient } from "@/Interfaces/ingredient";
 import { useAuth } from "@/providers/AuthProvider";
 import {
   createRecipe,
@@ -17,7 +17,7 @@ import {
   updateRecipe,
 } from "@/services/recipe.Service";
 import { uploadRecipeImage } from "@/lib/supabase/uploadRecipeImage";
-import { RecipeDTO } from "@/types/recipe";
+import { RecipeDTO } from "@/Interfaces/recipe";
 import { showToast } from "@/utils/toast";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import recipeValidationSchema from "@/validation/RecipeSchema";

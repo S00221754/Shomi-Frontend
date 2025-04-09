@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { View } from "react-native";
 import { Overlay, Button, Text, Input, Icon } from "@rneui/themed";
 import { useTheme, BottomSheet, SearchBar, ListItem } from "@rneui/themed";
-import { ProductInfo } from "@/types/ingredient";
+import { ProductInfo } from "@/Interfaces/ingredient";
 import { useGetUnitTypes } from "@/hooks/useGetUnitTypes";
-import { UnitType } from "@/types/unit-type";
+import { UnitType } from "@/Interfaces/unit-type";
 import ShomiBottomSheet from "../common/ShomiBottomSheet";
 
 interface IngredientModalProps {

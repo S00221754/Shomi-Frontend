@@ -4,7 +4,7 @@ import {
   getIngredientByBarcode,
   fetchIngredientFromAPI,
 } from "../services/scanService";
-import { ProductInfo } from "../types/ingredient";
+import { ProductInfo } from "../Interfaces/ingredient";
 
 export function useBarcodeScanner(
   onBarcodeScanned: (product: ProductInfo) => void,

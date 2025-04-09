@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { getUserIngredients } from "@/services/user-ingredientService";
-import { UserIngredient } from "@/types/ingredient";
+import { UserIngredient } from "@/Interfaces/ingredient";
 import { useFocusEffect } from "expo-router";
 
 export const useGetUserIngredients = (userId: string) => {

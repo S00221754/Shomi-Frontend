@@ -5,6 +5,7 @@ import { View } from "react-native";
 import { useAppTheme } from "@/context/ThemeContext";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import Logo from "@/components/common/Logo";
 
 export default function TabLayout() {
   const { theme } = useTheme();
@@ -26,6 +27,17 @@ export default function TabLayout() {
           tabBarStyle: { backgroundColor: theme.colors.background },
           tabBarInactiveTintColor:
             theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+
+          // 👇 Add your logo here
+          headerLeft: () => (
+            <View style={{ marginLeft: 12 }}>
+              <Logo width={40} height={40} />
+            </View>
+          ),
+
+          // ✅ This ensures title is centered even with logo present
+          headerTitleAlign: "center",
+
           headerRight: () => (
             <Button
               type="clear"

@@ -6,8 +6,8 @@ import {
   getUserIngredientByIngredientId,
   addUserIngredient,
 } from "@/services/user-ingredientService";
-import { ProductInfo } from "@/types/ingredient";
-import { UserIngredientInput } from "@/types/user-ingredient";
+import { ProductInfo } from "@/Interfaces/ingredient";
+import { UserIngredientInput } from "@/Interfaces/user-ingredient";
 import UserIngredientModal from "@/components//modals/UserIngredientModal";
 import { useAuth } from "@/providers/AuthProvider";
 import { showToast } from "@/utils/toast";

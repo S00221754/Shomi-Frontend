@@ -19,7 +19,7 @@ import {
   useFocusEffect,
 } from "expo-router";
 import { getRecipeById } from "../../services/recipe.Service";
-import { Recipe } from "../../types/recipe";
+import { Recipe } from "../../Interfaces/recipe";
 import { Text, Button, Divider, Icon } from "@rneui/themed";
 import { useTheme } from "@rneui/themed";
 import ImageCarousel from "@/components/Recipe/ImageCarousel";

@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { View } from "react-native";
 import { Overlay, Button, Text, Input } from "@rneui/themed";
 import { useTheme } from "@rneui/themed";
-import { UserIngredientInput } from "@/types/user-ingredient";
-import { ProductInfo } from "@/types/ingredient";
+import { UserIngredientInput } from "@/Interfaces/user-ingredient";
+import { ProductInfo } from "@/Interfaces/ingredient";
 
 interface UserIngredientModalProps {
   visible: boolean;

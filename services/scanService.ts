@@ -1,6 +1,6 @@
 import axiosInstance from "./api";
 import axios from "axios";
-import { ProductInfo } from "../types/ingredient";
+import { ProductInfo } from "../Interfaces/ingredient";
 
 // fetch ingredient info from database
 export const getIngredientByBarcode = async (

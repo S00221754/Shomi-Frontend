@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { View, FlatList, ActivityIndicator } from "react-native";
 import { Text, Card, Button } from "@rneui/themed";
 import axiosInstance from "../../services/api";
-import { Recipe } from "../../types/recipe";
+import { Recipe } from "../../Interfaces/recipe";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useTheme } from "@rneui/themed";
 import ShomiFAB from "@/components/common/ShomiFAB";

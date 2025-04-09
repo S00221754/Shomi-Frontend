@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getIngredients } from "@/services/ingredientsService";
-import { ProductInfo } from "@/types/ingredient";
+import { ProductInfo } from "@/Interfaces/ingredient";
 
 export const useGetIngredient = () => {
   const [ingredients, setIngredients] = useState<ProductInfo[]>([]);

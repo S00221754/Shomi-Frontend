@@ -2,12 +2,9 @@ import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Overlay, Button, Input, Text } from "@rneui/themed";
 import { useTheme } from "@rneui/themed";
-import {
-  ProductInfo,
-  SelectedIngredient,
-} from "@/types/ingredient";
-import { Ingredient } from "@/types/recipe";
-import { UnitType } from "@/types/unit-type";
+import { ProductInfo, SelectedIngredient } from "@/Interfaces/ingredient";
+import { Ingredient } from "@/Interfaces/recipe";
+import { UnitType } from "@/Interfaces/unit-type";
 import { useGetUnitTypes } from "@/hooks/useGetUnitTypes";
 import { useGetIngredient } from "@/hooks/useGetIngredient";
 import ShomiBottomSheet from "@/components/common/ShomiBottomSheet";

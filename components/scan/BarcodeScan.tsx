@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View, Button } from "react-native";
 import { CameraView } from "expo-camera";
-import { ProductInfo } from "@/types/ingredient";
+import { ProductInfo } from "@/Interfaces/ingredient";
 import { useBarcodeScanner } from "@/hooks/useBarcodeScanner";
 
 type BarcodeScanProps = {

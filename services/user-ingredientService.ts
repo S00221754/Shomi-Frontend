@@ -1,9 +1,9 @@
 import {
   UserIngredientInput,
   UserIngredientUpdate,
-} from "@/types/user-ingredient";
+} from "@/Interfaces/user-ingredient";
 import axiosInstance from "./api";
-import { UserIngredient } from "@/types/ingredient";
+import { UserIngredient } from "@/Interfaces/ingredient";
 
 export const getUserIngredients = async (
   userId: string

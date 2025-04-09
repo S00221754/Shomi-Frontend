@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getUnitTypes } from "@/services/unit-type.Service";
-import { UnitType } from "@/types/unit-type";
+import { UnitType } from "@/Interfaces/unit-type";
 
 export const useGetUnitTypes = () => {
   const [unitTypes, setUnitTypes] = useState<UnitType[]>([]);

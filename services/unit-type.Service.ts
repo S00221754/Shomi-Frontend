@@ -1,5 +1,5 @@
 import axiosInstance from "./api";
-import { UnitType } from "@/types/unit-type";
+import { UnitType } from "@/Interfaces/unit-type";
 
 export const getUnitTypes = async (): Promise<UnitType[]> => {
   try {

@@ -1,5 +1,5 @@
 import axiosInstance from "./api";
-import { Recipe, Ingredient, RecipeDTO } from "@/types/recipe";
+import { Recipe, Ingredient, RecipeDTO } from "@/Interfaces/recipe";
 
 export const getRecipes = async (): Promise<Recipe[]> => {
   try {

@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { ProductInfo, UserIngredient } from "../types/ingredient";
+import { ProductInfo, UserIngredient } from "../Interfaces/ingredient";
 import { addIngredient } from "../services/ingredientsService";
 import { useAuth } from "@/providers/AuthProvider";
 import {
   addUserIngredient,
   getUserIngredientByIngredientId,
 } from "@/services/user-ingredientService";
-import { UserIngredientInput } from "@/types/user-ingredient";
+import { UserIngredientInput } from "@/Interfaces/user-ingredient";
 import { useGetUserIngredients } from "./useGetUserIngredients";
 
 export const useScannerLogic = (

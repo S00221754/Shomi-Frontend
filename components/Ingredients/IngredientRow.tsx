@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import { Card, Text, Button, Icon, useTheme } from "@rneui/themed";
-import { SelectedIngredient } from "@/types/ingredient";
+import { SelectedIngredient } from "@/Interfaces/ingredient";
 
 interface IngredientRowProps {
   ingredient: SelectedIngredient;

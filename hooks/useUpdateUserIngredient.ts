@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { updateUserIngredient } from "@/services/user-ingredientService";
-import { UserIngredientInput } from "@/types/user-ingredient";
+import { UserIngredientInput } from "@/Interfaces/user-ingredient";
 
 export const useUpdateUserIngredient = () => {
   const [loading, setLoading] = useState(false);

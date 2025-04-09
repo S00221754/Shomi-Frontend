@@ -1,4 +1,4 @@
-import { Recipe } from "@/types/recipe";
+import { Recipe } from "@/Interfaces/recipe";
 import axiosInstance from "./api";
 
 export const getBookmarkRecipes = async (userId: string): Promise<Recipe[]> => {

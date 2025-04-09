@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getRecommendedRecipes } from "@/services/recipe.Service";
-import { Recipe } from "@/types/recipe";
+import { Recipe } from "@/Interfaces/recipe";
 
 export const useGetRecommendedRecipes = (userId: string) => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);

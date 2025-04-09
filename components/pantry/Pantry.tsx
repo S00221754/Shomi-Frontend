@@ -18,13 +18,13 @@ import IngredientModal from "@/components/modals/IngredientModal";
 import UserIngredientModal from "@/components/modals/UserIngredientModal";
 import { useScannerState } from "@/hooks/useScannerState";
 import { useScannerLogic } from "@/hooks/useScannerLogic";
-import { UserIngredientUpdate } from "@/types/user-ingredient";
+import { UserIngredientUpdate } from "@/Interfaces/user-ingredient";
 import {
   quickRestockUserIngredient,
   updateUserIngredient,
 } from "@/services/user-ingredientService";
 import UpdateUserIngredientModal from "../modals/UpdateUserIngredientModal";
-import { UserIngredient } from "@/types/ingredient";
+import { UserIngredient } from "@/Interfaces/ingredient";
 import ShomiFAB from "../common/ShomiFAB";
 import { showToast } from "@/utils/toast";
 import ShomiButton from "../common/ShomiButton";

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { View } from "react-native";
 import { Overlay, Button, Text, Input } from "@rneui/themed";
 import { useTheme } from "@rneui/themed";
-import { UserIngredientUpdate } from "@/types/user-ingredient";
-import { UserIngredient } from "@/types/ingredient";
+import { UserIngredientUpdate } from "@/Interfaces/user-ingredient";
+import { UserIngredient } from "@/Interfaces/ingredient";
 import { getIngredientById } from "@/services/ingredientsService";
 
 interface UpdateUserIngredientModalProps {

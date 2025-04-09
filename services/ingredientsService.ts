@@ -1,4 +1,4 @@
-import { ProductInfo } from "@/types/ingredient";
+import { ProductInfo } from "@/Interfaces/ingredient";
 import axiosInstance from "./api";
 
 export const getIngredients = async () => {

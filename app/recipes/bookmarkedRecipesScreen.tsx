@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { View, FlatList, ActivityIndicator } from "react-native";
 import { Text, Card, Button, Icon, useTheme } from "@rneui/themed";
 import { useFocusEffect, useRouter } from "expo-router";
-import { Recipe } from "@/types/recipe";
+import { Recipe } from "@/Interfaces/recipe";
 import { useAuth } from "@/providers/AuthProvider";
 import {
   getBookmarkRecipes,
