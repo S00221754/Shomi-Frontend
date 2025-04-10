@@ -18,7 +18,10 @@ import IngredientModal from "@/components/modals/IngredientModal";
 import UserIngredientModal from "@/components/modals/UserIngredientModal";
 import { useScannerState } from "@/hooks/useScannerState";
 import { useScannerLogic } from "@/hooks/useScannerLogic";
-import { UserIngredientUpdate } from "@/Interfaces/user-ingredient";
+import {
+  UserIngredientInput,
+  UserIngredientUpdate,
+} from "@/Interfaces/user-ingredient";
 import {
   quickRestockUserIngredient,
   updateUserIngredient,
@@ -28,6 +31,7 @@ import { UserIngredient } from "@/Interfaces/ingredient";
 import ShomiFAB from "../common/ShomiFAB";
 import { showToast } from "@/utils/toast";
 import ShomiButton from "../common/ShomiButton";
+import ChooseBatchModal from "../modals/ChooseBatchModal";
 
 const Pantry: React.FC = () => {
   const { theme } = useTheme();
@@ -56,6 +60,11 @@ const Pantry: React.FC = () => {
   const [selectedUserIngredientId, setSelectedUserIngredientId] = useState<
     string | null
   >(null);
+  const [matchingIngredientVariants, setMatchingIngredientVariants] = useState<
+    UserIngredient[]
+  >([]);
+  const [isChooseBatchModalVisible, setIsChooseBatchModalVisible] =
+    useState(false);
 
   const handleDeletePress = (id: string) => {
     setSelectedIngredientId(id);
@@ -163,17 +172,38 @@ const Pantry: React.FC = () => {
   const {
     scannedData,
     userIngredient,
+    setUserIngredient,
     handleBarcodeScanned,
     handleAddIngredient,
     handleAddUserIngredient,
   } = useScannerLogic(
+    userIngredients,
     setIsAddIngredientModalVisible,
     setIsAddUserIngredientModalVisible,
     setSelectedUserIngredient,
     setSelectedUserIngredientId,
     setIsUpdateUserIngredientModalVisible,
-    fetchUserIngredients
+    fetchUserIngredients,
+    setMatchingIngredientVariants,
+    setIsChooseBatchModalVisible
   );
+
+  const handleAddNewVariant = () => {
+    if (!scannedData || !userId) return;
+
+    const newIngredient: UserIngredientInput = {
+      userId,
+      ingredientId: scannedData.Ing_id!,
+      unitQuantity: 0,
+      totalAmount: 0,
+      unitType: scannedData.Ing_quantity_units || "",
+      expiry_date: "",
+    };
+
+    setUserIngredient(newIngredient);
+    setIsChooseBatchModalVisible(false);
+    setIsAddUserIngredientModalVisible(true);
+  };
 
   if (loading) {
     return (
@@ -307,10 +337,37 @@ const Pantry: React.FC = () => {
                       </View>
                     </Pressable>
 
-                    <View style={{ flex: 2, alignItems: "center" }}>
-                      <Text style={{ color: theme.colors.black }}>
-                        {item.ingredient.Ing_name}
-                      </Text>
+                    <View
+                      style={{
+                        flex: 2,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          gap: 4,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: theme.colors.black,
+                            textAlign: "center",
+                          }}
+                        >
+                          {item.ingredient.Ing_name}
+                        </Text>
+                        {item.expiry_date && (
+                          <Icon
+                            name="calendar"
+                            type="material-community"
+                            color={theme.colors.primary}
+                            size={16}
+                          />
+                        )}
+                      </View>
                     </View>
 
                     <View
@@ -344,7 +401,7 @@ const Pantry: React.FC = () => {
                   <View
                     style={{
                       flexDirection: "row",
-                      justifyContent: item.expiryDate
+                      justifyContent: item.expiry_date
                         ? "space-between"
                         : "flex-start",
                       alignItems: "center",
@@ -373,7 +430,7 @@ const Pantry: React.FC = () => {
                       </Text>
                     </View>
 
-                    {item.expiryDate && (
+                    {item.expiry_date && (
                       <View
                         style={{ flexDirection: "row", alignItems: "center" }}
                       >
@@ -389,7 +446,7 @@ const Pantry: React.FC = () => {
                         >
                           Expiry:{" "}
                           <Text style={{ fontWeight: "bold" }}>
-                            {item.expiryDate}
+                            {item.expiry_date}
                           </Text>
                         </Text>
                       </View>
@@ -529,7 +586,11 @@ const Pantry: React.FC = () => {
         visible={isAddIngredientModalVisible}
         onClose={closeIngredientModal}
         ingredient={scannedData}
-        onAddIngredient={handleAddIngredient}
+        onAddIngredient={async (ingredient) => {
+          await handleAddIngredient(ingredient);
+          closeIngredientModal();
+          setIsAddUserIngredientModalVisible(true);
+        }}
       />
       <UpdateUserIngredientModal
         visible={isUpdateUserIngredientModalVisible}
@@ -537,6 +598,20 @@ const Pantry: React.FC = () => {
         userIngredient={selectedUserIngredient}
         userIngredientId={selectedUserIngredientId}
         onUpdateUserIngredient={handleUpdateIngredient}
+      />
+
+      <ChooseBatchModal
+        visible={isChooseBatchModalVisible}
+        onClose={() => setIsChooseBatchModalVisible(false)}
+        ingredientName={scannedData?.Ing_name || ""}
+        variants={matchingIngredientVariants}
+        onSelectVariant={(variant: UserIngredient) => {
+          setSelectedUserIngredient(variant);
+          setSelectedUserIngredientId(variant.id);
+          setIsChooseBatchModalVisible(false);
+          setIsUpdateUserIngredientModalVisible(true);
+        }}
+        onAddNewVariant={() => handleAddNewVariant()}
       />
     </View>
   );

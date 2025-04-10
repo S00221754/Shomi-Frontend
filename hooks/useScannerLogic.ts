@@ -5,17 +5,22 @@ import { useAuth } from "@/providers/AuthProvider";
 import {
   addUserIngredient,
   getUserIngredientByIngredientId,
+  getUserIngredients,
 } from "@/services/user-ingredientService";
 import { UserIngredientInput } from "@/Interfaces/user-ingredient";
 import { useGetUserIngredients } from "./useGetUserIngredients";
+import { showToast } from "@/utils/toast";
 
 export const useScannerLogic = (
+  userIngredients: UserIngredient[],
   setIsAddIngredientModalVisible: (visible: boolean) => void,
   setIsAddUserIngredientModalVisible: (visible: boolean) => void,
   setSelectedUserIngredient: (ingredient: UserIngredient) => void,
   setSelectedUserIngredientId: (id: string) => void,
   setIsUpdateUserIngredientModalVisible: (visible: boolean) => void,
-  fetchUserIngredients: () => void
+  fetchUserIngredients: () => void,
+  setMatchingIngredientVariants: (variants: UserIngredient[]) => void,
+  setIsChooseBatchModalVisible: (visible: boolean) => void
 ) => {
   const { userId } = useAuth();
   const [scannedData, setScannedData] = useState<ProductInfo | null>(null);
@@ -32,6 +37,7 @@ export const useScannerLogic = (
       if (missingFields.length > 0) {
         // If fields are missing, prompt user to fill them
         setIsAddIngredientModalVisible(true);
+        return;
       } else {
         // If all details exist, auto-add to DB
         try {
@@ -44,7 +50,7 @@ export const useScannerLogic = (
               unitQuantity: 1,
               totalAmount: productInfo.Ing_quantity || 1,
               unitType: productInfo.Ing_quantity_units || "",
-              expiryDate: "",
+              expiry_date: "",
             });
             setIsAddUserIngredientModalVisible(true);
           }
@@ -52,31 +58,35 @@ export const useScannerLogic = (
           console.error("Error adding ingredient:", error);
         }
       }
-    } else {
-      // Check if ingredient is already in user's pantry
-      const inPantry = await getUserIngredientByIngredientId(
-        userId!,
-        productInfo.Ing_id!
-      );
-
-      if (inPantry) {
-        setSelectedUserIngredient(inPantry);
-        setSelectedUserIngredientId(inPantry.id);
-        setIsUpdateUserIngredientModalVisible(true);
-        return;
-      }
-
-      // If already in DB, just ask user how many they have
-      setUserIngredient({
-        userId: userId!,
-        ingredientId: productInfo.Ing_id!,
-        unitQuantity: 1,
-        totalAmount: productInfo.Ing_quantity || 1,
-        unitType: productInfo.Ing_quantity_units || "",
-        expiryDate: "",
-      });
-      setIsAddUserIngredientModalVisible(true);
     }
+
+    const matchingVariants = userIngredients.filter(
+      (item) => item.ingredient.Ing_id === productInfo.Ing_id
+    );
+
+    if (matchingVariants.length > 1) {
+      setMatchingIngredientVariants(matchingVariants);
+      setScannedData(productInfo);
+      setIsChooseBatchModalVisible(true);
+      return;
+    }
+
+    if (matchingVariants.length === 1) {
+      const match = matchingVariants[0];
+      setSelectedUserIngredient(match);
+      setSelectedUserIngredientId(match.id);
+      setIsUpdateUserIngredientModalVisible(true);
+      return;
+    }
+    setUserIngredient({
+      userId: userId!,
+      ingredientId: productInfo.Ing_id!,
+      unitQuantity: 1,
+      totalAmount: productInfo.Ing_quantity || 1,
+      unitType: productInfo.Ing_quantity_units || "",
+      expiry_date: "",
+    });
+    setIsAddUserIngredientModalVisible(true);
   };
 
   const handleAddIngredient = async (ingredient: ProductInfo) => {
@@ -100,11 +110,10 @@ export const useScannerLogic = (
           unitQuantity: 1,
           totalAmount: updatedIngredient.Ing_quantity || 1,
           unitType: updatedIngredient.Ing_units || "",
-          expiryDate: "",
+          expiry_date: "",
         });
 
         setScannedData(updatedIngredient);
-        setIsAddUserIngredientModalVisible(true);
         fetchUserIngredients();
       }
 
@@ -116,19 +125,34 @@ export const useScannerLogic = (
 
   const handleAddUserIngredient = async (
     userIngredient: UserIngredientInput
-  ) => {
+  ): Promise<boolean> => {
     try {
+      const allUserIngredients = await getUserIngredients(userId!);
+
+      const isDuplicate = allUserIngredients.some(
+        (item) =>
+          item.ingredient.Ing_id === userIngredient.ingredientId &&
+          (item.expiry_date ?? null) === (userIngredient.expiry_date ?? null)
+      );
+
+      if (isDuplicate) {
+        return false;
+      }
+
       await addUserIngredient(userIngredient);
       fetchUserIngredients();
       setIsAddUserIngredientModalVisible(false);
+      return true;
     } catch (error) {
       console.error("Error adding user ingredient:", error);
+      return false;
     }
   };
 
   return {
     scannedData,
     userIngredient,
+    setUserIngredient,
     handleBarcodeScanned,
     handleAddIngredient,
     handleAddUserIngredient,
