@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { Overlay, Button, Text, Input } from "@rneui/themed";
 import { useTheme } from "@rneui/themed";
 import { UserIngredientInput } from "@/Interfaces/user-ingredient";
 import { ProductInfo } from "@/Interfaces/ingredient";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 interface UserIngredientModalProps {
   visible: boolean;
@@ -30,6 +31,7 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
   const [unitType, setUnitType] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useEffect(() => {
     if (ingredient && ingredient !== prevIngredientRef.current) {
@@ -150,12 +152,50 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
         containerStyle={{ marginBottom: 10 }}
       />
 
-      <Input
-        label="Expiry Date (optional)"
-        placeholder="YYYY-MM-DD"
-        value={expiryDate}
-        onChangeText={setExpiryDate}
-      />
+      <TouchableOpacity
+        onPress={() => setShowDatePicker(true)}
+        activeOpacity={0.9}
+      >
+        <Input
+          label="Expiry Date (optional)"
+          placeholder="YYYY-MM-DD"
+          value={expiryDate}
+          editable={false}
+          pointerEvents="none"
+          leftIcon={{
+            type: "material-community",
+            name: "calendar",
+            onPress: () => setShowDatePicker(true),
+            color: theme.colors.primary,
+          }}
+          rightIcon={
+            expiryDate
+              ? {
+                  type: "material-community",
+                  name: "close-circle",
+                  onPress: () => setExpiryDate(""),
+                  color: theme.colors.error,
+                }
+              : undefined
+          }
+        />
+      </TouchableOpacity>
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={expiryDate ? new Date(expiryDate) : new Date()}
+          mode="date"
+          display="default"
+          minimumDate={new Date()}
+          onChange={(_, selectedDate) => {
+            setShowDatePicker(false);
+            if (selectedDate) {
+              const formatted = selectedDate.toISOString().split("T")[0];
+              setExpiryDate(formatted);
+            }
+          }}
+        />
+      )}
 
       {errorMessage && (
         <Text

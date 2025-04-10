@@ -71,7 +71,8 @@ export const useScannerLogic = (
       return;
     }
 
-    if (matchingVariants.length === 1) {
+    // This will check if there is more than one type of user ingredient if it does the selection will pop up, but if the first ingredient found has an expirty date it will open the selection modal as well
+    if (matchingVariants.length === 1 && matchingVariants[0].expiry_date) {
       const match = matchingVariants[0];
       setSelectedUserIngredient(match);
       setSelectedUserIngredientId(match.id);
