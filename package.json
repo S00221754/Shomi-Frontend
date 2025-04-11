@@ -65,7 +65,8 @@
     "react-native-webview": "13.12.5",
     "uuid": "^11.1.0",
     "yup": "^1.6.1",
-    "@react-native-community/datetimepicker": "8.2.0"
+    "@react-native-community/datetimepicker": "8.2.0",
+    "expo-notifications": "~0.29.14"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -1,12 +1,15 @@
 import "react-native-get-random-values";
 import { Buffer } from "buffer";
-import { AuthProvider } from "@/providers/AuthProvider";
+import { AuthProvider, useAuth } from "@/providers/AuthProvider";
 import { ThemeProviderWrapper, useAppTheme } from "@/context/ThemeContext";
 import { useTheme } from "@rneui/themed";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import Toast from "react-native-toast-message";
 import React from "react";
+import { useEffect } from "react";
+import { getExpoPushToken } from "@/utils/notification";
+import { updateExpoPushToken } from "@/services/userService";
 
 // @ts-ignore
 if (typeof global.Buffer === "undefined") {
@@ -26,6 +29,26 @@ console.warn = (...args) => {
   }
   originalWarn(...args);
 };
+
+const { user } = useAuth();
+
+useEffect(() => {
+  const registerPush = async () => {
+    if (!user?.id) return;
+
+    const token = await getExpoPushToken();
+    if (!token) return;
+
+    try {
+      await updateExpoPushToken(user.id, token);
+      console.log("Expo push token saved:", token);
+    } catch (err) {
+      console.error("Failed to save push token:", err);
+    }
+  };
+
+  registerPush();
+}, [user?.id]);
 
 function AppLayout() {
   const { isDarkMode } = useAppTheme();
