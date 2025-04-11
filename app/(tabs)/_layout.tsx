@@ -6,13 +6,57 @@ import { useAppTheme } from "@/context/ThemeContext";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Logo from "@/components/common/Logo";
+import { useEffect } from "react";
+import { getExpoPushToken } from "@/utils/notification";
+import { updateExpoPushToken } from "@/services/userService";
+import { useAuth } from "@/providers/AuthProvider";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function TabLayout() {
   const { theme } = useTheme();
   const { toggleTheme, isDarkMode } = useAppTheme();
   const [showSettings, setShowSettings] = useState(false);
 
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const registerPush = async () => {
+      if (!user?.id) return;
+
+      const token = await getExpoPushToken();
+      if (!token) return;
+
+      try {
+        const savedToken = await AsyncStorage.getItem("expo_push_token");
+        const savedUserId = await AsyncStorage.getItem(
+          "expo_push_token_user_id"
+        );
+
+        const shouldUpdateToken =
+          savedToken !== token || savedUserId !== user.id;
+
+        if (!shouldUpdateToken) {
+          return;
+        }
+
+        await updateExpoPushToken(user.id, token);
+        await AsyncStorage.setItem("expo_push_token", token);
+        await AsyncStorage.setItem("expo_push_token_user_id", user.id);
+      } catch (err) {
+        console.error("Failed to update expo push token:", err);
+      }
+    };
+
+    registerPush();
+  }, [user?.id]);
+
   const handleLogout = async () => {
+    await AsyncStorage.multiRemove([
+      "expo_push_token",
+      "expo_push_token_user_id",
+    ]);
     await supabase.auth.signOut();
   };
 

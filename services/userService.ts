@@ -4,7 +4,7 @@ export async function updateExpoPushToken(
   userId: string,
   expoPushToken: string
 ) {
-  return axiosInstance.patch(`/profiles/${userId}`, {
+  return axiosInstance.patch(`/profile/${userId}`, {
     expo_push_token: expoPushToken,
   });
 }

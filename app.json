@@ -4,7 +4,7 @@
     "slug": "Shomi",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/bannaa.png",
+    "icon": "./assets/images/shomi-logo.png",
     "scheme": "ie.shomi",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,26 +13,30 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/bannaa.png",
+        "foregroundImage": "./assets/images/shomi-logo.png",
         "backgroundColor": "#ffffff"
       },
       "package": "ie.shomi",
+      "googleServicesFile": "./google-services.json",
       "permissions": [
         "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.INTERNET",
+        "com.google.android.c2dm.permission.RECEIVE"
       ]
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/bannaa.png"
+      "favicon": "./assets/images/shomi-logo.png"
     },
     "plugins": [
       "expo-router",
+      "expo-notifications",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/bannaa.png",
+          "image": "./assets/images/shomi-logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"

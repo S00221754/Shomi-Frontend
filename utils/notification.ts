@@ -11,19 +11,22 @@ export async function getExpoPushToken(): Promise<string | null> {
     finalStatus = status;
   }
 
-  if (finalStatus !== "granted") {
-    console.warn("Push notification permission not granted");
+  if (finalStatus !== "granted") return null;
+
+  try {
+    const tokenResponse = await Notifications.getExpoPushTokenAsync();
+    const token = tokenResponse.data;
+
+    if (Platform.OS === "android") {
+      await Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.DEFAULT,
+      });
+    }
+
+    return token;
+  } catch (error) {
+    console.error("Error while getting Expo push token:", error);
     return null;
   }
-
-  const token = (await Notifications.getExpoPushTokenAsync()).data;
-
-  if (Platform.OS === "android") {
-    await Notifications.setNotificationChannelAsync("default", {
-      name: "default",
-      importance: Notifications.AndroidImportance.DEFAULT,
-    });
-  }
-
-  return token;
 }
