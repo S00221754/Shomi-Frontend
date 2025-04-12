@@ -32,4 +32,11 @@ export type SelectedIngredient = {
   unit: string;
 };
 
+export enum ExpiryStatus {
+  Expired = "expired",
+  Soon = "soon",
+  Fresh = "fresh",
+}
+
+
 

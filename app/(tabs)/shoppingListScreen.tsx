@@ -1,30 +1,72 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, FlatList } from "react-native";
-import { CheckBox, Text, useTheme } from "@rneui/themed";
-
-interface ShoppingItem {
-  id: string;
-  name: string;
-}
-
-const initialShoppingItems: ShoppingItem[] = [
-  { id: "1", name: "Tomatoes" },
-  { id: "2", name: "Milk" },
-  { id: "3", name: "Bread" },
-  { id: "4", name: "Eggs" },
-];
+import { CheckBox, Icon, Text, useTheme, ListItem } from "@rneui/themed";
+import {
+  deleteShoppingListItem,
+  getShoppingList,
+  markItemAsPurchased,
+} from "@/services/shoppingListService";
+import { useAuth } from "@/providers/AuthProvider";
+import { ShoppingItem } from "@/Interfaces/shopping-list";
+import { showToast } from "@/utils/toast";
+import { useFocusEffect } from "expo-router";
 
 const ShoppingListScreen = () => {
   const { theme } = useTheme();
+  const { userId } = useAuth();
   const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
+  const [expandedItems, setExpandedItems] = useState<{
+    [key: string]: boolean;
+  }>({});
 
-  useEffect(() => {
-    // Reset to initial items on mount
-    setShoppingItems(initialShoppingItems);
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      if (!userId) return;
 
-  const handleCheck = (id: string) => {
-    setShoppingItems((prevItems) => prevItems.filter((item) => item.id !== id));
+      const fetchItems = async () => {
+        try {
+          const result = await getShoppingList(userId);
+          setShoppingItems(result);
+        } catch (error) {
+          console.error("Failed to load shopping list");
+        }
+      };
+
+      fetchItems();
+    }, [userId])
+  );
+
+  const toggleExpand = (id: string) => {
+    setExpandedItems((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  const handleMarkAsBought = async (itemId: string) => {
+    try {
+      await markItemAsPurchased(itemId);
+      setShoppingItems((prev) =>
+        prev.filter((item) => item.Shop_id !== itemId)
+      );
+      showToast("success", "Purchased", "Item added to your pantry.");
+    } catch (error) {
+      console.error("Failed to mark item as purchased:", error);
+      showToast("error", "Error", "Could not mark item as purchased.");
+    }
+  };
+
+  const handleDismissItem = async (itemId: string) => {
+    try {
+      await deleteShoppingListItem(itemId);
+      setShoppingItems((prev) =>
+        prev.filter((item) => item.Shop_id !== itemId)
+      );
+      showToast("success", "Dismissed", "Item removed from shopping list.");
+    } catch (error) {
+      console.error("Failed to delete item:", error);
+      showToast("error", "Error", "Could not remove item.");
+    }
   };
 
   return (
@@ -46,6 +88,7 @@ const ShoppingListScreen = () => {
       >
         You're running low or out of the following ingredients
       </Text>
+
       {shoppingItems.length === 0 ? (
         <Text
           style={{
@@ -59,44 +102,88 @@ const ShoppingListScreen = () => {
       ) : (
         <FlatList
           data={shoppingItems}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.Shop_id}
           contentContainerStyle={{ paddingBottom: 20 }}
           renderItem={({ item }) => (
             <View
               style={{
-                flexDirection: "row",
-                alignItems: "center",
-                backgroundColor: theme.colors.white,
-                padding: 12,
+                marginBottom: 16,
                 borderRadius: 16,
-                marginBottom: 12,
+                backgroundColor: theme.colors.white,
                 shadowColor: "#000",
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.1,
-                shadowRadius: 4,
-                elevation: 2,
+                shadowRadius: 6,
+                elevation: 4,
+                overflow: "hidden",
               }}
             >
-              <CheckBox
-                checked={false}
-                onPress={() => handleCheck(item.id)}
+              <ListItem.Accordion
+                isExpanded={!!expandedItems[item.Shop_id]}
+                onPress={() => toggleExpand(item.Shop_id)}
                 containerStyle={{
-                  padding: 0,
-                  marginRight: 12,
                   backgroundColor: "transparent",
+                  paddingHorizontal: 16,
+                  paddingVertical: 16,
                 }}
-              />
-              <View style={{ flex: 1 }}>
-                <Text
+                content={
+                  <>
+                    <ListItem.Content>
+                      <ListItem.Title
+                        style={{
+                          fontWeight: "bold",
+                          color: theme.colors.black,
+                          fontSize: 16,
+                        }}
+                      >
+                        {item.ingredient.Ing_name}
+                      </ListItem.Title>
+                    </ListItem.Content>
+                    <View style={{ flexDirection: "row", gap: 12 }}>
+                      <Icon
+                        name="check-circle-outline"
+                        type="material-community"
+                        color={theme.colors.success}
+                        size={26}
+                        onPress={() => handleMarkAsBought(item.Shop_id)}
+                      />
+                      <Icon
+                        name="close-circle-outline"
+                        type="material-community"
+                        color={theme.colors.error}
+                        size={26}
+                        onPress={() => handleDismissItem(item.Shop_id)}
+                      />
+                    </View>
+                  </>
+                }
+              >
+                <View
                   style={{
-                    fontSize: 16,
-                    fontWeight: "600",
-                    color: theme.colors.black,
+                    backgroundColor: "transparent",
+                    paddingHorizontal: 16,
+                    paddingBottom: 12,
+                    paddingTop: 4,
                   }}
                 >
-                  {item.name}
-                </Text>
-              </View>
+                  <Text style={{ color: theme.colors.grey1, fontSize: 14 }}>
+                    Reason:{" "}
+                    <Text
+                      style={{ fontWeight: "bold", color: theme.colors.black }}
+                    >
+                      {item.Shop_reason || "N/A"}
+                    </Text>
+                  </Text>
+                  <Text style={{ color: theme.colors.grey1, fontSize: 14 }}>
+                    Quantity:{" "}
+                    <Text
+                      style={{ fontWeight: "bold", color: theme.colors.black }}
+                    >
+                      {item.Shop_quantity}
+                    </Text>
+                  </Text>
+                </View>
+              </ListItem.Accordion>
             </View>
           )}
         />

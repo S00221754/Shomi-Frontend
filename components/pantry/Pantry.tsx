@@ -6,7 +6,15 @@ import {
   Pressable,
   Animated,
 } from "react-native";
-import { Text, Button, Card, ListItem, Icon, CheckBox } from "@rneui/themed";
+import {
+  Text,
+  Button,
+  Card,
+  ListItem,
+  Icon,
+  CheckBox,
+  Badge,
+} from "@rneui/themed";
 import { useGetUserIngredients } from "@/hooks/useGetUserIngredients";
 import { useAuth } from "@/providers/AuthProvider";
 import ConfirmationModal from "../modals/ConfirmationModal";
@@ -27,11 +35,13 @@ import {
   updateUserIngredient,
 } from "@/services/user-ingredientService";
 import UpdateUserIngredientModal from "../modals/UpdateUserIngredientModal";
-import { UserIngredient } from "@/Interfaces/ingredient";
+import { ExpiryStatus, UserIngredient } from "@/Interfaces/ingredient";
 import ShomiFAB from "../common/ShomiFAB";
 import { showToast } from "@/utils/toast";
 import ShomiButton from "../common/ShomiButton";
 import ChooseBatchModal from "../modals/ChooseBatchModal";
+import { addShoppingListItem } from "@/services/shoppingListService";
+import dayjs from "dayjs";
 
 const Pantry: React.FC = () => {
   const { theme } = useTheme();
@@ -142,13 +152,22 @@ const Pantry: React.FC = () => {
     }
   };
 
-  const handleQuickRestock = async (userIngredientId: string) => {
+  const handleAddToShoppingList = async (item: UserIngredient) => {
     try {
-      await quickRestockUserIngredient(userIngredientId);
-      fetchUserIngredients();
-      showToast("success", "Ingredient Updated");
+      if (!userId) return;
+
+      await addShoppingListItem({
+        user_id: userId,
+        ingredient_id: item.ingredient.Ing_id,
+        Shop_quantity: 1,
+        Shop_added_automatically: false,
+        Shop_reason: "",
+      });
+
+      showToast("success", "Added", "Item added to your shopping list.");
     } catch (error) {
-      console.error("Error updating ingredient:", error);
+      console.error("Error adding to shopping list:", error);
+      showToast("error", "Error", "Could not add to shopping list.");
     }
   };
 
@@ -169,6 +188,7 @@ const Pantry: React.FC = () => {
     setIsAddUserIngredientModalVisible,
   } = useScannerState();
 
+  //TODO: Fix the scanning logic to not use the barcode scanner
   const {
     scannedData,
     userIngredient,
@@ -203,6 +223,32 @@ const Pantry: React.FC = () => {
     setUserIngredient(newIngredient);
     setIsChooseBatchModalVisible(false);
     setIsAddUserIngredientModalVisible(true);
+  };
+
+  const getExpiryStatus = (expiryDate: string): ExpiryStatus => {
+    const today = dayjs();
+    const expiry = dayjs(expiryDate);
+
+    if (expiry.isBefore(today, "day")) return ExpiryStatus.Expired;
+    if (expiry.diff(today, "day") <= 3) return ExpiryStatus.Soon;
+    return ExpiryStatus.Fresh;
+  };
+
+  const renderExpiryBadge = (expiryDate: string) => {
+    const status = getExpiryStatus(expiryDate);
+
+    const ingredientStatus = {
+      [ExpiryStatus.Expired]: "error",
+      [ExpiryStatus.Soon]: "warning",
+      [ExpiryStatus.Fresh]: "success",
+    } as const;
+    return (
+      <Badge
+        value={status.toUpperCase()}
+        status={ingredientStatus[status]}
+        containerStyle={{ marginLeft: 6 }}
+      />
+    );
   };
 
   if (loading) {
@@ -351,22 +397,19 @@ const Pantry: React.FC = () => {
                           gap: 4,
                         }}
                       >
-                        <Text
+                        <View
                           style={{
-                            color: theme.colors.black,
-                            textAlign: "center",
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 6,
                           }}
                         >
-                          {item.ingredient.Ing_name}
-                        </Text>
-                        {item.expiry_date && (
-                          <Icon
-                            name="calendar"
-                            type="material-community"
-                            color={theme.colors.primary}
-                            size={16}
-                          />
-                        )}
+                          <Text style={{ color: theme.colors.black }}>
+                            {item.ingredient.Ing_name}
+                          </Text>
+                          {item.expiry_date &&
+                            renderExpiryBadge(item.expiry_date)}
+                        </View>
                       </View>
                     </View>
 
@@ -465,10 +508,10 @@ const Pantry: React.FC = () => {
                   >
                     {[
                       {
-                        title: "Restock",
-                        icon: "plus-circle-outline",
+                        title: "Add to List",
+                        icon: "cart-plus",
                         color: theme.colors.primary,
-                        onPress: () => handleQuickRestock(item.id),
+                        onPress: () => handleAddToShoppingList(item),
                       },
                       {
                         title: "Edit",
