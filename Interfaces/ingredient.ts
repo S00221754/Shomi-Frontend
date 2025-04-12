@@ -21,7 +21,7 @@ export interface UserIngredient {
   unitQuantity: number;
   totalAmount: string;
   unitType: string;
-  expiryDate?: string | null;
+  expiry_date?: string | null;
   addedAt: string;
 }
 

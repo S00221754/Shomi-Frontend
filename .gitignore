@@ -40,3 +40,7 @@ yarn-error.*
 
 app-example
 .vscode
+
+# Sensitive files #undo coment this when publishing to eas for production as its needed for triggering notificaiotns
+google-services.json
+shomi-d1016-*.json

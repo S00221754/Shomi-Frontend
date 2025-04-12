@@ -5,6 +5,7 @@ import { getIngredients } from "@/services/ingredientsService";
 import {
   getUserIngredientByIngredientId,
   addUserIngredient,
+  getUserIngredients,
 } from "@/services/user-ingredientService";
 import { ProductInfo } from "@/Interfaces/ingredient";
 import { UserIngredientInput } from "@/Interfaces/user-ingredient";
@@ -50,28 +51,13 @@ const IngredientList = () => {
 
   const handleOpenModal = async (ingredient: ProductInfo) => {
     try {
-      const exists = await getUserIngredientByIngredientId(
-        userId!,
-        ingredient.Ing_id!
-      );
-
-      if (exists) {
-        showToast(
-          "error",
-          "Ingredint In Pantry",
-          `You already have ${ingredient?.Ing_name}.`
-        );
-
-        return;
-      }
-
       const newUserIngredient: UserIngredientInput = {
         userId: userId!,
         ingredientId: ingredient.Ing_id!,
         unitQuantity: 0,
         unitType: ingredient.Ing_quantity_units ?? "",
         totalAmount: 0,
-        expiryDate: "",
+        expiry_date: "",
       };
 
       setSelectedIngredient(ingredient);
@@ -82,8 +68,22 @@ const IngredientList = () => {
     }
   };
 
-  const handleAddUserIngredient = async (data: UserIngredientInput) => {
+  const handleAddUserIngredient = async (
+    data: UserIngredientInput
+  ): Promise<boolean> => {
     try {
+      const allUserIngredients = await getUserIngredients(userId!);
+
+      const isDuplicate = allUserIngredients.some(
+        (item) =>
+          item.ingredient.Ing_id === data.ingredientId &&
+          (item.expiry_date ?? null) === (data.expiry_date ?? null)
+      );
+
+      if (isDuplicate) {
+        return false;
+      }
+
       await addUserIngredient(data);
       setModalVisible(false);
       showToast(
@@ -91,9 +91,11 @@ const IngredientList = () => {
         "Added to Pantry",
         `${selectedIngredient?.Ing_name} added successfully.`
       );
+      return true;
     } catch (error) {
       console.error("Failed to add ingredient:", error);
       showToast("error", "Failed to add", "Please try again later.");
+      return false;
     }
   };
 

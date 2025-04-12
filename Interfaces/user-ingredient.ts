@@ -1,16 +1,15 @@
-// change back to interface as this may be sending the whold object to the backend
-export type UserIngredientInput = {
+export interface UserIngredientInput {
   userId: string;
   ingredientId: number;
   unitQuantity: number;
   totalAmount: number;
   unitType: string;
-  expiryDate: string;
-};
+  expiry_date?: string | null;
+}
 
-export type UserIngredientUpdate = {
+export interface UserIngredientUpdate {
   unitQuantity?: number;
   totalAmount?: number;
   unitType: string;
   expiry_date?: string | null;
-};
+}
