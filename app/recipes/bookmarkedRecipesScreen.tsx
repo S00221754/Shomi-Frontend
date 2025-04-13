@@ -137,7 +137,7 @@ export default function BookmarkedRecipesScreen() {
                     pathname: `/recipes/[id]`,
                     params: {
                       id: item.recipe_id,
-                      bookmarked: "true", // always true in this context
+                      bookmarked: "true",
                     },
                   })
                 }

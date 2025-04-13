@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { Overlay, Button, Text } from "@rneui/themed";
 import { useTheme } from "@rneui/themed";
 
+// This component is a confirmation modal that appears when the user tries to remove an item from a list. It asks the user to confirm their action before proceeding with the removal.
 interface ConfirmationModalProps {
   visible: boolean;
   onClose: () => void;

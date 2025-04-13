@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { View } from "react-native";
 import { BottomSheet, SearchBar, Icon, ListItem, useTheme } from "@rneui/themed";
 
+//could not find a react native searchable dropdown that is not deprecated or has issues with expo so used bottomsheet from react native elements to create my own searchable dropdown.
 interface BottomSheetSelectProps<T> {
   isVisible: boolean;
   onClose: () => void;

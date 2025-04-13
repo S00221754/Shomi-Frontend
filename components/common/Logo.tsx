@@ -1,8 +1,9 @@
 // components/Logo.tsx
 import React from "react";
 import { View, StyleSheet, ViewStyle } from "react-native";
-import LightLogo from "@/assets/images/shomi-light-logo.svg"; // ✅ important: should be .svg and match your declared module
+import LightLogo from "@/assets/images/shomi-light-logo.svg";
 
+// This component helps to dispaly the logo around the app whatever size.
 interface LogoProps {
   width?: number;
   height?: number;

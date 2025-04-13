@@ -121,7 +121,6 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
         Ingredient Name: {ingredient?.Ing_name}
       </Text>
 
-      {/* Unit Quantity Input */}
       <Input
         placeholder="Enter Quantity"
         placeholderTextColor={theme.colors.grey3}
@@ -132,7 +131,6 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
         containerStyle={{ marginBottom: 10 }}
       />
 
-      {/* Total Amount Input (Readonly) */}
       <Input
         placeholder="Total Amount"
         placeholderTextColor={theme.colors.grey3}
@@ -142,7 +140,6 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
         containerStyle={{ marginBottom: 10 }}
       />
 
-      {/* Unit Type Input (Readonly) */}
       <Input
         placeholder="Unit Type"
         placeholderTextColor={theme.colors.grey3}
@@ -210,7 +207,6 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
         </Text>
       )}
 
-      {/* Buttons */}
       <View
         style={{
           flexDirection: "row",

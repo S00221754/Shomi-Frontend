@@ -104,7 +104,6 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
         Update "{userIngredient.ingredient.Ing_name}"
       </Text>
 
-      {/* Unit Quantity Input */}
       <Input
         label="Quantity"
         placeholder="Enter Quantity"
@@ -116,7 +115,6 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
         containerStyle={{ marginBottom: 10 }}
       />
 
-      {/* Total Amount Input (Readonly) */}
       <Input
         label="Total Amount"
         placeholder="Total Amount"
@@ -127,7 +125,6 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
         containerStyle={{ marginBottom: 10 }}
       />
 
-      {/* Unit Type Input */}
       <Input
         label="Unit Type"
         placeholder="Unit Type"
@@ -138,7 +135,6 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
         containerStyle={{ marginBottom: 10 }}
       />
 
-      {/* Expiry Date Input */}
       <TouchableOpacity
         onPress={() => setShowDatePicker(true)}
         activeOpacity={0.9}
@@ -184,7 +180,6 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
         />
       )}
 
-      {/* Buttons */}
       <View
         style={{
           flexDirection: "row",

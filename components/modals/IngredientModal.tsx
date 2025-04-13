@@ -7,13 +7,14 @@ import { useGetUnitTypes } from "@/hooks/useGetUnitTypes";
 import { UnitType } from "@/Interfaces/unit-type";
 import ShomiBottomSheet from "../common/ShomiBottomSheet";
 
+// Ingredient modal only appears if not all the fields are filled from open food facts and prompt the user to fill them.
 interface IngredientModalProps {
   visible: boolean;
   onClose: () => void;
   ingredient: ProductInfo | null;
   onAddIngredient: (ingredient: ProductInfo) => Promise<void>;
 }
-
+//TODO: openfoodfacts api can return no name so need to fix this.
 const IngredientModal: React.FC<IngredientModalProps> = ({
   visible,
   onClose,
@@ -101,7 +102,6 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
           {ingredient.Ing_brand ? `(${ingredient.Ing_brand})` : ""}
         </Text>
 
-        {/* Quantity Input (Only show if missing) */}
         {!ingredient.Ing_quantity && (
           <Input
             placeholder="Enter quantity"
@@ -114,7 +114,6 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
           />
         )}
 
-        {/* Unit Type Input (Only show if missing) */}
         {!ingredient.Ing_quantity_units && (
           <>
             <Text style={{ color: theme.colors.black, marginBottom: 5 }}>

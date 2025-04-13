@@ -310,7 +310,7 @@ const RecipeFormScreen = () => {
 
               <ShomiTentapEditor
                 ref={editorRef}
-                initialValue={formValues.recipe_instructions} // static only
+                initialValue={formValues.recipe_instructions}
                 onChange={(val) => setFieldValue("recipe_instructions", val)}
               />
 

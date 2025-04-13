@@ -6,7 +6,7 @@ interface ImageCarouselProps {
   images: string[];
   width: number;
 }
-
+//TODO: make the arrows mmore visible and add a background color to the image
 const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, width }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 

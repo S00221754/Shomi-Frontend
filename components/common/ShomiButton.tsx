@@ -2,6 +2,8 @@ import React from "react";
 import { Button, Icon, useTheme } from "@rneui/themed";
 import { ViewStyle, TextStyle } from "react-native";
 
+// shomi button component to be used in the app
+// this is a custom button component that uses the rne button component and adds some custom styles to it that adheres to material UI
 interface ShomiButtonProps {
   title?: string;
   onPress: () => void;

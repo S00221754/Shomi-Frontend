@@ -3,6 +3,7 @@ import { Alert, StyleSheet, View } from "react-native";
 import { supabase } from "../../lib/supabase";
 import { Button, Input } from "@rneui/themed";
 
+//TODO: create an actual registration and login page for the app.
 export default function EmailForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

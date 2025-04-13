@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   ScrollView,
@@ -6,12 +6,20 @@ import {
   Pressable,
   Animated,
 } from "react-native";
-import { Text, Button, Card, ListItem, Icon, CheckBox } from "@rneui/themed";
+import {
+  Text,
+  Button,
+  Card,
+  ListItem,
+  Icon,
+  CheckBox,
+  Badge,
+} from "@rneui/themed";
 import { useGetUserIngredients } from "@/hooks/useGetUserIngredients";
 import { useAuth } from "@/providers/AuthProvider";
 import ConfirmationModal from "../modals/ConfirmationModal";
 import { useDeleteUserIngredient } from "@/hooks/useDeleteUserIngredient";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useTheme } from "@rneui/themed";
 import BarcodeScan from "@/components/scan/BarcodeScan";
 import IngredientModal from "@/components/modals/IngredientModal";
@@ -27,16 +35,25 @@ import {
   updateUserIngredient,
 } from "@/services/user-ingredientService";
 import UpdateUserIngredientModal from "../modals/UpdateUserIngredientModal";
-import { UserIngredient } from "@/Interfaces/ingredient";
+import { ExpiryStatus, UserIngredient } from "@/Interfaces/ingredient";
 import ShomiFAB from "../common/ShomiFAB";
 import { showToast } from "@/utils/toast";
 import ShomiButton from "../common/ShomiButton";
 import ChooseBatchModal from "../modals/ChooseBatchModal";
+import { addShoppingListItem } from "@/services/shoppingListService";
+import dayjs from "dayjs";
+import { ShoppingItem } from "@/Interfaces/shopping-list";
+import { getIngredientById } from "@/services/ingredientsService";
+import { deleteShoppingListItem } from "@/services/shoppingListService";
 
+//TODO: decouple and try and lessen the amount of code on this and use more components as it is getting too complicated.
 const Pantry: React.FC = () => {
   const { theme } = useTheme();
   const { userId } = useAuth();
   const router = useRouter();
+  const { action, ingredientId, quantity, ingredientName, shopId } =
+    useLocalSearchParams();
+
   const { userIngredients, loading, fetchUserIngredients } =
     useGetUserIngredients(userId ?? "");
   const { handleDeleteUserIngredient } = useDeleteUserIngredient();
@@ -65,6 +82,58 @@ const Pantry: React.FC = () => {
   >([]);
   const [isChooseBatchModalVisible, setIsChooseBatchModalVisible] =
     useState(false);
+
+  const [selectedShoppingItem, setSelectedShoppingItem] =
+    useState<ShoppingItem | null>(null);
+
+  useEffect(() => {
+    //TODO: either find a better solution or put this somewhere to be reusable
+    const handleRestock = async () => {
+      const id = Array.isArray(ingredientId) ? ingredientId[0] : ingredientId;
+      const qty = Array.isArray(quantity) ? quantity[0] : quantity;
+      const parsedId = Number(id);
+      const parsedQty = Number(qty);
+
+      if (action !== "restock" || isNaN(parsedId) || isNaN(parsedQty)) return;
+
+      const ingredient = await getIngredientById(parsedId);
+      if (!ingredient) return;
+
+      const matching = userIngredients.filter(
+        (ui) => ui.ingredient.Ing_id === parsedId
+      );
+
+      if (matching.length > 1) {
+        setMatchingIngredientVariants(matching);
+
+        setSelectedShoppingItem({
+          Shop_id: typeof shopId === "string" ? shopId : "from-shopping",
+          user_id: userId!,
+          ingredient_id: parsedId,
+          Shop_quantity: parsedQty,
+          Shop_added_automatically: false,
+          Shop_reason: "",
+          Shop_created_at: new Date().toISOString(),
+          ingredient,
+        });
+
+        setIsChooseBatchModalVisible(true);
+      } else {
+        setUserIngredient({
+          userId: userId!,
+          ingredientId: parsedId,
+          unitQuantity: parsedQty,
+          totalAmount: parsedQty * (ingredient.Ing_quantity || 1),
+          unitType: ingredient.Ing_quantity_units || "",
+          expiry_date: "",
+        });
+
+        setIsAddUserIngredientModalVisible(true);
+      }
+    };
+
+    handleRestock();
+  }, [action, ingredientId, quantity, shopId, userIngredients]);
 
   const handleDeletePress = (id: string) => {
     setSelectedIngredientId(id);
@@ -136,19 +205,34 @@ const Pantry: React.FC = () => {
       await updateUserIngredient(userIngredientId, userIngredient);
       fetchUserIngredients();
       setIsUpdateUserIngredientModalVisible(false);
+
+      if (action === "restock" && typeof shopId === "string") {
+        await deleteShoppingListItem(shopId);
+      }
+
+      router.replace("/(tabs)");
       showToast("success", "Ingredient Updated");
     } catch (error) {
       console.error("Error updating ingredient:", error);
     }
   };
 
-  const handleQuickRestock = async (userIngredientId: string) => {
+  const handleAddToShoppingList = async (item: UserIngredient) => {
     try {
-      await quickRestockUserIngredient(userIngredientId);
-      fetchUserIngredients();
-      showToast("success", "Ingredient Updated");
+      if (!userId) return;
+
+      await addShoppingListItem({
+        user_id: userId,
+        ingredient_id: item.ingredient.Ing_id,
+        Shop_quantity: 1,
+        Shop_added_automatically: false,
+        Shop_reason: "",
+      });
+
+      showToast("success", "Added", "Item added to your shopping list.");
     } catch (error) {
-      console.error("Error updating ingredient:", error);
+      console.error("Error adding to shopping list:", error);
+      showToast("error", "Error", "Could not add to shopping list.");
     }
   };
 
@@ -169,6 +253,7 @@ const Pantry: React.FC = () => {
     setIsAddUserIngredientModalVisible,
   } = useScannerState();
 
+  //TODO: Fix the scanning logic to not use the barcode scanner
   const {
     scannedData,
     userIngredient,
@@ -189,20 +274,48 @@ const Pantry: React.FC = () => {
   );
 
   const handleAddNewVariant = () => {
-    if (!scannedData || !userId) return;
+    const source = scannedData ?? selectedShoppingItem?.ingredient;
+    if (!source || !userId) return;
 
     const newIngredient: UserIngredientInput = {
       userId,
-      ingredientId: scannedData.Ing_id!,
-      unitQuantity: 0,
-      totalAmount: 0,
-      unitType: scannedData.Ing_quantity_units || "",
+      ingredientId: source.Ing_id!,
+      unitQuantity: selectedShoppingItem?.Shop_quantity || 0,
+      totalAmount:
+        (selectedShoppingItem?.Shop_quantity || 0) * (source.Ing_quantity || 1),
+      unitType: source.Ing_quantity_units || "",
       expiry_date: "",
     };
 
     setUserIngredient(newIngredient);
     setIsChooseBatchModalVisible(false);
     setIsAddUserIngredientModalVisible(true);
+  };
+
+  const getExpiryStatus = (expiryDate: string): ExpiryStatus => {
+    const today = dayjs();
+    const expiry = dayjs(expiryDate);
+
+    if (expiry.isBefore(today, "day")) return ExpiryStatus.Expired;
+    if (expiry.diff(today, "day") <= 3) return ExpiryStatus.Soon;
+    return ExpiryStatus.Fresh;
+  };
+
+  const renderExpiryBadge = (expiryDate: string) => {
+    const status = getExpiryStatus(expiryDate);
+
+    const ingredientStatus = {
+      [ExpiryStatus.Expired]: "error",
+      [ExpiryStatus.Soon]: "warning",
+      [ExpiryStatus.Fresh]: "success",
+    } as const;
+    return (
+      <Badge
+        value={status.toUpperCase()}
+        status={ingredientStatus[status]}
+        containerStyle={{ marginLeft: 6 }}
+      />
+    );
   };
 
   if (loading) {
@@ -351,22 +464,19 @@ const Pantry: React.FC = () => {
                           gap: 4,
                         }}
                       >
-                        <Text
+                        <View
                           style={{
-                            color: theme.colors.black,
-                            textAlign: "center",
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 6,
                           }}
                         >
-                          {item.ingredient.Ing_name}
-                        </Text>
-                        {item.expiry_date && (
-                          <Icon
-                            name="calendar"
-                            type="material-community"
-                            color={theme.colors.primary}
-                            size={16}
-                          />
-                        )}
+                          <Text style={{ color: theme.colors.black }}>
+                            {item.ingredient.Ing_name}
+                          </Text>
+                          {item.expiry_date &&
+                            renderExpiryBadge(item.expiry_date)}
+                        </View>
                       </View>
                     </View>
 
@@ -465,10 +575,10 @@ const Pantry: React.FC = () => {
                   >
                     {[
                       {
-                        title: "Restock",
-                        icon: "plus-circle-outline",
+                        title: "Add to List",
+                        icon: "cart-plus",
                         color: theme.colors.primary,
-                        onPress: () => handleQuickRestock(item.id),
+                        onPress: () => handleAddToShoppingList(item),
                       },
                       {
                         title: "Edit",
@@ -580,7 +690,7 @@ const Pantry: React.FC = () => {
         onClose={closeUserIngredientModal}
         userIngredient={userIngredient}
         onAddUserIngredient={handleAddUserIngredient}
-        ingredient={scannedData}
+        ingredient={(scannedData || selectedShoppingItem?.ingredient) ?? null}
       />
       <IngredientModal
         visible={isAddIngredientModalVisible}
@@ -603,7 +713,11 @@ const Pantry: React.FC = () => {
       <ChooseBatchModal
         visible={isChooseBatchModalVisible}
         onClose={() => setIsChooseBatchModalVisible(false)}
-        ingredientName={scannedData?.Ing_name || ""}
+        ingredientName={
+          scannedData?.Ing_name ||
+          selectedShoppingItem?.ingredient.Ing_name ||
+          ""
+        }
         variants={matchingIngredientVariants}
         onSelectVariant={(variant: UserIngredient) => {
           setSelectedUserIngredient(variant);

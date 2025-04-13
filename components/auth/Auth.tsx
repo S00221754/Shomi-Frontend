@@ -7,6 +7,9 @@ import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
 import { supabase } from "../../lib/supabase";
 
+// ref: https://supabase.com/docs/guides/auth/native-mobile-deep-linking?queryGroups=platform&platform=react-native
+// The point of this file is to handle the authentication flow for the app. It includes OAuth and Magic Link authentication methods.
+
 WebBrowser.maybeCompleteAuthSession();
 
 const redirectTo = makeRedirectUri({

@@ -9,6 +9,8 @@ import { useGetUnitTypes } from "@/hooks/useGetUnitTypes";
 import { useGetIngredient } from "@/hooks/useGetIngredient";
 import ShomiBottomSheet from "@/components/common/ShomiBottomSheet";
 
+// Ingredient modal for adding or editing ingredients in a recipe. 
+// The reason for this modal is to allow flexibility with the unittypes of recipe ingredients. as peopel do not 5g of salt they do 1 tsp of salt. to accomodate this, this component was created.
 interface RecipeIngredientModalProps {
   visible: boolean;
   onClose: () => void;
