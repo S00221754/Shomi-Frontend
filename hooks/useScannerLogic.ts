@@ -10,6 +10,8 @@ import {
 import { UserIngredientInput } from "@/Interfaces/user-ingredient";
 import { useGetUserIngredients } from "./useGetUserIngredients";
 import { showToast } from "@/utils/toast";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { deleteShoppingListItem } from "@/services/shoppingListService";
 
 export const useScannerLogic = (
   userIngredients: UserIngredient[],
@@ -26,6 +28,9 @@ export const useScannerLogic = (
   const [scannedData, setScannedData] = useState<ProductInfo | null>(null);
   const [userIngredient, setUserIngredient] =
     useState<UserIngredientInput | null>(null);
+
+  const router = useRouter();
+  const { action, shopId } = useLocalSearchParams();
 
   const handleBarcodeScanned = async (productInfo: ProductInfo) => {
     setScannedData(productInfo);
@@ -143,6 +148,12 @@ export const useScannerLogic = (
       await addUserIngredient(userIngredient);
       fetchUserIngredients();
       setIsAddUserIngredientModalVisible(false);
+
+      if (action === "restock" && typeof shopId === "string") {
+        await deleteShoppingListItem(shopId);
+      }
+
+      router.replace("/(tabs)");
       return true;
     } catch (error) {
       console.error("Error adding user ingredient:", error);

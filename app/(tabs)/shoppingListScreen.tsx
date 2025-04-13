@@ -10,6 +10,11 @@ import { useAuth } from "@/providers/AuthProvider";
 import { ShoppingItem } from "@/Interfaces/shopping-list";
 import { showToast } from "@/utils/toast";
 import { useFocusEffect } from "expo-router";
+import { router } from "expo-router";
+import {
+  getUserIngredients,
+  updateUserIngredient,
+} from "@/services/user-ingredientService";
 
 const ShoppingListScreen = () => {
   const { theme } = useTheme();
@@ -43,17 +48,47 @@ const ShoppingListScreen = () => {
     }));
   };
 
-  const handleMarkAsBought = async (itemId: string) => {
-    try {
-      await markItemAsPurchased(itemId);
-      setShoppingItems((prev) =>
-        prev.filter((item) => item.Shop_id !== itemId)
-      );
-      showToast("success", "Purchased", "Item added to your pantry.");
-    } catch (error) {
-      console.error("Failed to mark item as purchased:", error);
-      showToast("error", "Error", "Could not mark item as purchased.");
+  const handleMarkAsBought = async (item: ShoppingItem) => {
+    const allUserIngredients = await getUserIngredients(userId!);
+
+    const matchingVariants = allUserIngredients.filter(
+      (ui) => ui.ingredient.Ing_id === item.ingredient.Ing_id
+    );
+
+    // if there is more than one variant, navigate to the restock screen because the logic for batches is there
+    if (matchingVariants.length > 1) {
+      router.push({
+        pathname: "/(tabs)",
+        params: {
+          action: "restock",
+          ingredientId: item.ingredient.Ing_id,
+          quantity: item.Shop_quantity,
+          ingredientName: item.ingredient.Ing_name,
+          shopId: item.Shop_id,
+        },
+      });
+      return;
     }
+
+    // automatically restock the item if there is only one variant
+    const pantryItem = matchingVariants[0];
+    const updated = {
+      unitQuantity: pantryItem.unitQuantity + item.Shop_quantity,
+      totalAmount:
+        (pantryItem.unitQuantity + item.Shop_quantity) *
+        (item.ingredient.Ing_quantity || 1),
+      unitType: pantryItem.unitType,
+      expiry_date: pantryItem.expiry_date || null,
+    };
+
+    await updateUserIngredient(pantryItem.id, updated);
+    await deleteShoppingListItem(item.Shop_id);
+
+    setShoppingItems((prev) =>
+      prev.filter((si) => si.Shop_id !== item.Shop_id)
+    );
+
+    showToast("success", "Restocked", `${item.ingredient.Ing_name} updated`);
   };
 
   const handleDismissItem = async (itemId: string) => {
@@ -145,7 +180,7 @@ const ShoppingListScreen = () => {
                         type="material-community"
                         color={theme.colors.success}
                         size={26}
-                        onPress={() => handleMarkAsBought(item.Shop_id)}
+                        onPress={() => handleMarkAsBought(item)}
                       />
                       <Icon
                         name="close-circle-outline"
