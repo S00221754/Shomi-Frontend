@@ -147,12 +147,12 @@ export default function RecipeDetails() {
       style={{ flex: 1, backgroundColor: theme.colors.background, padding: 20 }}
       contentContainerStyle={{ flexGrow: 1, paddingBottom: 50 }}
     >
-      {/* Image Carousel */}
+      {/* Images */}
       {recipe.recipe_images && recipe.recipe_images.length > 0 && (
         <ImageCarousel images={recipe.recipe_images} width={width} />
       )}
 
-      {/* Recipe Description */}
+      {/* Recipe details */}
       <View style={{ marginBottom: 20 }}>
         <Text
           style={{
@@ -169,7 +169,6 @@ export default function RecipeDetails() {
         </Text>
       </View>
 
-      {/* Cooking Time */}
       <View style={{ marginBottom: 20 }}>
         <Text
           style={{
@@ -188,7 +187,6 @@ export default function RecipeDetails() {
         </Text>
       </View>
 
-      {/* Ingredients */}
       <View style={{ marginBottom: 20 }}>
         <Text
           style={{
@@ -216,7 +214,6 @@ export default function RecipeDetails() {
         ))}
       </View>
 
-      {/* Instructions */}
       <View style={{ marginBottom: 20 }}>
         <Text
           style={{
@@ -256,7 +253,6 @@ export default function RecipeDetails() {
         )}
       </View>
 
-      {/* Bookmark Recipe Button */}
       <ShomiButton
         title={isBookmarked ? "Remove Bookmark" : "Bookmark Recipe"}
         icon={isBookmarked ? "bookmark" : "bookmark-outline"}

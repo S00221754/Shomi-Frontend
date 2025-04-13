@@ -3,6 +3,7 @@ import { View, FlatList, TouchableOpacity } from "react-native";
 import { Overlay, Text, useTheme, Icon } from "@rneui/themed";
 import { UserIngredient } from "@/Interfaces/ingredient";
 
+// This component is a modal that allows the user to choose a batch of an ingredient from a list of variants. It displays the variants in a list and provides an option to add a new variant.
 interface ChooseBatchModalProps {
   visible: boolean;
   onClose: () => void;

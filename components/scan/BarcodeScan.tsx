@@ -6,9 +6,9 @@ import { useBarcodeScanner } from "@/hooks/useBarcodeScanner";
 
 type BarcodeScanProps = {
   onStopScanning: () => void;
-  onBarcodeScanned: (productInfo: ProductInfo) => void; //change to product info later
+  onBarcodeScanned: (productInfo: ProductInfo) => void;
 };
-
+// This component is used to scan barcodes using the camera. It requests permission to use the camera and handles the scanning process. If the permission is granted, it displays the camera view and allows the user to scan barcodes. If the permission is denied, it shows a message asking for permission.
 export default function BarcodeScan({
   onStopScanning,
   onBarcodeScanned,

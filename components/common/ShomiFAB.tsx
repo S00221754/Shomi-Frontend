@@ -2,6 +2,7 @@ import React from "react";
 import { FAB } from "react-native-paper";
 import { useTheme } from "@rneui/themed";
 
+// reusable flexible floating action button to be used across the app
 interface FABAction {
   icon: string;
   label: string;
@@ -9,8 +10,8 @@ interface FABAction {
 }
 
 interface ShomiFABProps {
-  selectedItems?: any[]; // now optional
-  onDelete?: () => void; // optional if allowDelete = false
+  selectedItems?: any[];
+  onDelete?: () => void;
   actions: FABAction[];
   fabOpen: boolean;
   setFabOpen: (open: boolean) => void;

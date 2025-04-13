@@ -3,12 +3,12 @@ import { View, ActivityIndicator } from "react-native";
 import { useAuth } from "../providers/AuthProvider";
 import { useRouter } from "expo-router";
 
+// This is the callback screen for authentication. It handles the redirect after login.
 export default function AuthCallback() {
   const router = useRouter();
   const { isLoading } = useAuth();
 
   useEffect(() => {
-    // Wait for session to be handled in the background
     if (!isLoading) {
       router.replace("/(tabs)");
     }

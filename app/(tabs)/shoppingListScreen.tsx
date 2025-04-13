@@ -55,7 +55,7 @@ const ShoppingListScreen = () => {
       (ui) => ui.ingredient.Ing_id === item.ingredient.Ing_id
     );
 
-    // if there is more than one variant, navigate to the restock screen because the logic for batches is there
+    // if there is more than one variant, go to the restock screen because the logic for batches is there
     if (matchingVariants.length > 1) {
       router.push({
         pathname: "/(tabs)",

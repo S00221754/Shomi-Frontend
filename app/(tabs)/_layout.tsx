@@ -12,13 +12,14 @@ import { updateExpoPushToken } from "@/services/userService";
 import { useAuth } from "@/providers/AuthProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+// use tablayout to create a tab layout for the app
 export default function TabLayout() {
   const { theme } = useTheme();
   const { toggleTheme, isDarkMode } = useAppTheme();
   const [showSettings, setShowSettings] = useState(false);
-
   const { user } = useAuth();
 
+  // This is to register the push token for the user to send notifications to their device
   useEffect(() => {
     if (!user?.id) return;
 
@@ -52,6 +53,7 @@ export default function TabLayout() {
     registerPush();
   }, [user?.id]);
 
+  // logout function to remove the expo push token and sign out the user
   const handleLogout = async () => {
     await AsyncStorage.multiRemove([
       "expo_push_token",
@@ -138,7 +140,7 @@ export default function TabLayout() {
         />
       </Tabs>
 
-      {/* Settings Dropdown as Overlay */}
+      {/* Settings Dropdown with logout and toggling theme */}
       <Overlay
         isVisible={showSettings}
         onBackdropPress={() => setShowSettings(false)}

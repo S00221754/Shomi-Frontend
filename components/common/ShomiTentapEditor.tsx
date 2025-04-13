@@ -8,6 +8,7 @@ import {
   DEFAULT_TOOLBAR_ITEMS,
 } from "@10play/tentap-editor";
 
+// This component is a wrapper around the Tentap editor, which is a rich text editor for React Native. It provides a toolbar with various formatting options and allows for dynamic height adjustment.
 interface ShomiTentapEditorProps {
   initialValue?: string;
   onChange?: (content: string) => void;
@@ -36,7 +37,6 @@ const ShomiTentapEditor = React.forwardRef<
     },
   }));
 
-  // This effect will run when the content changes and will call the onChange prop with the new content
   useEffect(() => {
     if (typeof content === "string") {
       onChange?.(content);

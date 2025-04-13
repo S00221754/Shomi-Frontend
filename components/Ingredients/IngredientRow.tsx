@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { Card, Text, Button, Icon, useTheme } from "@rneui/themed";
 import { SelectedIngredient } from "@/Interfaces/ingredient";
 
+// This component represents a single row in the ingredient list of a recipe.
 interface IngredientRowProps {
   ingredient: SelectedIngredient;
   onPress: () => void;

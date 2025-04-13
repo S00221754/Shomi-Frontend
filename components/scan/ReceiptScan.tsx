@@ -1,3 +1,7 @@
+/*
+This was the initial attempt to see if the OCR would be efficient when adding ingredients to the pantry but it was not as efficient as expected or consistent
+*/
+
 // import React, { useState } from 'react';
 // import { View, Text, Button, ActivityIndicator, StyleSheet, Image } from 'react-native';
 // import * as ImagePicker from 'expo-image-picker';

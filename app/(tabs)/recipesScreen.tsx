@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { View, FlatList, ActivityIndicator } from "react-native";
 import { Text, Card, Button } from "@rneui/themed";
-import axiosInstance from "../../services/api";
 import { Recipe } from "../../Interfaces/recipe";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useTheme } from "@rneui/themed";
@@ -16,6 +15,7 @@ import { getRecipes } from "@/services/recipe.Service";
 import ShomiButton from "@/components/common/ShomiButton";
 import { showToast } from "@/utils/toast";
 
+// This is the main screen of the app that displays a list of recipes
 export default function RecipeScreen() {
   const router = useRouter();
   const { theme } = useTheme();
@@ -180,7 +180,7 @@ export default function RecipeScreen() {
                 marginBottom: 10,
               }}
             >
-              ⏱ {item.cooking_time} mins
+              {item.cooking_time} mins
             </Text>
 
             <View style={{ flexDirection: "row", gap: 10, marginTop: 10 }}>
