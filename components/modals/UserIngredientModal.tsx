@@ -56,7 +56,7 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
 
   const handleAddClick = async () => {
     if (!unitQuantity || !unitType) return;
-
+    
     userIngredient.unitQuantity = parseFloat(unitQuantity);
     userIngredient.totalAmount = parseFloat(totalAmount) || 0;
     userIngredient.unitType = unitType;
