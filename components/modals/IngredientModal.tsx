@@ -6,8 +6,10 @@ import { ProductInfo } from "@/Interfaces/ingredient";
 import { useGetUnitTypes } from "@/hooks/useGetUnitTypes";
 import { UnitType } from "@/Interfaces/unit-type";
 import ShomiBottomSheet from "../common/ShomiBottomSheet";
+import { useGetIngredientCategories } from "@/hooks/useGetIngredientCategories";
+import { IngredientCategory } from "@/Interfaces/ingredient-category";
 
-// Ingredient modal only appears if not all the fields are filled from open food facts and prompt the user to fill them.
+// Initially was only to show up when details were missing but open food facts does not give catogories consistently so we prompt the user to enter the details.
 interface IngredientModalProps {
   visible: boolean;
   onClose: () => void;
@@ -31,6 +33,11 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
 
   const [unitType, setUnitType] = useState("");
   const [quantity, setQuantity] = useState("");
+
+  const { categories } = useGetIngredientCategories();
+  const [selectedCategory, setSelectedCategory] =
+    useState<IngredientCategory | null>(null);
+  const [isCategorySheetVisible, setIsCategorySheetVisible] = useState(false);
 
   useEffect(() => {
     if (ingredient) {
@@ -57,15 +64,44 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
     setFilteredUnitTypes(filtered);
   }, [searchTerm]);
 
+  useEffect(() => {
+    if (ingredient && ingredient.category?.id) {
+      const found = categories.find((c) => c.id === ingredient.category?.id);
+      setSelectedCategory(found || null);
+    } else {
+      setSelectedCategory(null);
+    }
+  }, [ingredient, categories]);
+
   if (!ingredient) return null;
 
   const handleAddClick = async () => {
     if (!unitType || !quantity) return;
 
+    if (selectedCategory) {
+      ingredient.category = {
+        id: selectedCategory.id,
+        name: selectedCategory.name,
+      };
+    }
+
     ingredient.Ing_quantity_units = unitType;
     ingredient.Ing_quantity = parseFloat(quantity);
 
     await onAddIngredient(ingredient);
+    console.log("resetting form", ingredient);
+
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setUnitType("");
+    setQuantity("");
+    setSelectedCategory(null);
+
+    if (ingredient) {
+      ingredient.category = undefined;
+    }
   };
 
   return (
@@ -137,6 +173,33 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
           </>
         )}
 
+        {!ingredient.category?.id && (
+          <>
+            <Text style={{ color: theme.colors.black, marginBottom: 5 }}>
+              Select Category
+            </Text>
+            <Button
+              title={
+                selectedCategory ? selectedCategory.name : "Select a category"
+              }
+              onPress={() => setIsCategorySheetVisible(true)}
+              type="outline"
+              buttonStyle={{
+                borderColor: theme.colors.grey3,
+                borderRadius: 8,
+                backgroundColor: theme.colors.white,
+                marginBottom: 10,
+              }}
+              titleStyle={{
+                color: selectedCategory
+                  ? theme.colors.black
+                  : theme.colors.grey2,
+                textAlign: "left",
+              }}
+            />
+          </>
+        )}
+
         <View
           style={{
             flexDirection: "row",
@@ -168,7 +231,7 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
           />
         </View>
       </Overlay>
-      {/* Needs testings */}
+
       <ShomiBottomSheet
         isVisible={isSheetVisible}
         onClose={() => setIsSheetVisible(false)}
@@ -180,6 +243,19 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
         keyExtractor={(unit) => unit.id}
         labelExtractor={(unit) => unit.name}
         placeholder="Search unit types..."
+      />
+
+      <ShomiBottomSheet
+        isVisible={isCategorySheetVisible}
+        onClose={() => setIsCategorySheetVisible(false)}
+        data={categories}
+        onSelect={(cat) => {
+          setSelectedCategory(cat);
+          setIsCategorySheetVisible(false);
+        }}
+        keyExtractor={(cat) => cat.id}
+        labelExtractor={(cat) => cat.name}
+        placeholder="Search categories..."
       />
     </>
   );

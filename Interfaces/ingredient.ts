@@ -1,3 +1,5 @@
+import { IngredientCategory } from "./ingredient-category";
+
 export interface ProductInfo {
   Ing_id?: number;
   Ing_barcode: string;
@@ -6,6 +8,7 @@ export interface ProductInfo {
   Ing_keywords?: string[];
   Ing_quantity?: number;
   Ing_quantity_units?: string;
+  category?: IngredientCategory;
   status: boolean;
   In_Database: boolean;
 }
