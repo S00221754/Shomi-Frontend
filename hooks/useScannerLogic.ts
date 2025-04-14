@@ -73,7 +73,7 @@ export const useScannerLogic = (
       return;
     }
 
-    if (matchingVariants.length === 1 && matchingVariants[0].expiry_date) {
+    if (matchingVariants.length === 1) {
       const match = matchingVariants[0];
       setSelectedUserIngredient(match);
       setSelectedUserIngredientId(match.id);
@@ -106,6 +106,7 @@ export const useScannerLogic = (
         const updatedIngredient = {
           ...newIngredient,
           Ing_units: newIngredient.Ing_quantity_units,
+          category_id: newIngredient.category_id,
         };
 
         setUserIngredient({
@@ -191,6 +192,10 @@ const getMissingFields = (product: ProductInfo) => {
 
   if (!product.Ing_quantity_units) {
     missing.push("Unit Type");
+  }
+
+  if (!product.category?.id) {
+    missing.push("Category");
   }
 
   return missing;
