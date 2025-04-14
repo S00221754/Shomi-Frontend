@@ -1,5 +1,5 @@
 export interface ProductInfo {
-  Ing_id: number;
+  Ing_id?: number;
   Ing_barcode: string;
   Ing_name: string;
   Ing_brand?: string;
@@ -13,6 +13,8 @@ export interface ProductInfo {
 export interface Ingredient {
   Ing_id: number;
   Ing_name: string;
+  Ing_quantity?: number;
+  Ing_quantity_units?: string;
 }
 
 export interface UserIngredient {
@@ -33,10 +35,13 @@ export type SelectedIngredient = {
 };
 
 export enum ExpiryStatus {
-  Expired = "expired",
-  Soon = "soon",
-  Fresh = "fresh",
+  Expired = "Expired",
+  Soon = "Expiring Soon",
+  Fresh = "Fresh",
 }
 
-
-
+export enum QuantityStatus {
+  OutOfStock = "Out of Stock",
+  Low = "Low Supply",
+  InStock = "In Stock",
+}

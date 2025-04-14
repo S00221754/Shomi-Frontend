@@ -35,7 +35,11 @@ import {
   updateUserIngredient,
 } from "@/services/user-ingredientService";
 import UpdateUserIngredientModal from "../modals/UpdateUserIngredientModal";
-import { ExpiryStatus, UserIngredient } from "@/Interfaces/ingredient";
+import {
+  ExpiryStatus,
+  QuantityStatus,
+  UserIngredient,
+} from "@/Interfaces/ingredient";
 import ShomiFAB from "../common/ShomiFAB";
 import { showToast } from "@/utils/toast";
 import ShomiButton from "../common/ShomiButton";
@@ -311,8 +315,39 @@ const Pantry: React.FC = () => {
     } as const;
     return (
       <Badge
-        value={status.toUpperCase()}
+        value={status}
         status={ingredientStatus[status]}
+        containerStyle={{ marginLeft: 6 }}
+      />
+    );
+  };
+
+  const getQuantityStatus = (
+    totalAmountStr: string,
+    baseAmount: number
+  ): QuantityStatus => {
+    const totalAmount = parseFloat(totalAmountStr);
+
+    if (isNaN(totalAmount)) return QuantityStatus.OutOfStock;
+
+    if (totalAmount <= 0) return QuantityStatus.OutOfStock;
+    if (totalAmount < baseAmount * 0.25) return QuantityStatus.Low;
+    return QuantityStatus.InStock;
+  };
+
+  const renderQuantityBadge = (totalAmount: string, baseAmount: number) => {
+    const status = getQuantityStatus(totalAmount, baseAmount);
+
+    const quantityColor = {
+      [QuantityStatus.OutOfStock]: "error",
+      [QuantityStatus.Low]: "warning",
+      [QuantityStatus.InStock]: "success",
+    } as const;
+
+    return (
+      <Badge
+        value={status}
+        status={quantityColor[status]}
         containerStyle={{ marginLeft: 6 }}
       />
     );
@@ -375,19 +410,40 @@ const Pantry: React.FC = () => {
                 borderBottomColor: theme.colors.greyOutline,
               }}
             >
-              <View style={{ flex: 1, alignItems: "center" }}>
+              <View
+                style={{
+                  flex: 1,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <Text style={{ fontWeight: "bold", color: theme.colors.black }}>
                   Select
                 </Text>
               </View>
-              <View style={{ flex: 2, alignItems: "center" }}>
+
+              <View
+                style={{
+                  flex: 2,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  paddingRight: 15, //keep name aligned with its content
+                }}
+              >
                 <Text style={{ fontWeight: "bold", color: theme.colors.black }}>
                   Name
                 </Text>
               </View>
-              <View style={{ flex: 1, alignItems: "center" }}>
+
+              <View
+                style={{
+                  flex: 1,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <Text style={{ fontWeight: "bold", color: theme.colors.black }}>
-                  Amount
+                  Status
                 </Text>
               </View>
             </View>
@@ -407,8 +463,9 @@ const Pantry: React.FC = () => {
                   <View
                     style={{
                       flexDirection: "row",
-                      alignItems: "center",
+                      alignItems: "center", // ensures vertical centering
                       flex: 1,
+                      paddingVertical: 10, // optional, improves spacing
                     }}
                   >
                     <Pressable
@@ -474,8 +531,6 @@ const Pantry: React.FC = () => {
                           <Text style={{ color: theme.colors.black }}>
                             {item.ingredient.Ing_name}
                           </Text>
-                          {item.expiry_date &&
-                            renderExpiryBadge(item.expiry_date)}
                         </View>
                       </View>
                     </View>
@@ -483,14 +538,18 @@ const Pantry: React.FC = () => {
                     <View
                       style={{
                         flex: 1,
-                        alignItems: "center",
-                        flexDirection: "row",
-                        justifyContent: "space-between",
+                        justifyContent: "center",
+                        alignItems: "center", // ✅ centers both vertically & horizontally
+                        flexDirection: "column", // ✅ badges stack if needed
+                        gap: 4, // better spacing between badges
                       }}
                     >
-                      <Text style={{ color: theme.colors.black }}>
-                        {item.totalAmount || "Unknown"} {item.unitType || ""}
-                      </Text>
+                      {item.expiry_date && renderExpiryBadge(item.expiry_date)}
+                      {item.ingredient?.Ing_quantity != null &&
+                        renderQuantityBadge(
+                          item.totalAmount,
+                          item.ingredient.Ing_quantity
+                        )}
                     </View>
                   </View>
                 }
@@ -536,6 +595,28 @@ const Pantry: React.FC = () => {
                         Quantity:{" "}
                         <Text style={{ fontWeight: "bold" }}>
                           {item.unitQuantity || "N/A"}
+                        </Text>
+                      </Text>
+                    </View>
+
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        marginTop: 4,
+                      }}
+                    >
+                      <Icon
+                        name="package-variant"
+                        type="material-community"
+                        size={18}
+                        color={theme.colors.grey1}
+                        style={{ marginRight: 6 }}
+                      />
+                      <Text style={{ color: theme.colors.black, fontSize: 14 }}>
+                        Amount:{" "}
+                        <Text style={{ fontWeight: "bold" }}>
+                          {item.totalAmount || "Unknown"} {item.unitType || ""}
                         </Text>
                       </Text>
                     </View>
