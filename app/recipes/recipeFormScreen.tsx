@@ -148,16 +148,11 @@ const RecipeFormScreen = () => {
             if (isEdit) {
               await updateRecipe(id as string, payload);
 
-              console.log("Original images:", originalImages);
-
               const removedImages = originalImages.filter(
                 (img) => !uploadedImages.includes(img)
               );
 
-              console.log("Removed images:", removedImages);
-
               for (const url of removedImages) {
-                console.log("Deleting image:", url);
                 await deleteRecipeImage(url);
               }
             } else {

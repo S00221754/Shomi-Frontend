@@ -45,10 +45,6 @@ export const useScannerLogic = (
       try {
         const newIngredient = await addIngredient(productInfo);
         if (newIngredient) {
-          console.log(
-            "ingredient has all details auto added to the database",
-            newIngredient
-          );
           resolvedIngredient = {
             ...newIngredient,
             Ing_units: newIngredient.Ing_quantity_units,
