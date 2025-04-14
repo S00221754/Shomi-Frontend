@@ -29,6 +29,7 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="ie.shomi"/>
         <data android:scheme="ie.shomi"/>
+        <data android:scheme="exp+shomi"/>
       </intent-filter>
     </activity>
   </application>
