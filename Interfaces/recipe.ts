@@ -42,3 +42,9 @@ export interface DeductionPreview {
   confidence_score: number;
   reason: string;
 }
+
+export interface IngredientsToDeduct {
+  user_ingredient_id: string;
+  recipe_quantity: number;
+  recipe_unit: string;
+}

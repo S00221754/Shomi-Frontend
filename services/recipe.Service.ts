@@ -1,5 +1,10 @@
 import axiosInstance from "./api";
-import { Recipe, Ingredient, RecipeDTO } from "@/Interfaces/recipe";
+import {
+  Recipe,
+  Ingredient,
+  RecipeDTO,
+  IngredientsToDeduct,
+} from "@/Interfaces/recipe";
 import { DeductionPreview } from "@/Interfaces/recipe";
 
 export const getRecipes = async (): Promise<Recipe[]> => {
@@ -73,6 +78,23 @@ export const getRecipeDeductionPreview = async (
     );
     return response.data;
   } catch (error) {
+    throw error;
+  }
+};
+
+export const markRecipeAsCooked = async (
+  recipeId: string,
+  userId: string,
+  deductions: IngredientsToDeduct[]
+) => {
+  try {
+    const response = await axiosInstance.post(`/recipes/${recipeId}/cooked`, {
+      user_id: userId,
+      deductions,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error marking recipe as cooked:", error);
     throw error;
   }
 };

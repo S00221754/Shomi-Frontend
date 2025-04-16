@@ -21,8 +21,13 @@ import {
 import {
   getRecipeById,
   getRecipeDeductionPreview,
+  markRecipeAsCooked,
 } from "../../services/recipe.Service";
-import { DeductionPreview, Recipe } from "../../Interfaces/recipe";
+import {
+  DeductionPreview,
+  IngredientsToDeduct,
+  Recipe,
+} from "../../Interfaces/recipe";
 import { Text, Button, Divider, Icon } from "@rneui/themed";
 import { useTheme } from "@rneui/themed";
 import ImageCarousel from "@/components/Recipe/ImageCarousel";
@@ -113,6 +118,39 @@ export default function RecipeDetails() {
     } catch (err) {
       console.error("Error fetching deduction preview:", err);
       showToast("error", "Failed", "Could not load preview.");
+    }
+  };
+
+  const handleConfirmedDeductions = async (final: DeductionPreview[]) => {
+    setIsPreviewVisible(false);
+
+    const deductions: IngredientsToDeduct[] = final
+      .filter((d) => d.matched_user_ingredient !== null)
+      .map((d) => ({
+        user_ingredient_id: d.matched_user_ingredient!.id,
+        recipe_quantity: d.recipe_ingredient.quantity,
+        recipe_unit: d.recipe_ingredient.unit,
+      }));
+
+    if (!userId || !recipe?.recipe_id) return;
+
+    try {
+      const result = await markRecipeAsCooked(
+        recipe.recipe_id,
+        userId,
+        deductions
+      );
+
+      console.log("Cooked result:", result);
+
+      showToast(
+        "success",
+        "Recipe Cooked",
+        `Updated ${result.updated.length} pantry item(s), skipped ${result.skipped.length}`
+      );
+    } catch (error) {
+      console.error("Error applying deduction:", error);
+      showToast("error", "Failed", "Could not deduct from pantry.");
     }
   };
 
@@ -301,10 +339,7 @@ export default function RecipeDetails() {
         onClose={() => setIsPreviewVisible(false)}
         data={deductionMatches}
         userId={userId!}
-        onConfirm={(final) => {
-          console.log("User confirmed:", final);
-          setIsPreviewVisible(false);
-        }}
+        onConfirm={handleConfirmedDeductions}
       />
     </>
   );
