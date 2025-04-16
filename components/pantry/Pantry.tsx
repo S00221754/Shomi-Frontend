@@ -257,7 +257,6 @@ const Pantry: React.FC = () => {
     setIsAddUserIngredientModalVisible,
   } = useScannerState();
 
-  //TODO: Fix the scanning logic to not use the barcode scanner
   const {
     scannedData,
     userIngredient,
@@ -396,7 +395,7 @@ const Pantry: React.FC = () => {
         <ScrollView
           stickyHeaderIndices={[0]}
           contentContainerStyle={{
-            paddingBottom: selectedIngredients.length > 0 ? 100 : 10,
+            paddingBottom: selectedIngredients.length > 0 ? 100 : 75,
           }}
         >
           <View style={{ backgroundColor: theme.colors.grey4 }}>
