@@ -1,5 +1,6 @@
 import axiosInstance from "./api";
 import { Recipe, Ingredient, RecipeDTO } from "@/Interfaces/recipe";
+import { DeductionPreview } from "@/Interfaces/recipe";
 
 export const getRecipes = async (): Promise<Recipe[]> => {
   try {
@@ -54,6 +55,21 @@ export const updateRecipe = async (
     const response = await axiosInstance.patch<Recipe>(
       `/recipes/${recipeId}`,
       recipe
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getRecipeDeductionPreview = async (
+  recipeId: string,
+  userId: string
+): Promise<DeductionPreview[]> => {
+  try {
+    const response = await axiosInstance.post<DeductionPreview[]>(
+      `/recipes/${recipeId}/deduction-preview`,
+      { user_id: userId }
     );
     return response.data;
   } catch (error) {

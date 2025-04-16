@@ -43,7 +43,7 @@ const RecipeIngredientModal: React.FC<RecipeIngredientModalProps> = ({
   useEffect(() => {
     if (initialData) {
       const found = ingredients.find(
-        (ing) => ing.Ing_id.toString() === initialData.ingredient_id
+        (ing) => ing.Ing_id!.toString() === initialData.ingredient_id
       );
       if (found) setSelectedIngredient(found);
       setName(initialData.ingredient_name);
@@ -68,7 +68,7 @@ const RecipeIngredientModal: React.FC<RecipeIngredientModalProps> = ({
     if (!name || !quantity || !unit || !selectedIngredient) return;
 
     onSave({
-      ingredient_id: selectedIngredient.Ing_id.toString(),
+      ingredient_id: selectedIngredient.Ing_id!.toString(),
       ingredient_name: name,
       quantity: parseFloat(quantity),
       unit,
@@ -128,7 +128,7 @@ const RecipeIngredientModal: React.FC<RecipeIngredientModalProps> = ({
         onClose={() => setIngredientSheetVisible(false)}
         data={ingredients}
         onSelect={handleIngredientSelect}
-        keyExtractor={(item) => item.Ing_id.toString()}
+        keyExtractor={(item) => item.Ing_id!.toString()}
         labelExtractor={(item) => item.Ing_name}
         placeholder="Search ingredients..."
       />

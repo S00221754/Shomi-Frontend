@@ -30,3 +30,15 @@ export interface RecipeDTO {
   author_id: string;
   recipe_images?: string[];
 }
+
+export interface DeductionPreview {
+  recipe_ingredient: Ingredient;
+  matched_user_ingredient: {
+    id: string;
+    ingredient_id: number;
+    ingredient_name: string;
+    unit: string;
+  } | null;
+  confidence_score: number;
+  reason: string;
+}
