@@ -2,7 +2,6 @@ import React from "react";
 import { FAB } from "react-native-paper";
 import { useTheme } from "@rneui/themed";
 
-// reusable flexible floating action button to be used across the app
 interface FABAction {
   icon: string;
   label: string;
@@ -29,7 +28,7 @@ const ShomiFAB: React.FC<ShomiFABProps> = ({
   allowDelete = false,
 }) => {
   const { theme } = useTheme();
-
+  const isDark = theme.mode === "dark";
   const isDeleteMode = allowDelete && selectedItems.length > 0;
 
   return (
@@ -49,14 +48,18 @@ const ShomiFAB: React.FC<ShomiFABProps> = ({
           ? []
           : actions.map((action) => ({
               ...action,
+              color: theme.colors.white,
+              style: {
+                backgroundColor: theme.colors.secondary,
+              },
               labelStyle: {
-                backgroundColor: theme.colors.grey4,
-                color: theme.colors.black,
-                fontSize: 16,
-                fontWeight: "bold",
-                paddingVertical: 6,
-                paddingHorizontal: 10,
+                backgroundColor: theme.colors.background,
+                color: isDark ? theme.colors.white : theme.colors.black,
+                fontSize: 14,
+                fontWeight: "600",
                 borderRadius: 6,
+                paddingHorizontal: 10,
+                paddingVertical: 4,
               },
             }))
       }

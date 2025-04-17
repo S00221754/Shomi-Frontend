@@ -13,7 +13,7 @@ const lightTheme: CreateThemeOptions = {
   mode: "light",
   lightColors: {
     primary: "#99BC85",
-    secondary: "#BEE3B4",
+    secondary: "#AFCB9F",
     background: "#FDFAF6",
     white: "#FFFFFF",
     black: "hsl(0, 0%, 14%)",
@@ -37,7 +37,7 @@ const darkTheme: CreateThemeOptions = {
   mode: "dark",
   darkColors: {
     primary: "#306844",
-    secondary: "#768463",
+    secondary: "#182c25",
     background: "#1A1A1A",
     white: "#FFFFFF",
     black: "hsl(0, 0%, 14%)",

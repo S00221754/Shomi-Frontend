@@ -45,6 +45,8 @@ export default function RecipeDetails() {
   const { width } = useWindowDimensions();
   const { userId } = useAuth();
   const navigation = useNavigation();
+  const textColor =
+    theme.mode === "dark" ? theme.colors.white : theme.colors.black;
 
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -82,6 +84,26 @@ export default function RecipeDetails() {
     if (recipe) {
       navigation.setOptions({
         headerTitle: recipe.recipe_name,
+        headerRight: () => (
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            {recipe.author?.id === userId && (
+              <ShomiButton
+                icon="pencil"
+                color={theme.colors.warning}
+                onPress={() =>
+                  router.push({
+                    pathname: "/recipes/recipeFormScreen",
+                    params: { id: recipe.recipe_id },
+                  })
+                }
+              />
+            )}
+            <ShomiButton
+              icon={isBookmarked ? "bookmark" : "bookmark-outline"}
+              onPress={toggleBookmark}
+            />
+          </View>
+        ),
       });
     }
   }, [recipe, userId, navigation, theme]);
@@ -112,7 +134,6 @@ export default function RecipeDetails() {
 
     try {
       const data = await getRecipeDeductionPreview(recipe.recipe_id);
-
       setDeductionMatches(data);
       setIsPreviewVisible(true);
     } catch (err) {
@@ -135,13 +156,8 @@ export default function RecipeDetails() {
     if (!userId || !recipe?.recipe_id) return;
 
     try {
-      const result = await markRecipeAsCooked(
-        recipe.recipe_id,
-        deductions
-      );
-
+      const result = await markRecipeAsCooked(recipe.recipe_id, deductions);
       console.log("Cooked result:", result);
-
       showToast(
         "success",
         "Recipe Cooked",
@@ -210,28 +226,24 @@ export default function RecipeDetails() {
           backgroundColor: theme.colors.background,
           padding: 20,
         }}
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: 50 }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
       >
-        {/* Images */}
         {recipe.recipe_images && recipe.recipe_images.length > 0 && (
           <ImageCarousel images={recipe.recipe_images} width={width} />
         )}
 
-        {/* Recipe details */}
         <View style={{ marginBottom: 20 }}>
           <Text
             style={{
               fontSize: 18,
               fontWeight: "bold",
-              color: theme.colors.black,
+              color: textColor,
               marginTop: 10,
             }}
           >
             Description
           </Text>
-          <Text
-            style={{ fontSize: 16, color: theme.colors.grey3, marginTop: 5 }}
-          >
+          <Text style={{ fontSize: 16, color: textColor, marginTop: 5 }}>
             {recipe.recipe_description}
           </Text>
         </View>
@@ -241,7 +253,7 @@ export default function RecipeDetails() {
             style={{
               fontSize: 18,
               fontWeight: "bold",
-              color: theme.colors.black,
+              color: textColor,
               marginTop: 15,
             }}
           >
@@ -259,7 +271,7 @@ export default function RecipeDetails() {
             style={{
               fontSize: 18,
               fontWeight: "bold",
-              color: theme.colors.black,
+              color: textColor,
               marginTop: 15,
             }}
           >
@@ -269,11 +281,7 @@ export default function RecipeDetails() {
           {recipe.ingredients.map((ingredient, index) => (
             <Text
               key={index}
-              style={{
-                fontSize: 16,
-                color: theme.colors.black,
-                marginVertical: 3,
-              }}
+              style={{ fontSize: 16, color: textColor, marginVertical: 3 }}
             >
               • {ingredient.quantity} {ingredient.unit}{" "}
               {ingredient.ingredient_name}
@@ -286,7 +294,7 @@ export default function RecipeDetails() {
             style={{
               fontSize: 18,
               fontWeight: "bold",
-              color: theme.colors.black,
+              color: textColor,
               marginTop: 15,
             }}
           >
@@ -295,39 +303,16 @@ export default function RecipeDetails() {
           <Divider style={{ marginVertical: 5 }} />
           {recipe &&
             htmlParser(recipe.recipe_instructions).map((step, idx) => (
-              <Text key={idx}>
+              <Text key={idx} style={{ fontSize: 16, color: textColor }}>
                 {idx + 1}. {step}
               </Text>
             ))}
         </View>
 
-        <View style={{ marginBottom: 10 }}>
-          {recipe.author?.id === userId && (
-            <ShomiButton
-              title="Edit Recipe"
-              icon="pencil"
-              color={theme.colors.warning}
-              onPress={() =>
-                router.push({
-                  pathname: "/recipes/recipeFormScreen",
-                  params: { id: recipe.recipe_id },
-                })
-              }
-            />
-          )}
-        </View>
-
-        <ShomiButton
-          title={isBookmarked ? "Remove Bookmark" : "Bookmark Recipe"}
-          icon={isBookmarked ? "bookmark" : "bookmark-outline"}
-          color={theme.colors.primary}
-          onPress={toggleBookmark}
-        />
-
         <ShomiButton
           title="I've Cooked This"
           icon="check-circle"
-          color={theme.colors.success}
+          color={theme.colors.primary}
           onPress={handleCookedPress}
           buttonStyle={{ marginBottom: 10 }}
         />

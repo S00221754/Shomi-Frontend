@@ -127,10 +127,12 @@ export default function RecipeScreen() {
         renderItem={({ item }) => (
           <Card
             containerStyle={{
-              backgroundColor: theme.colors.white,
+              backgroundColor:
+                theme.mode === "dark" ? theme.colors.grey0 : theme.colors.white,
               borderRadius: 10,
               padding: 15,
-              shadowColor: theme.colors.black,
+              shadowColor:
+                theme.mode === "dark" ? theme.colors.greyOutline : theme.colors.black,
               elevation: 3,
             }}
           >
@@ -152,7 +154,10 @@ export default function RecipeScreen() {
               style={{
                 fontSize: 18,
                 fontWeight: "bold",
-                color: theme.colors.black,
+                color:
+                  theme.mode === "dark"
+                    ? theme.colors.white
+                    : theme.colors.black,
                 textAlign: "center",
               }}
             >
@@ -164,7 +169,10 @@ export default function RecipeScreen() {
             <Text
               style={{
                 fontSize: 14,
-                color: theme.colors.grey3,
+                color:
+                  theme.mode === "dark"
+                    ? theme.colors.white
+                    : theme.colors.grey3,
                 textAlign: "center",
                 marginBottom: 5,
               }}

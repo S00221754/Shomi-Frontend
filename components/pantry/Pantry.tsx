@@ -309,13 +309,14 @@ const Pantry: React.FC = () => {
     const ingredientStatus = {
       [ExpiryStatus.Expired]: "error",
       [ExpiryStatus.Soon]: "warning",
-      [ExpiryStatus.Fresh]: "success",
+      [ExpiryStatus.Fresh]: "primary",
     } as const;
     return (
       <Badge
         value={status}
         status={ingredientStatus[status]}
         containerStyle={{ marginLeft: 6 }}
+        badgeStyle={{ borderWidth: 0, elevation: 0 }}
       />
     );
   };
@@ -339,7 +340,7 @@ const Pantry: React.FC = () => {
     const quantityColor = {
       [QuantityStatus.OutOfStock]: "error",
       [QuantityStatus.Low]: "warning",
-      [QuantityStatus.InStock]: "success",
+      [QuantityStatus.InStock]: "primary",
     } as const;
 
     return (
@@ -347,6 +348,7 @@ const Pantry: React.FC = () => {
         value={status}
         status={quantityColor[status]}
         containerStyle={{ marginLeft: 6 }}
+        badgeStyle={{ borderWidth: 0, elevation: 0 }}
       />
     );
   };
@@ -397,13 +399,18 @@ const Pantry: React.FC = () => {
             paddingBottom: selectedIngredients.length > 0 ? 100 : 75,
           }}
         >
-          <View style={{ backgroundColor: theme.colors.grey4 }}>
+          <View
+            style={{
+              backgroundColor:
+                theme.mode === "dark" ? theme.colors.grey5 : theme.colors.grey4,
+            }}
+          >
             <View
               style={{
                 flexDirection: "row",
                 padding: 12,
                 paddingRight: 60, //this is to keep the headers aligned with the content
-                backgroundColor: theme.colors.grey4,
+                backgroundColor: theme.colors.primary,
                 borderBottomWidth: 1,
                 borderBottomColor: theme.colors.greyOutline,
               }}
@@ -415,7 +422,12 @@ const Pantry: React.FC = () => {
                   justifyContent: "center",
                 }}
               >
-                <Text style={{ fontWeight: "bold", color: theme.colors.black }}>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    color: theme.colors.white,
+                  }}
+                >
                   Select
                 </Text>
               </View>
@@ -425,10 +437,15 @@ const Pantry: React.FC = () => {
                   flex: 2,
                   alignItems: "center",
                   justifyContent: "center",
-                  paddingRight: 15, //keep name aligned with its content
+                  paddingRight: 15,
                 }}
               >
-                <Text style={{ fontWeight: "bold", color: theme.colors.black }}>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    color: theme.colors.white,
+                  }}
+                >
                   Name
                 </Text>
               </View>
@@ -440,7 +457,12 @@ const Pantry: React.FC = () => {
                   justifyContent: "center",
                 }}
               >
-                <Text style={{ fontWeight: "bold", color: theme.colors.black }}>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    color: theme.colors.white,
+                  }}
+                >
                   Status
                 </Text>
               </View>
@@ -453,7 +475,10 @@ const Pantry: React.FC = () => {
               style={{
                 borderBottomWidth: 1,
                 borderBottomColor: theme.colors.greyOutline,
-                backgroundColor: theme.colors.white,
+                backgroundColor:
+                  theme.mode === "dark"
+                    ? theme.colors.black
+                    : theme.colors.white,
               }}
             >
               <ListItem.Accordion
@@ -461,9 +486,9 @@ const Pantry: React.FC = () => {
                   <View
                     style={{
                       flexDirection: "row",
-                      alignItems: "center", // ensures vertical centering
+                      alignItems: "center",
                       flex: 1,
-                      paddingVertical: 10, // optional, improves spacing
+                      paddingVertical: 10,
                     }}
                   >
                     <Pressable
@@ -491,7 +516,11 @@ const Pantry: React.FC = () => {
                             )
                           }
                           checkedColor={theme.colors.primary}
-                          uncheckedColor={theme.colors.greyOutline}
+                          uncheckedColor={
+                            theme.mode === "dark"
+                              ? theme.colors.white
+                              : theme.colors.greyOutline
+                          }
                           containerStyle={{
                             backgroundColor: "transparent",
                             borderWidth: 0,
@@ -526,7 +555,14 @@ const Pantry: React.FC = () => {
                             gap: 6,
                           }}
                         >
-                          <Text style={{ color: theme.colors.black }}>
+                          <Text
+                            style={{
+                              color:
+                                theme.mode === "dark"
+                                  ? theme.colors.white
+                                  : theme.colors.black,
+                            }}
+                          >
                             {item.ingredient.Ing_name}
                           </Text>
                         </View>
@@ -537,9 +573,9 @@ const Pantry: React.FC = () => {
                       style={{
                         flex: 1,
                         justifyContent: "center",
-                        alignItems: "center", // ✅ centers both vertically & horizontally
-                        flexDirection: "column", // ✅ badges stack if needed
-                        gap: 4, // better spacing between badges
+                        alignItems: "center",
+                        flexDirection: "column",
+                        gap: 4,
                       }}
                     >
                       {item.expiry_date && renderExpiryBadge(item.expiry_date)}
@@ -549,18 +585,47 @@ const Pantry: React.FC = () => {
                           item.ingredient.Ing_quantity
                         )}
                     </View>
+
+                    <Icon
+                      name={
+                        expandedRows[item.id] ? "chevron-up" : "chevron-down"
+                      }
+                      type="material-community"
+                      color={
+                        theme.mode === "dark"
+                          ? theme.colors.white
+                          : theme.colors.black
+                      }
+                      size={24}
+                    />
                   </View>
                 }
                 containerStyle={{
-                  backgroundColor: theme.colors.white,
+                  backgroundColor:
+                    theme.mode === "dark"
+                      ? theme.colors.black
+                      : theme.colors.white,
                 }}
                 isExpanded={expandedRows[item.id]}
                 onPress={() => toggleRowExpansion(item.id)}
+                expandIcon={{
+                  name: "chevron-down",
+                  type: "material-community",
+                  color:
+                    theme.mode === "dark"
+                      ? theme.colors.white
+                      : theme.colors.black,
+                  size: 24,
+                }}
+                noIcon={true} // ✅ this disables default chevron
               >
                 <View
                   style={{
                     padding: 10,
-                    backgroundColor: theme.colors.white,
+                    backgroundColor:
+                      theme.mode === "dark"
+                        ? theme.colors.black
+                        : theme.colors.white,
                     borderRadius: 5,
                     gap: 10,
                   }}
@@ -586,10 +651,22 @@ const Pantry: React.FC = () => {
                         name="scale-balance"
                         type="material-community"
                         size={18}
-                        color={theme.colors.grey1}
+                        color={
+                          theme.mode === "dark"
+                            ? theme.colors.white
+                            : theme.colors.black
+                        }
                         style={{ marginRight: 6 }}
                       />
-                      <Text style={{ color: theme.colors.black, fontSize: 14 }}>
+                      <Text
+                        style={{
+                          color:
+                            theme.mode === "dark"
+                              ? theme.colors.white
+                              : theme.colors.black,
+                          fontSize: 14,
+                        }}
+                      >
                         Quantity:{" "}
                         <Text style={{ fontWeight: "bold" }}>
                           {item.unitQuantity || "N/A"}
@@ -608,12 +685,32 @@ const Pantry: React.FC = () => {
                         name="package-variant"
                         type="material-community"
                         size={18}
-                        color={theme.colors.grey1}
+                        color={
+                          theme.mode === "dark"
+                            ? theme.colors.white
+                            : theme.colors.black
+                        }
                         style={{ marginRight: 6 }}
                       />
-                      <Text style={{ color: theme.colors.black, fontSize: 14 }}>
+                      <Text
+                        style={{
+                          color:
+                            theme.mode === "dark"
+                              ? theme.colors.white
+                              : theme.colors.black,
+                          fontSize: 14,
+                        }}
+                      >
                         Amount:{" "}
-                        <Text style={{ fontWeight: "bold" }}>
+                        <Text
+                          style={{
+                            color:
+                              theme.mode === "dark"
+                                ? theme.colors.white
+                                : theme.colors.black,
+                            fontWeight: "bold",
+                          }}
+                        >
                           {item.totalAmount || "Unknown"} {item.unitType || ""}
                         </Text>
                       </Text>
@@ -627,14 +724,32 @@ const Pantry: React.FC = () => {
                           name="calendar-clock"
                           type="material-community"
                           size={18}
-                          color={theme.colors.grey1}
+                          color={
+                            theme.mode === "dark"
+                              ? theme.colors.white
+                              : theme.colors.black
+                          }
                           style={{ marginRight: 6 }}
                         />
                         <Text
-                          style={{ color: theme.colors.black, fontSize: 14 }}
+                          style={{
+                            color:
+                              theme.mode === "dark"
+                                ? theme.colors.white
+                                : theme.colors.black,
+                            fontSize: 14,
+                          }}
                         >
                           Expiry:{" "}
-                          <Text style={{ fontWeight: "bold" }}>
+                          <Text
+                            style={{
+                              color:
+                                theme.mode === "dark"
+                                  ? theme.colors.white
+                                  : theme.colors.black,
+                              fontWeight: "bold",
+                            }}
+                          >
                             {item.expiry_date}
                           </Text>
                         </Text>
@@ -681,7 +796,7 @@ const Pantry: React.FC = () => {
                           title={btn.title}
                           icon={btn.icon}
                           buttonStyle={{
-                            backgroundColor: btn.color,
+                            backgroundColor: btn.color, // change this
                             minHeight: 48,
                           }}
                           titleStyle={{

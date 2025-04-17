@@ -2,6 +2,7 @@ import React from "react";
 import { View, StyleSheet, ViewStyle, useColorScheme } from "react-native";
 import LightLogo from "@/assets/images/shomi-light-logo.svg";
 import DarkLogo from "@/assets/images/shomi-dark-logo.svg";
+import { useTheme } from "@rneui/themed";
 
 interface LogoProps {
   width?: number;
@@ -10,8 +11,8 @@ interface LogoProps {
 }
 
 const Logo: React.FC<LogoProps> = ({ width = 40, height = 40, style }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { theme } = useTheme();
+  const isDark = theme.mode === "dark";
 
   const LogoComponent = isDark ? DarkLogo : LightLogo;
 
