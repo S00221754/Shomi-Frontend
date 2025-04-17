@@ -22,7 +22,6 @@ export default function RecommendedRecipesScreen() {
     const fetchRecipes = async () => {
       try {
         const data = await getRecommendedRecipes(
-          userId || "",
           selectedIngredients
         );
         setRecipes(data);

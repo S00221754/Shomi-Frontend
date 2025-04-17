@@ -24,7 +24,7 @@ export default function BookmarkedRecipesScreen() {
       const fetchBookmarks = async () => {
         try {
           setLoading(true);
-          const fetched = await getBookmarkRecipes(userId!);
+          const fetched = await getBookmarkRecipes();
           setRecipes(fetched.map((b: any) => b.recipe));
         } catch (err) {
           setError("Failed to load bookmarked recipes.");
@@ -39,7 +39,7 @@ export default function BookmarkedRecipesScreen() {
 
   const handleRemoveBookmark = async (recipeId: string) => {
     try {
-      await removeBookmark(userId!, recipeId);
+      await removeBookmark(recipeId);
       setRecipes((prev) => prev.filter((r) => r.recipe_id !== recipeId));
       showToast("success", "Bookmark removed");
     } catch {

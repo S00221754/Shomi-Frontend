@@ -30,7 +30,7 @@ const ShoppingListScreen = () => {
 
       const fetchItems = async () => {
         try {
-          const result = await getShoppingList(userId);
+          const result = await getShoppingList();
           setShoppingItems(result);
         } catch (error) {
           console.error("Failed to load shopping list");

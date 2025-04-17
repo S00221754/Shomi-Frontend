@@ -91,10 +91,10 @@ export default function RecipeDetails() {
 
     try {
       if (isBookmarked) {
-        await removeBookmark(userId!, recipe.recipe_id);
+        await removeBookmark(recipe.recipe_id);
         setIsBookmarked(false);
       } else {
-        await addBookmark(userId!, recipe.recipe_id);
+        await addBookmark(recipe.recipe_id);
         setIsBookmarked(true);
       }
       showToast(
@@ -111,7 +111,7 @@ export default function RecipeDetails() {
     if (!userId || !recipe?.recipe_id) return;
 
     try {
-      const data = await getRecipeDeductionPreview(recipe.recipe_id, userId);
+      const data = await getRecipeDeductionPreview(recipe.recipe_id);
 
       setDeductionMatches(data);
       setIsPreviewVisible(true);
@@ -137,7 +137,6 @@ export default function RecipeDetails() {
     try {
       const result = await markRecipeAsCooked(
         recipe.recipe_id,
-        userId,
         deductions
       );
 

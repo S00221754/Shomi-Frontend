@@ -1,6 +1,12 @@
 import React, { useState, useMemo } from "react";
 import { View } from "react-native";
-import { BottomSheet, SearchBar, Icon, ListItem, useTheme } from "@rneui/themed";
+import {
+  BottomSheet,
+  SearchBar,
+  Icon,
+  ListItem,
+  useTheme,
+} from "@rneui/themed";
 
 //could not find a react native searchable dropdown that is not deprecated or has issues with expo so used bottomsheet from react native elements to create my own searchable dropdown.
 interface BottomSheetSelectProps<T> {
@@ -25,6 +31,17 @@ function BottomSheetSelect<T>({
   const { theme } = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
 
+  const handleClose = () => {
+    setSearchTerm("");
+    onClose();
+  };
+
+  const handleSelect = (item: T) => {
+    onSelect(item);
+    setSearchTerm("");
+    onClose();
+  };
+
   const filteredData = useMemo(
     () =>
       data.filter((item) =>
@@ -34,7 +51,7 @@ function BottomSheetSelect<T>({
   );
 
   return (
-    <BottomSheet isVisible={isVisible} onBackdropPress={onClose}>
+    <BottomSheet isVisible={isVisible} onBackdropPress={handleClose}>
       <View
         style={{
           flexDirection: "row",
@@ -74,7 +91,7 @@ function BottomSheetSelect<T>({
             padding: 6,
             marginRight: 5,
           }}
-          onPress={onClose}
+          onPress={handleClose}
         />
       </View>
 
@@ -82,10 +99,7 @@ function BottomSheetSelect<T>({
         <ListItem
           key={keyExtractor(item)}
           bottomDivider
-          onPress={() => {
-            onSelect(item);
-            onClose();
-          }}
+          onPress={() => handleSelect(item)}
         >
           <ListItem.Content>
             <ListItem.Title style={{ color: theme.colors.black }}>

@@ -226,7 +226,6 @@ const Pantry: React.FC = () => {
       if (!userId) return;
 
       await addShoppingListItem({
-        user_id: userId,
         ingredient_id: item.ingredient.Ing_id,
         Shop_quantity: 1,
         Shop_added_automatically: false,

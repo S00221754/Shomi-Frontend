@@ -35,7 +35,7 @@ export default function RecipeScreen() {
 
           const [recipesRes, bookmarkedRecipes] = await Promise.all([
             getRecipes(),
-            getBookmarkRecipes(userId!),
+            getBookmarkRecipes(),
           ]);
 
           setRecipes(recipesRes);
@@ -59,14 +59,14 @@ export default function RecipeScreen() {
 
     try {
       if (isBookmarked) {
-        await removeBookmark(userId!, recipeId);
+        await removeBookmark(recipeId);
         setBookmarkedIds((prev) => {
           const updated = new Set(prev);
           updated.delete(recipeId);
           return updated;
         });
       } else {
-        await addBookmark(userId!, recipeId);
+        await addBookmark(recipeId);
         setBookmarkedIds((prev) => new Set(prev).add(recipeId));
       }
       showToast(
