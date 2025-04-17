@@ -3,7 +3,6 @@ import { View, ScrollView, TextInput, Alert } from "react-native";
 import { ListItem, Button, useTheme } from "@rneui/themed";
 import { getIngredients } from "@/services/ingredientsService";
 import {
-  getUserIngredientByIngredientId,
   addUserIngredient,
   getUserIngredients,
 } from "@/services/user-ingredientService";

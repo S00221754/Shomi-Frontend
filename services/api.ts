@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_URL } from "@/constants/constants";
-import * as SecureStore from "expo-secure-store";
-// Need to make this more secure.
+import { supabase } from "@/lib/supabase";
+
 const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
@@ -9,18 +9,35 @@ const axiosInstance = axios.create({
   },
 });
 
-axiosInstance.interceptors.request.use(async (config) => {
-  const token = await SecureStore.getItemAsync("userToken");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+axiosInstance.interceptors.request.use(
+  async (config) => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session?.access_token) {
+        config.headers.Authorization = `Bearer ${session.access_token}`;
+      }
+    } catch (err) {
+      console.warn("Failed to attach auth token:", err);
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error("API Error:", error.response?.data || error.message);
+    const status = error.response?.status;
+    const message = error.response?.data?.error || error.message;
+
+    if (status === 401) {
+      console.warn("Unauthorized – maybe log out user or refresh token.");
+    }
+
+    console.error("API Error:", message);
     return Promise.reject(error);
   }
 );

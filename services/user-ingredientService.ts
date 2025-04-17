@@ -10,7 +10,7 @@ export const getUserIngredients = async (
 ): Promise<UserIngredient[]> => {
   try {
     const response = await axiosInstance.get<UserIngredient[]>(
-      `/user-ingredient/${userId}`
+      `/user-ingredient/`
     );
     return response.data;
   } catch (error) {

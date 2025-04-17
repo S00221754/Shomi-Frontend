@@ -26,15 +26,12 @@ export const getRecipeById = async (id: string): Promise<Recipe> => {
 };
 
 export const getRecommendedRecipes = async (
-  userId: string,
   selectedIngredients: string[] = []
 ): Promise<Recipe[]> => {
   try {
     const response = await axiosInstance.post<Recipe[]>(
-      `/recipes/recommended/${userId}`,
-      {
-        selectedIngredients,
-      }
+      `/recipes/recommended`,
+      { selectedIngredients }
     );
     return response.data;
   } catch (error) {
@@ -68,13 +65,11 @@ export const updateRecipe = async (
 };
 
 export const getRecipeDeductionPreview = async (
-  recipeId: string,
-  userId: string
+  recipeId: string
 ): Promise<DeductionPreview[]> => {
   try {
     const response = await axiosInstance.post<DeductionPreview[]>(
-      `/recipes/${recipeId}/deduction-preview`,
-      { user_id: userId }
+      `/recipes/${recipeId}/deduction-preview`
     );
     return response.data;
   } catch (error) {
@@ -84,12 +79,10 @@ export const getRecipeDeductionPreview = async (
 
 export const markRecipeAsCooked = async (
   recipeId: string,
-  userId: string,
   deductions: IngredientsToDeduct[]
 ) => {
   try {
     const response = await axiosInstance.post(`/recipes/${recipeId}/cooked`, {
-      user_id: userId,
       deductions,
     });
     return response.data;
