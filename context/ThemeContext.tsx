@@ -37,7 +37,7 @@ const darkTheme: CreateThemeOptions = {
   mode: "dark",
   darkColors: {
     primary: "#306844",
-    secondary: "#182c25",
+    secondary: "#244c3a",
     background: "#1A1A1A",
     white: "#FFFFFF",
     black: "hsl(0, 0%, 14%)",

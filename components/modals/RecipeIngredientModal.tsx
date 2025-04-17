@@ -8,9 +8,8 @@ import { UnitType } from "@/Interfaces/unit-type";
 import { useGetUnitTypes } from "@/hooks/useGetUnitTypes";
 import { useGetIngredient } from "@/hooks/useGetIngredient";
 import ShomiBottomSheet from "@/components/common/ShomiBottomSheet";
+import ShomiButton from "../common/ShomiButton";
 
-// Ingredient modal for adding or editing ingredients in a recipe. 
-// The reason for this modal is to allow flexibility with the unittypes of recipe ingredients. as peopel do not 5g of salt they do 1 tsp of salt. to accomodate this, this component was created.
 interface RecipeIngredientModalProps {
   visible: boolean;
   onClose: () => void;
@@ -25,6 +24,7 @@ const RecipeIngredientModal: React.FC<RecipeIngredientModalProps> = ({
   initialData,
 }) => {
   const { theme } = useTheme();
+  const isDark = theme.mode === "dark";
 
   const { unitTypes } = useGetUnitTypes();
   const { ingredients } = useGetIngredient();
@@ -92,15 +92,27 @@ const RecipeIngredientModal: React.FC<RecipeIngredientModalProps> = ({
           borderRadius: 10,
         }}
       >
-        <Text h4 style={{ textAlign: "center", marginBottom: 10 }}>
+        <Text
+          h4
+          style={{
+            textAlign: "center",
+            marginBottom: 10,
+            color:
+              theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+          }}
+        >
           {initialData ? "Edit Ingredient" : "Add Ingredient"}
         </Text>
 
-        <Button
+        <ShomiButton
           title={name || "Select Ingredient"}
           onPress={() => setIngredientSheetVisible(true)}
-          type="outline"
-          buttonStyle={{ marginBottom: 10 }}
+          buttonStyle={{
+            marginBottom: 10,
+            borderColor: theme.colors.grey2,
+          }}
+          titleStyle={{ color: theme.colors.white }}
+          color={theme.colors.secondary}
         />
 
         <Input
@@ -108,18 +120,42 @@ const RecipeIngredientModal: React.FC<RecipeIngredientModalProps> = ({
           value={quantity}
           onChangeText={setQuantity}
           keyboardType="numeric"
+          inputStyle={{
+            color:
+              theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+          }}
+          labelStyle={{
+            color:
+              theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+          }}
         />
 
-        <Button
+        <ShomiButton
           title={unit || "Select Unit Type"}
           onPress={() => setUnitTypeSheetVisible(true)}
-          type="outline"
-          buttonStyle={{ marginBottom: 20 }}
+          buttonStyle={{
+            marginBottom: 20,
+            borderColor: theme.colors.grey2,
+          }}
+          titleStyle={{ color: theme.colors.white }}
+          color={theme.colors.secondary}
         />
 
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <Button title="Cancel" onPress={onClose} />
-          <Button title={initialData ? "Update" : "Add"} onPress={handleSave} />
+          <ShomiButton
+            title="Cancel"
+            onPress={onClose}
+            color={theme.colors.error}
+            titleStyle={{
+              color: theme.colors.white,
+            }}
+          />
+          <ShomiButton
+            title={initialData ? "Update" : "Add"}
+            onPress={handleSave}
+            buttonStyle={{ backgroundColor: theme.colors.primary }}
+            titleStyle={{ color: theme.colors.white }}
+          />
         </View>
       </Overlay>
 

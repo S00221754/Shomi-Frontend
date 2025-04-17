@@ -13,6 +13,7 @@ export default function RecommendedRecipesScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { theme } = useTheme();
+  const isDark = theme.mode === "dark";
 
   const selectedIngredients = params.selectedIngredients
     ? JSON.parse(params.selectedIngredients as string)
@@ -21,9 +22,7 @@ export default function RecommendedRecipesScreen() {
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const data = await getRecommendedRecipes(
-          selectedIngredients
-        );
+        const data = await getRecommendedRecipes(selectedIngredients);
         setRecipes(data);
       } catch (error) {
         console.error("Error Fetching Recipes:", error);
@@ -55,39 +54,49 @@ export default function RecommendedRecipesScreen() {
       style={{ flex: 1, backgroundColor: theme.colors.background, padding: 20 }}
       contentContainerStyle={{ flexGrow: 1, paddingBottom: 50 }}
     >
-      <Text
-        h3
-        style={{
-          fontSize: 24,
-          fontWeight: "bold",
-          color: theme.colors.primary,
-          marginBottom: 15,
-        }}
-      >
-        Recommended Recipes
-      </Text>
-
       {recipes.map((recipe) => (
         <Card
           key={recipe.recipe_id}
           containerStyle={{
-            backgroundColor: theme.colors.white,
+            backgroundColor: isDark ? theme.colors.grey0 : theme.colors.white,
             borderRadius: 10,
             padding: 15,
+            shadowColor: isDark ? theme.colors.greyOutline : theme.colors.black,
+            elevation: 3,
           }}
         >
+          {Array.isArray(recipe.recipe_images) &&
+            recipe.recipe_images.length > 0 && (
+              <Card.Image
+                source={{ uri: recipe.recipe_images[0] }}
+                style={{
+                  width: "100%",
+                  height: 180,
+                  borderRadius: 10,
+                  marginBottom: 12,
+                }}
+                resizeMode="cover"
+              />
+            )}
+
           <Card.Title
             style={{
               fontSize: 18,
               fontWeight: "bold",
-              color: theme.colors.black,
+              color: isDark ? theme.colors.white : theme.colors.black,
+              textAlign: "center",
             }}
           >
             {recipe.recipe_name}
           </Card.Title>
           <Card.Divider />
           <Text
-            style={{ fontSize: 14, color: theme.colors.grey3, marginBottom: 5 }}
+            style={{
+              fontSize: 14,
+              color: isDark ? theme.colors.white : theme.colors.grey3,
+              textAlign: "center",
+              marginBottom: 5,
+            }}
           >
             {recipe.recipe_description}
           </Text>
@@ -95,6 +104,7 @@ export default function RecommendedRecipesScreen() {
             style={{
               fontSize: 14,
               color: theme.colors.primary,
+              textAlign: "center",
               marginBottom: 10,
             }}
           >

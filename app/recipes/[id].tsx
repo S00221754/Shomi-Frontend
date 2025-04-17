@@ -80,34 +80,6 @@ export default function RecipeDetails() {
     }, [id, bookmarked])
   );
 
-  useLayoutEffect(() => {
-    if (recipe) {
-      navigation.setOptions({
-        headerTitle: recipe.recipe_name,
-        headerRight: () => (
-          <View style={{ flexDirection: "row", gap: 8 }}>
-            {recipe.author?.id === userId && (
-              <ShomiButton
-                icon="pencil"
-                color={theme.colors.warning}
-                onPress={() =>
-                  router.push({
-                    pathname: "/recipes/recipeFormScreen",
-                    params: { id: recipe.recipe_id },
-                  })
-                }
-              />
-            )}
-            <ShomiButton
-              icon={isBookmarked ? "bookmark" : "bookmark-outline"}
-              onPress={toggleBookmark}
-            />
-          </View>
-        ),
-      });
-    }
-  }, [recipe, userId, navigation, theme]);
-
   const toggleBookmark = async () => {
     if (!recipe) return;
 
@@ -168,6 +140,14 @@ export default function RecipeDetails() {
       showToast("error", "Failed", "Could not deduct from pantry.");
     }
   };
+
+  useLayoutEffect(() => {
+    if (recipe) {
+      navigation.setOptions({
+        headerTitle: recipe.recipe_name,
+      });
+    }
+  }, [navigation, recipe]);
 
   if (loading) {
     return (
@@ -307,6 +287,30 @@ export default function RecipeDetails() {
                 {idx + 1}. {step}
               </Text>
             ))}
+        </View>
+
+        <View style={{ flexDirection: "row", gap: 10, marginBottom: 20 }}>
+          {recipe.author?.id === userId && (
+            <ShomiButton
+              title="Edit"
+              icon="pencil"
+              color={theme.colors.warning}
+              onPress={() =>
+                router.push({
+                  pathname: "/recipes/recipeFormScreen",
+                  params: { id: recipe.recipe_id },
+                })
+              }
+              containerStyle={{ flex: 1 }}
+            />
+          )}
+          <ShomiButton
+            title={isBookmarked ? "Unbookmark" : "Bookmark"}
+            icon={isBookmarked ? "bookmark" : "bookmark-outline"}
+            color={theme.colors.secondary}
+            onPress={toggleBookmark}
+            containerStyle={{ flex: 1 }}
+          />
         </View>
 
         <ShomiButton

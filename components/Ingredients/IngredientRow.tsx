@@ -3,7 +3,6 @@ import { View } from "react-native";
 import { Card, Text, Button, Icon, useTheme } from "@rneui/themed";
 import { SelectedIngredient } from "@/Interfaces/ingredient";
 
-// This component represents a single row in the ingredient list of a recipe.
 interface IngredientRowProps {
   ingredient: SelectedIngredient;
   onPress: () => void;
@@ -16,6 +15,7 @@ const IngredientRow: React.FC<IngredientRowProps> = ({
   onRemove,
 }) => {
   const { theme } = useTheme();
+  const isDark = theme.mode === "dark";
 
   return (
     <Card
@@ -24,15 +24,27 @@ const IngredientRow: React.FC<IngredientRowProps> = ({
         borderRadius: 10,
         marginBottom: 10,
         borderColor: theme.colors.greyOutline,
-        backgroundColor: theme.colors.white,
+        backgroundColor: isDark ? theme.colors.grey0 : theme.colors.white,
       }}
       wrapperStyle={{ flexDirection: "row", alignItems: "center" }}
     >
       <View style={{ flex: 1 }} onTouchEnd={onPress}>
-        <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 4 }}>
+        <Text
+          style={{
+            fontWeight: "bold",
+            fontSize: 16,
+            marginBottom: 4,
+            color: isDark ? theme.colors.white : theme.colors.black,
+          }}
+        >
           {ingredient.ingredient_name}
         </Text>
-        <Text style={{ color: theme.colors.grey2, fontSize: 14 }}>
+        <Text
+          style={{
+            color: isDark ? theme.colors.grey4 : theme.colors.grey3,
+            fontSize: 14,
+          }}
+        >
           {ingredient.quantity} {ingredient.unit}
         </Text>
       </View>

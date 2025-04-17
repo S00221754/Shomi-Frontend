@@ -27,7 +27,6 @@ console.warn = (...args) => {
   originalWarn(...args);
 };
 
-
 function AppLayout() {
   const { isDarkMode } = useAppTheme();
   const { theme } = useTheme();
@@ -61,7 +60,7 @@ function AppLayout() {
             headerStyle: { backgroundColor: theme.colors.background },
             headerTintColor: primaryColor,
             headerShadowVisible: true,
-            headerTitle: "",
+            headerTitle: "Recommended Recipes",
           }}
         />
 
