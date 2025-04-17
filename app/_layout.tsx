@@ -100,6 +100,17 @@ function AppLayout() {
             headerTitle: "Bookmarked Recipes",
           }}
         />
+
+        <Stack.Screen
+          name="register"
+          options={{
+            headerShown: true,
+            headerStyle: { backgroundColor: theme.colors.background },
+            headerTintColor: primaryColor,
+            headerShadowVisible: true,
+            headerTitle: "Register",
+          }}
+        />
       </Stack>
     </>
   );

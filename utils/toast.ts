@@ -30,6 +30,7 @@ export const showToast = (
     visibilityTime: 2000,
     swipeable: true,
     topOffset: 125,
+    bottomOffset: 40,
     text1Style: defaultText1Style,
     text2Style: defaultText2Style,
     ...options,
