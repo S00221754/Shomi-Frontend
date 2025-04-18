@@ -1,37 +1,38 @@
+// useToast.ts
+import { useTheme } from "@rneui/themed";
 import Toast, { ToastOptions } from "react-native-toast-message";
-import { TextStyle } from "react-native";
+import { TextStyle, ViewStyle } from "react-native";
 
 type CustomToastType = "success" | "error" | "info";
 
-// Default text styles
-const defaultText1Style: TextStyle = {
-  fontWeight: "bold",
-  fontSize: 16,
-};
+export const useToast = () => {
+  const { theme } = useTheme();
+  const isDark = theme.mode === "dark";
 
-const defaultText2Style: TextStyle = {
-  fontSize: 14,
-  color: "#666",
-};
+  const showToast = (
+    type: CustomToastType,
+    title: string,
+    message?: string,
+    position: "bottom" | "top" = "top",
+    options: Partial<ToastOptions> = {}
+  ) => {
+    Toast.show({
+      type,
+      text1: title,
+      text2: message,
+      position,
+      autoHide: true,
+      visibilityTime: 1500,
+      swipeable: true,
+      topOffset: 120,
+      bottomOffset: 40,
+      props: {
+        isDark,
+        toastType: type,
+      },
+      ...options,
+    });
+  };
 
-export const showToast = (
-  type: CustomToastType,
-  title: string,
-  message?: string,
-  position: "top" | "bottom" = "bottom",
-  options: Partial<ToastOptions> = {}
-) => {
-  Toast.show({
-    type,
-    text1: title,
-    text2: message,
-    position: position,
-    autoHide: true,
-    visibilityTime: 2000,
-    swipeable: true,
-    bottomOffset: 40,
-    text1Style: defaultText1Style,
-    text2Style: defaultText2Style,
-    ...options,
-  });
+  return { showToast };
 };

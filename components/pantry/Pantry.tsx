@@ -41,25 +41,53 @@ import {
   UserIngredient,
 } from "@/Interfaces/ingredient";
 import ShomiFAB from "../common/ShomiFAB";
-import { showToast } from "@/utils/toast";
+import { useToast } from "@/utils/toast";
 import ShomiButton from "../common/ShomiButton";
 import ChooseBatchModal from "../modals/ChooseBatchModal";
-import { addShoppingListItem } from "@/services/shoppingListService";
+import {
+  addShoppingListItem,
+  getShoppingList,
+} from "@/services/shoppingListService";
 import dayjs from "dayjs";
 import { ShoppingItem } from "@/Interfaces/shopping-list";
 import { getIngredientById } from "@/services/ingredientsService";
 import { deleteShoppingListItem } from "@/services/shoppingListService";
+import { usePaginatedUserIngredients } from "@/hooks/useGetPaginatedUserIngredients";
+import { SearchBar } from "@rneui/themed";
+import { isExpired, isExpiringSoon } from "@/utils/dateHelpers";
+import { Dropdown } from "react-native-element-dropdown";
 
 //TODO: decouple and try and lessen the amount of code on this and use more components as it is getting too complicated.
 const Pantry: React.FC = () => {
   const { theme } = useTheme();
   const { userId } = useAuth();
   const router = useRouter();
+  const { showToast } = useToast();
+
+  const expiryOptions = [
+    { label: "Select", value: null },
+    { label: "Soon", value: "Soon" },
+    { label: "Expired", value: "Expired" },
+  ];
+
+  const stockOptions = [
+    { label: "Select", value: null },
+    { label: "Low Supply", value: "Low" },
+    { label: "Out of Stock", value: "OutOfStock" },
+  ];
+
   const { action, ingredientId, quantity, ingredientName, shopId } =
     useLocalSearchParams();
 
-  const { userIngredients, loading, fetchUserIngredients } =
-    useGetUserIngredients(userId ?? "");
+  const {
+    data: userIngredients,
+    page,
+    totalPages,
+    loading,
+    setPage,
+    refetch,
+  } = usePaginatedUserIngredients(1, 10);
+
   const { handleDeleteUserIngredient } = useDeleteUserIngredient();
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -89,6 +117,14 @@ const Pantry: React.FC = () => {
 
   const [selectedShoppingItem, setSelectedShoppingItem] =
     useState<ShoppingItem | null>(null);
+
+  const [search, setSearch] = useState("");
+  const [expiryFilter, setExpiryFilter] = useState<"Soon" | "Expired" | null>(
+    null
+  );
+  const [stockFilter, setStockFilter] = useState<"Low" | "OutOfStock" | null>(
+    null
+  );
 
   useEffect(() => {
     //TODO: either find a better solution or put this somewhere to be reusable
@@ -174,7 +210,7 @@ const Pantry: React.FC = () => {
       if (idsToDelete.length === 0) return;
 
       await handleDeleteUserIngredient(idsToDelete);
-      fetchUserIngredients();
+      refetch();
       showToast(
         "success",
         "Ingredient Removed",
@@ -207,7 +243,7 @@ const Pantry: React.FC = () => {
   ) => {
     try {
       await updateUserIngredient(userIngredientId, userIngredient);
-      fetchUserIngredients();
+      refetch();
       setIsUpdateUserIngredientModalVisible(false);
 
       if (action === "restock" && typeof shopId === "string") {
@@ -225,8 +261,22 @@ const Pantry: React.FC = () => {
     try {
       if (!userId) return;
 
+      const existingItems = await getShoppingList();
+
+      const alreadyExists = existingItems.some(
+        (entry) => entry.ingredient.Ing_id === item.ingredient.Ing_id
+      );
+
+      if (alreadyExists) {
+        showToast(
+          "error",
+          "Duplicate",
+          "Item is already in your shopping list."
+        );
+        return;
+      }
+
       await addShoppingListItem({
-        user_id: userId,
         ingredient_id: item.ingredient.Ing_id,
         Shop_quantity: 1,
         Shop_added_automatically: false,
@@ -242,8 +292,8 @@ const Pantry: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      fetchUserIngredients();
-    }, [fetchUserIngredients])
+      refetch();
+    }, [refetch])
   );
 
   const {
@@ -257,7 +307,6 @@ const Pantry: React.FC = () => {
     setIsAddUserIngredientModalVisible,
   } = useScannerState();
 
-  //TODO: Fix the scanning logic to not use the barcode scanner
   const {
     scannedData,
     userIngredient,
@@ -272,7 +321,7 @@ const Pantry: React.FC = () => {
     setSelectedUserIngredient,
     setSelectedUserIngredientId,
     setIsUpdateUserIngredientModalVisible,
-    fetchUserIngredients,
+    refetch,
     setMatchingIngredientVariants,
     setIsChooseBatchModalVisible
   );
@@ -311,13 +360,14 @@ const Pantry: React.FC = () => {
     const ingredientStatus = {
       [ExpiryStatus.Expired]: "error",
       [ExpiryStatus.Soon]: "warning",
-      [ExpiryStatus.Fresh]: "success",
+      [ExpiryStatus.Fresh]: "primary",
     } as const;
     return (
       <Badge
         value={status}
         status={ingredientStatus[status]}
         containerStyle={{ marginLeft: 6 }}
+        badgeStyle={{ borderWidth: 0, elevation: 0 }}
       />
     );
   };
@@ -341,7 +391,7 @@ const Pantry: React.FC = () => {
     const quantityColor = {
       [QuantityStatus.OutOfStock]: "error",
       [QuantityStatus.Low]: "warning",
-      [QuantityStatus.InStock]: "success",
+      [QuantityStatus.InStock]: "primary",
     } as const;
 
     return (
@@ -349,9 +399,33 @@ const Pantry: React.FC = () => {
         value={status}
         status={quantityColor[status]}
         containerStyle={{ marginLeft: 6 }}
+        badgeStyle={{ borderWidth: 0, elevation: 0 }}
       />
     );
   };
+
+  const filteredUserIngredients = userIngredients.filter((item) => {
+    const nameMatch = item.ingredient.Ing_name.toLowerCase().includes(
+      search.toLowerCase()
+    );
+
+    const expiryMatch =
+      expiryFilter === null ||
+      (expiryFilter === "Soon" && isExpiringSoon(item.expiry_date)) ||
+      (expiryFilter === "Expired" && isExpired(item.expiry_date));
+
+    const totalAmount = parseFloat(item.totalAmount);
+
+    const stockMatch =
+      stockFilter === null ||
+      (stockFilter === "Low" &&
+        totalAmount > 0 &&
+        item.ingredient.Ing_quantity &&
+        totalAmount <= item.ingredient.Ing_quantity * 0.25) ||
+      (stockFilter === "OutOfStock" && totalAmount === 0);
+
+    return nameMatch && expiryMatch && stockMatch;
+  });
 
   if (loading) {
     return (
@@ -393,314 +467,659 @@ const Pantry: React.FC = () => {
           />
         </View>
       ) : (
-        <ScrollView
-          stickyHeaderIndices={[0]}
-          contentContainerStyle={{
-            paddingBottom: selectedIngredients.length > 0 ? 100 : 10,
-          }}
-        >
-          <View style={{ backgroundColor: theme.colors.grey4 }}>
+        <>
+          <View style={{ marginBottom: 16 }}>
+            {/* Search */}
+            <SearchBar
+              placeholder="Search pantry..."
+              onChangeText={setSearch}
+              value={search}
+              round
+              lightTheme={theme.mode === "light"}
+              inputStyle={{
+                color:
+                  theme.mode === "dark"
+                    ? theme.colors.white
+                    : theme.colors.black,
+              }}
+              inputContainerStyle={{
+                backgroundColor:
+                  theme.mode === "dark"
+                    ? theme.colors.grey0
+                    : theme.colors.white,
+                borderRadius: 10,
+              }}
+              containerStyle={{
+                backgroundColor: theme.colors.background,
+                borderTopWidth: 0,
+                borderBottomWidth: 0,
+                paddingHorizontal: 0,
+                marginBottom: 10,
+              }}
+              placeholderTextColor={theme.colors.grey3}
+            />
+
+            {/* Filters */}
             <View
               style={{
                 flexDirection: "row",
-                padding: 12,
-                paddingRight: 60, //this is to keep the headers aligned with the content
-                backgroundColor: theme.colors.grey4,
-                borderBottomWidth: 1,
-                borderBottomColor: theme.colors.greyOutline,
+                justifyContent: "space-between",
+                gap: 10,
+                marginBottom: 10,
               }}
             >
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Text style={{ fontWeight: "bold", color: theme.colors.black }}>
-                  Select
+              {/* Expiry Filter */}
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={{
+                    fontWeight: "600",
+                    marginBottom: 4,
+                    color:
+                      theme.mode === "dark"
+                        ? theme.colors.white
+                        : theme.colors.black,
+                    textAlign: "center",
+                  }}
+                >
+                  Expiry Filter
                 </Text>
+                <Dropdown
+                  style={{
+                    backgroundColor: theme.colors.background,
+                    borderRadius: 10,
+                    paddingHorizontal: 12,
+                    height: 40,
+                    borderColor: theme.colors.grey4,
+                    borderWidth: 1,
+                  }}
+                  placeholderStyle={{ color: theme.colors.grey3 }}
+                  selectedTextStyle={{
+                    color:
+                      theme.mode === "dark"
+                        ? theme.colors.white
+                        : theme.colors.black,
+                  }}
+                  containerStyle={{
+                    borderWidth: 1,
+                    borderColor: theme.colors.greyOutline,
+                    backgroundColor: theme.colors.background,
+                    borderRadius: 10,
+                  }}
+                  data={expiryOptions}
+                  labelField="label"
+                  valueField="value"
+                  placeholder="Select"
+                  value={expiryFilter}
+                  onChange={(item) => setExpiryFilter(item.value ?? null)}
+                  itemTextStyle={{
+                    color:
+                      theme.mode === "dark"
+                        ? theme.colors.white
+                        : theme.colors.black,
+                  }}
+                  activeColor={theme.colors.primary}
+                />
               </View>
 
-              <View
-                style={{
-                  flex: 2,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingRight: 15, //keep name aligned with its content
-                }}
-              >
-                <Text style={{ fontWeight: "bold", color: theme.colors.black }}>
-                  Name
+              {/* Stock Filter */}
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={{
+                    fontWeight: "600",
+                    marginBottom: 4,
+                    color:
+                      theme.mode === "dark"
+                        ? theme.colors.white
+                        : theme.colors.black,
+                    textAlign: "center",
+                  }}
+                >
+                  Stock Filter
                 </Text>
-              </View>
-
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Text style={{ fontWeight: "bold", color: theme.colors.black }}>
-                  Status
-                </Text>
+                <Dropdown
+                  style={{
+                    backgroundColor: theme.colors.background,
+                    borderRadius: 10,
+                    paddingHorizontal: 12,
+                    height: 40,
+                    borderColor: theme.colors.grey4,
+                    borderWidth: 1,
+                  }}
+                  placeholderStyle={{ color: theme.colors.grey3 }}
+                  selectedTextStyle={{
+                    color:
+                      theme.mode === "dark"
+                        ? theme.colors.white
+                        : theme.colors.black,
+                  }}
+                  containerStyle={{
+                    borderWidth: 1,
+                    borderColor: theme.colors.greyOutline,
+                    backgroundColor: theme.colors.background,
+                    borderRadius: 10,
+                  }}
+                  data={stockOptions}
+                  labelField="label"
+                  valueField="value"
+                  placeholder="Select"
+                  value={stockFilter}
+                  onChange={(item) => setStockFilter(item.value ?? null)}
+                  itemTextStyle={{
+                    color:
+                      theme.mode === "dark"
+                        ? theme.colors.white
+                        : theme.colors.black,
+                  }}
+                  activeColor={theme.colors.primary}
+                />
               </View>
             </View>
+
+            {/* Clear Filters */}
+            {(search || expiryFilter || stockFilter) && (
+              <ShomiButton
+                title="Clear Filters"
+                icon="close-circle"
+                color={theme.colors.error}
+                onPress={() => {
+                  setSearch("");
+                  setExpiryFilter(null);
+                  setStockFilter(null);
+                }}
+              />
+            )}
           </View>
 
-          {userIngredients.map((item) => (
+          <ScrollView
+            stickyHeaderIndices={[0]}
+            contentContainerStyle={{
+              paddingBottom: selectedIngredients.length > 0 ? 125 : 100,
+            }}
+          >
             <View
-              key={item.id}
               style={{
-                borderBottomWidth: 1,
-                borderBottomColor: theme.colors.greyOutline,
-                backgroundColor: theme.colors.white,
+                backgroundColor:
+                  theme.mode === "dark"
+                    ? theme.colors.grey5
+                    : theme.colors.grey4,
               }}
             >
-              <ListItem.Accordion
-                content={
-                  <View
+              <View
+                style={{
+                  flexDirection: "row",
+                  padding: 12,
+                  paddingRight: 60, //this is to keep the headers aligned with the content
+                  backgroundColor: theme.colors.primary,
+                  borderBottomWidth: 1,
+                  borderBottomColor: theme.colors.greyOutline,
+                }}
+              >
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text
                     style={{
-                      flexDirection: "row",
-                      alignItems: "center", // ensures vertical centering
-                      flex: 1,
-                      paddingVertical: 10, // optional, improves spacing
+                      fontWeight: "bold",
+                      color: theme.colors.white,
                     }}
                   >
-                    <Pressable
-                      onPress={() =>
-                        toggleIngredientSelection(
-                          item.id,
-                          !selectedIngredients.includes(item.id)
-                        )
-                      }
-                      style={{ padding: 7 }}
-                    >
-                      <View
-                        style={{
-                          flex: 1,
-                          alignItems: "center",
-                          flexDirection: "row",
-                        }}
-                      >
-                        <CheckBox
-                          checked={selectedIngredients.includes(item.id)}
-                          onPress={() =>
-                            toggleIngredientSelection(
-                              item.id,
-                              !selectedIngredients.includes(item.id)
-                            )
-                          }
-                          checkedColor={theme.colors.primary}
-                          uncheckedColor={theme.colors.greyOutline}
-                          containerStyle={{
-                            backgroundColor: "transparent",
-                            borderWidth: 0,
-                            padding: 0,
-                          }}
-                          size={32}
-                          iconType="material-community"
-                          checkedIcon="checkbox-marked"
-                          uncheckedIcon="checkbox-blank-outline"
-                        />
-                      </View>
-                    </Pressable>
+                    Select
+                  </Text>
+                </View>
 
+                <View
+                  style={{
+                    flex: 2,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingRight: 15,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontWeight: "bold",
+                      color: theme.colors.white,
+                    }}
+                  >
+                    Name
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontWeight: "bold",
+                      color: theme.colors.white,
+                    }}
+                  >
+                    Status
+                  </Text>
+                </View>
+              </View>
+            </View>
+            {filteredUserIngredients.length === 0 && (
+              <Card
+                containerStyle={{
+                  backgroundColor:
+                    theme.mode === "dark"
+                      ? theme.colors.black
+                      : theme.colors.white,
+                  borderRadius: 10,
+                  margin: 16,
+                }}
+              >
+                <Text
+                  style={{
+                    color:
+                      theme.mode === "dark"
+                        ? theme.colors.white
+                        : theme.colors.black,
+                    textAlign: "center",
+                  }}
+                >
+                  No ingredients found.
+                </Text>
+              </Card>
+            )}
+            {/* User Ingredients List */}
+            {filteredUserIngredients.map((item) => (
+              <View
+                key={item.id}
+                style={{
+                  borderBottomWidth: 1,
+                  borderBottomColor: theme.colors.greyOutline,
+                  backgroundColor:
+                    theme.mode === "dark"
+                      ? theme.colors.black
+                      : theme.colors.white,
+                }}
+              >
+                <ListItem.Accordion
+                  content={
                     <View
                       style={{
-                        flex: 2,
+                        flexDirection: "row",
                         alignItems: "center",
-                        justifyContent: "center",
+                        flex: 1,
+                        paddingVertical: 10,
                       }}
                     >
+                      <Pressable
+                        onPress={() =>
+                          toggleIngredientSelection(
+                            item.id,
+                            !selectedIngredients.includes(item.id)
+                          )
+                        }
+                        style={{ padding: 7 }}
+                      >
+                        <View
+                          style={{
+                            flex: 1,
+                            alignItems: "center",
+                            flexDirection: "row",
+                          }}
+                        >
+                          <CheckBox
+                            checked={selectedIngredients.includes(item.id)}
+                            onPress={() =>
+                              toggleIngredientSelection(
+                                item.id,
+                                !selectedIngredients.includes(item.id)
+                              )
+                            }
+                            checkedColor={theme.colors.primary}
+                            uncheckedColor={
+                              theme.mode === "dark"
+                                ? theme.colors.white
+                                : theme.colors.greyOutline
+                            }
+                            containerStyle={{
+                              backgroundColor: "transparent",
+                              borderWidth: 0,
+                              padding: 0,
+                            }}
+                            size={32}
+                            iconType="material-community"
+                            checkedIcon="checkbox-marked"
+                            uncheckedIcon="checkbox-blank-outline"
+                          />
+                        </View>
+                      </Pressable>
+
                       <View
                         style={{
-                          flexDirection: "row",
+                          flex: 2,
                           alignItems: "center",
-                          gap: 4,
+                          justifyContent: "center",
                         }}
                       >
                         <View
                           style={{
                             flexDirection: "row",
                             alignItems: "center",
-                            gap: 6,
+                            gap: 4,
                           }}
                         >
-                          <Text style={{ color: theme.colors.black }}>
-                            {item.ingredient.Ing_name}
-                          </Text>
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                              gap: 6,
+                            }}
+                          >
+                            <Text
+                              style={{
+                                color:
+                                  theme.mode === "dark"
+                                    ? theme.colors.white
+                                    : theme.colors.black,
+                              }}
+                            >
+                              {item.ingredient.Ing_name}
+                            </Text>
+                          </View>
                         </View>
                       </View>
-                    </View>
 
-                    <View
-                      style={{
-                        flex: 1,
-                        justifyContent: "center",
-                        alignItems: "center", // ✅ centers both vertically & horizontally
-                        flexDirection: "column", // ✅ badges stack if needed
-                        gap: 4, // better spacing between badges
-                      }}
-                    >
-                      {item.expiry_date && renderExpiryBadge(item.expiry_date)}
-                      {item.ingredient?.Ing_quantity != null &&
-                        renderQuantityBadge(
-                          item.totalAmount,
-                          item.ingredient.Ing_quantity
-                        )}
+                      <View
+                        style={{
+                          flex: 1,
+                          justifyContent: "center",
+                          alignItems: "center",
+                          flexDirection: "column",
+                          gap: 4,
+                        }}
+                      >
+                        {item.expiry_date &&
+                          renderExpiryBadge(item.expiry_date)}
+                        {item.ingredient?.Ing_quantity != null &&
+                          renderQuantityBadge(
+                            item.totalAmount,
+                            item.ingredient.Ing_quantity
+                          )}
+                      </View>
+
+                      <Icon
+                        name={
+                          expandedRows[item.id] ? "chevron-up" : "chevron-down"
+                        }
+                        type="material-community"
+                        color={
+                          theme.mode === "dark"
+                            ? theme.colors.white
+                            : theme.colors.black
+                        }
+                        size={24}
+                      />
                     </View>
-                  </View>
-                }
-                containerStyle={{
-                  backgroundColor: theme.colors.white,
-                }}
-                isExpanded={expandedRows[item.id]}
-                onPress={() => toggleRowExpansion(item.id)}
-              >
-                <View
-                  style={{
-                    padding: 10,
-                    backgroundColor: theme.colors.white,
-                    borderRadius: 5,
-                    gap: 10,
+                  }
+                  containerStyle={{
+                    backgroundColor:
+                      theme.mode === "dark"
+                        ? theme.colors.black
+                        : theme.colors.white,
                   }}
+                  isExpanded={expandedRows[item.id]}
+                  onPress={() => toggleRowExpansion(item.id)}
+                  expandIcon={{
+                    name: "chevron-down",
+                    type: "material-community",
+                    color:
+                      theme.mode === "dark"
+                        ? theme.colors.white
+                        : theme.colors.black,
+                    size: 24,
+                  }}
+                  noIcon={true}
                 >
                   <View
                     style={{
-                      flexDirection: "row",
-                      justifyContent: item.expiry_date
-                        ? "space-between"
-                        : "flex-start",
-                      alignItems: "center",
-                      paddingHorizontal: 16,
-                      paddingVertical: 8,
-                      borderRadius: 4,
-                      marginBottom: 8,
-                      gap: 12,
+                      padding: 10,
+                      backgroundColor:
+                        theme.mode === "dark"
+                          ? theme.colors.black
+                          : theme.colors.white,
+                      borderRadius: 5,
+                      gap: 10,
                     }}
                   >
                     <View
-                      style={{ flexDirection: "row", alignItems: "center" }}
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        paddingHorizontal: 16,
+                        paddingVertical: 8,
+                        borderRadius: 4,
+                        marginBottom: 8,
+                        gap: 12,
+                      }}
                     >
-                      <Icon
-                        name="scale-balance"
-                        type="material-community"
-                        size={18}
-                        color={theme.colors.grey1}
-                        style={{ marginRight: 6 }}
-                      />
-                      <Text style={{ color: theme.colors.black, fontSize: 14 }}>
-                        Quantity:{" "}
-                        <Text style={{ fontWeight: "bold" }}>
-                          {item.unitQuantity || "N/A"}
-                        </Text>
-                      </Text>
+                      <View style={{ flex: 1, gap: 6 }}>
+                        <View
+                          style={{ flexDirection: "row", alignItems: "center" }}
+                        >
+                          <Icon
+                            name="scale-balance"
+                            type="material-community"
+                            size={18}
+                            color={
+                              theme.mode === "dark"
+                                ? theme.colors.white
+                                : theme.colors.black
+                            }
+                            style={{ marginRight: 6 }}
+                          />
+                          <Text
+                            style={{
+                              color:
+                                theme.mode === "dark"
+                                  ? theme.colors.white
+                                  : theme.colors.black,
+                              fontSize: 14,
+                            }}
+                          >
+                            Quantity:{" "}
+                            <Text
+                              style={{
+                                fontWeight: "bold",
+                                color:
+                                  theme.mode === "dark"
+                                    ? theme.colors.white
+                                    : theme.colors.black,
+                              }}
+                            >
+                              {item.unitQuantity || "N/A"}
+                            </Text>
+                          </Text>
+                        </View>
+
+                        <View
+                          style={{ flexDirection: "row", alignItems: "center" }}
+                        >
+                          <Icon
+                            name="package-variant"
+                            type="material-community"
+                            size={18}
+                            color={
+                              theme.mode === "dark"
+                                ? theme.colors.white
+                                : theme.colors.black
+                            }
+                            style={{ marginRight: 6 }}
+                          />
+                          <Text
+                            style={{
+                              color:
+                                theme.mode === "dark"
+                                  ? theme.colors.white
+                                  : theme.colors.black,
+                              fontSize: 14,
+                            }}
+                          >
+                            Amount:{" "}
+                            <Text
+                              style={{
+                                fontWeight: "bold",
+                                color:
+                                  theme.mode === "dark"
+                                    ? theme.colors.white
+                                    : theme.colors.black,
+                              }}
+                            >
+                              {item.totalAmount || "Unknown"}{" "}
+                              {item.unitType || ""}
+                            </Text>
+                          </Text>
+                        </View>
+                      </View>
+
+                      {item.expiry_date && (
+                        <View
+                          style={{ flexDirection: "row", alignItems: "center" }}
+                        >
+                          <Icon
+                            name="calendar-clock"
+                            type="material-community"
+                            size={18}
+                            color={
+                              theme.mode === "dark"
+                                ? theme.colors.white
+                                : theme.colors.black
+                            }
+                            style={{ marginRight: 6 }}
+                          />
+                          <Text
+                            style={{
+                              color:
+                                theme.mode === "dark"
+                                  ? theme.colors.white
+                                  : theme.colors.black,
+                              fontSize: 14,
+                            }}
+                          >
+                            Expiry:{" "}
+                            <Text
+                              style={{
+                                fontWeight: "bold",
+                                color:
+                                  theme.mode === "dark"
+                                    ? theme.colors.white
+                                    : theme.colors.black,
+                              }}
+                            >
+                              {item.expiry_date}
+                            </Text>
+                          </Text>
+                        </View>
+                      )}
                     </View>
 
                     <View
                       style={{
                         flexDirection: "row",
+                        justifyContent: "space-between",
                         alignItems: "center",
-                        marginTop: 4,
+                        gap: 8,
+                        paddingHorizontal: 16,
+                        marginTop: 8,
                       }}
                     >
-                      <Icon
-                        name="package-variant"
-                        type="material-community"
-                        size={18}
-                        color={theme.colors.grey1}
-                        style={{ marginRight: 6 }}
-                      />
-                      <Text style={{ color: theme.colors.black, fontSize: 14 }}>
-                        Amount:{" "}
-                        <Text style={{ fontWeight: "bold" }}>
-                          {item.totalAmount || "Unknown"} {item.unitType || ""}
-                        </Text>
-                      </Text>
-                    </View>
-
-                    {item.expiry_date && (
-                      <View
-                        style={{ flexDirection: "row", alignItems: "center" }}
-                      >
-                        <Icon
-                          name="calendar-clock"
-                          type="material-community"
-                          size={18}
-                          color={theme.colors.grey1}
-                          style={{ marginRight: 6 }}
-                        />
-                        <Text
-                          style={{ color: theme.colors.black, fontSize: 14 }}
-                        >
-                          Expiry:{" "}
-                          <Text style={{ fontWeight: "bold" }}>
-                            {item.expiry_date}
-                          </Text>
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      gap: 8,
-                      paddingHorizontal: 16,
-                      marginTop: 8,
-                    }}
-                  >
-                    {[
-                      {
-                        title: "Add to List",
-                        icon: "cart-plus",
-                        color: theme.colors.primary,
-                        onPress: () => handleAddToShoppingList(item),
-                      },
-                      {
-                        title: "Edit",
-                        icon: "pencil",
-                        color: theme.colors.warning,
-                        onPress: () => {
-                          setSelectedUserIngredient(item);
-                          setSelectedUserIngredientId(item.id);
-                          setIsUpdateUserIngredientModalVisible(true);
+                      {[
+                        {
+                          title: "Add to List",
+                          icon: "cart-plus",
+                          color: theme.colors.primary,
+                          onPress: () => handleAddToShoppingList(item),
                         },
-                      },
-                      {
-                        title: "Delete",
-                        icon: "delete",
-                        color: theme.colors.error,
-                        onPress: () => handleDeletePress(item.id),
-                      },
-                    ].map((btn, idx) => (
-                      <View style={{ flex: 1 }} key={idx}>
-                        <ShomiButton
-                          title={btn.title}
-                          icon={btn.icon}
-                          buttonStyle={{
-                            backgroundColor: btn.color,
-                            minHeight: 48,
-                          }}
-                          titleStyle={{
-                            fontSize: 14,
-                            fontWeight: "500",
-                            textAlign: "center",
-                          }}
-                          onPress={btn.onPress}
-                        />
-                      </View>
-                    ))}
+                        {
+                          title: "Edit",
+                          icon: "pencil",
+                          color: theme.colors.warning,
+                          onPress: () => {
+                            setSelectedUserIngredient(item);
+                            setSelectedUserIngredientId(item.id);
+                            setIsUpdateUserIngredientModalVisible(true);
+                          },
+                        },
+                        {
+                          title: "Delete",
+                          icon: "delete",
+                          color: theme.colors.error,
+                          onPress: () => handleDeletePress(item.id),
+                        },
+                      ].map((btn, idx) => (
+                        <View style={{ flex: 1 }} key={idx}>
+                          <ShomiButton
+                            title={btn.title}
+                            icon={btn.icon}
+                            buttonStyle={{
+                              backgroundColor: btn.color,
+                              minHeight: 48,
+                            }}
+                            titleStyle={{
+                              fontSize: 14,
+                              fontWeight: "500",
+                              textAlign: "center",
+                            }}
+                            onPress={btn.onPress}
+                          />
+                        </View>
+                      ))}
+                    </View>
                   </View>
-                </View>
-              </ListItem.Accordion>
+                </ListItem.Accordion>
+              </View>
+            ))}
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "center",
+                marginTop: 16,
+              }}
+            >
+              <ShomiButton
+                icon="chevron-left"
+                disabled={page === 1}
+                onPress={() => setPage((prev) => Math.max(prev - 1, 1))}
+                type="clear"
+              />
+
+              <Text
+                style={{
+                  alignSelf: "center",
+                  marginHorizontal: 10,
+                  color:
+                    theme.mode === "dark"
+                      ? theme.colors.white
+                      : theme.colors.black,
+                }}
+              >
+                Page {page} of {totalPages}
+              </Text>
+
+              <ShomiButton
+                icon="chevron-right"
+                disabled={page === totalPages}
+                onPress={() =>
+                  setPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                type="clear"
+              />
             </View>
-          ))}
-        </ScrollView>
+          </ScrollView>
+        </>
       )}
 
       {selectedIngredients.length > 0 && (
@@ -793,7 +1212,10 @@ const Pantry: React.FC = () => {
 
       <ChooseBatchModal
         visible={isChooseBatchModalVisible}
-        onClose={() => setIsChooseBatchModalVisible(false)}
+        onClose={() => {
+          setIsChooseBatchModalVisible(false);
+          router.replace("/(tabs)");
+        }}
         ingredientName={
           scannedData?.Ing_name ||
           selectedShoppingItem?.ingredient.Ing_name ||

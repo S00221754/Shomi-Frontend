@@ -1,8 +1,13 @@
 import React, { useState, useMemo } from "react";
-import { View } from "react-native";
-import { BottomSheet, SearchBar, Icon, ListItem, useTheme } from "@rneui/themed";
+import { View, ScrollView, Text } from "react-native";
+import {
+  BottomSheet,
+  SearchBar,
+  Icon,
+  ListItem,
+  useTheme,
+} from "@rneui/themed";
 
-//could not find a react native searchable dropdown that is not deprecated or has issues with expo so used bottomsheet from react native elements to create my own searchable dropdown.
 interface BottomSheetSelectProps<T> {
   isVisible: boolean;
   onClose: () => void;
@@ -25,6 +30,17 @@ function BottomSheetSelect<T>({
   const { theme } = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
 
+  const handleClose = () => {
+    setSearchTerm("");
+    onClose();
+  };
+
+  const handleSelect = (item: T) => {
+    onSelect(item);
+    setSearchTerm("");
+    onClose();
+  };
+
   const filteredData = useMemo(
     () =>
       data.filter((item) =>
@@ -34,66 +50,105 @@ function BottomSheetSelect<T>({
   );
 
   return (
-    <BottomSheet isVisible={isVisible} onBackdropPress={onClose}>
+    <BottomSheet isVisible={isVisible} onBackdropPress={handleClose}>
       <View
         style={{
-          flexDirection: "row",
-          alignItems: "center",
-          gap: 5,
+          maxHeight: 750,
+          minHeight: 250,
           backgroundColor: theme.colors.background,
-          borderBottomColor: theme.colors.grey3,
         }}
       >
-        <View style={{ flex: 1 }}>
-          <SearchBar
-            placeholder={placeholder}
-            onChangeText={setSearchTerm}
-            value={searchTerm}
-            lightTheme
-            round
-            inputStyle={{ color: theme.colors.black }}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 5,
+            paddingHorizontal: 10,
+            backgroundColor: theme.colors.background,
+            borderBottomWidth: 1,
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <SearchBar
+              placeholder={placeholder}
+              onChangeText={setSearchTerm}
+              value={searchTerm}
+              round
+              inputStyle={{
+                color:
+                  theme.mode === "dark"
+                    ? theme.colors.white
+                    : theme.colors.black,
+              }}
+              containerStyle={{
+                backgroundColor: theme.colors.background,
+                borderTopColor: "transparent",
+                borderBottomWidth: 0,
+              }}
+              inputContainerStyle={{
+                borderRadius: 20,
+              }}
+            />
+          </View>
+
+          <Icon
+            name="close"
+            type="material"
+            size={26}
+            color={theme.colors.white}
             containerStyle={{
-              backgroundColor: theme.colors.background,
-              borderTopColor: "transparent",
-            }}
-            inputContainerStyle={{
-              backgroundColor: "#eee",
+              backgroundColor: theme.colors.error,
               borderRadius: 20,
+              padding: 6,
+              marginLeft: 5,
             }}
+            onPress={handleClose}
           />
         </View>
 
-        <Icon
-          name="close"
-          type="material"
-          size={26}
-          color={theme.colors.white}
-          containerStyle={{
-            backgroundColor: theme.colors.error,
-            borderRadius: 20,
-            padding: 6,
-            marginRight: 5,
-          }}
-          onPress={onClose}
-        />
-      </View>
-
-      {filteredData.map((item) => (
-        <ListItem
-          key={keyExtractor(item)}
-          bottomDivider
-          onPress={() => {
-            onSelect(item);
-            onClose();
+        <ScrollView
+          style={{ flexGrow: 0 }}
+          contentContainerStyle={{
+            paddingVertical: 10,
           }}
         >
-          <ListItem.Content>
-            <ListItem.Title style={{ color: theme.colors.black }}>
-              {labelExtractor(item)}
-            </ListItem.Title>
-          </ListItem.Content>
-        </ListItem>
-      ))}
+          {filteredData.length === 0 ? (
+            <Text
+              style={{
+                textAlign: "center",
+                color:
+                  theme.mode === "dark"
+                    ? theme.colors.grey3
+                    : theme.colors.grey1,
+                padding: 20,
+              }}
+            >
+              No results found
+            </Text>
+          ) : (
+            filteredData.map((item) => (
+              <ListItem
+                key={keyExtractor(item)}
+                bottomDivider
+                onPress={() => handleSelect(item)}
+              >
+                <ListItem.Content>
+                  <ListItem.Title
+                    style={{
+                      color:
+                        theme.mode === "dark"
+                          ? theme.colors.white
+                          : theme.colors.black,
+                    }}
+                  >
+                    {labelExtractor(item)}
+                  </ListItem.Title>
+                </ListItem.Content>
+              </ListItem>
+            ))
+          )}
+        </ScrollView>
+      </View>
     </BottomSheet>
   );
 }

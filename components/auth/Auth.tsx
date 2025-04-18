@@ -1,4 +1,4 @@
-import { Button } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { useEffect } from "react";
 import { router, useRouter } from "expo-router";
 import { makeRedirectUri } from "expo-auth-session";
@@ -6,6 +6,7 @@ import * as QueryParams from "expo-auth-session/build/QueryParams";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
 import { supabase } from "../../lib/supabase";
+import GoogleSignInButton from "../common/GoogleSignInButton";
 
 // ref: https://supabase.com/docs/guides/auth/native-mobile-deep-linking?queryGroups=platform&platform=react-native
 // The point of this file is to handle the authentication flow for the app. It includes OAuth and Magic Link authentication methods.
@@ -80,9 +81,20 @@ export default function Auth() {
   }, [url]);
 
   return (
-    <>
-      <Button onPress={performOAuth} title="Sign in with Google" />
-      {/* <Button onPress={sendMagicLink} title="Send Magic Link" /> */}
-    </>
+    <View style={{ marginTop: 20, paddingHorizontal: 16 }}>
+      <GoogleSignInButton onPress={performOAuth} />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    marginTop: 20,
+    paddingHorizontal: 16,
+  },
+  socialButton: {
+    width: "100%",
+    borderRadius: 8,
+    alignSelf: "center",
+  },
+});

@@ -36,7 +36,7 @@ export const fetchIngredientFromAPI = async (
       };
     }
     return {
-      Ing_name: "Product not found",
+      Ing_name: "",
       Ing_barcode: barcode,
       status: false,
       In_Database: false,
@@ -44,7 +44,7 @@ export const fetchIngredientFromAPI = async (
   } catch (error) {
     console.error("API fetch error:", error);
     return {
-      Ing_name: "Product not found",
+      Ing_name: "",
       Ing_barcode: barcode,
       status: false,
       In_Database: false,

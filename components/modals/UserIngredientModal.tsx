@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { TouchableOpacity, View } from "react-native";
-import { Overlay, Button, Text, Input } from "@rneui/themed";
-import { useTheme } from "@rneui/themed";
+import { Overlay, Button, Text, Input, useTheme } from "@rneui/themed";
+import { Formik } from "formik";
 import { UserIngredientInput } from "@/Interfaces/user-ingredient";
 import { ProductInfo } from "@/Interfaces/ingredient";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import UserIngredientSchema from "@/validation/UserIngredientSchema";
 
 interface UserIngredientModalProps {
   visible: boolean;
@@ -24,75 +25,17 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
   ingredient,
 }) => {
   const { theme } = useTheme();
-  const prevIngredientRef = useRef<ProductInfo | null>(null);
-
-  const [unitQuantity, setUnitQuantity] = useState("");
-  const [totalAmount, setTotalAmount] = useState("");
-  const [unitType, setUnitType] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
+  const isDark = theme.mode === "dark";
+  const textColor = isDark ? theme.colors.white : theme.colors.black;
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  useEffect(() => {
-    if (ingredient && ingredient !== prevIngredientRef.current) {
-      prevIngredientRef.current = ingredient;
-
-      setTotalAmount(ingredient.Ing_quantity?.toString() || "");
-
-      setUnitType(ingredient.Ing_quantity_units || "");
-    }
-  }, [ingredient, visible]);
-
-  useEffect(() => {
-    if (unitQuantity && ingredient?.Ing_quantity) {
-      const newTotal = (
-        parseFloat(unitQuantity) * ingredient.Ing_quantity
-      ).toString();
-      if (newTotal !== totalAmount) setTotalAmount(newTotal);
-    }
-  }, [unitQuantity, ingredient]);
-
   if (!userIngredient || !ingredient) return null;
-
-  const handleAddClick = async () => {
-    if (!unitQuantity || !unitType) return;
-    
-    userIngredient.unitQuantity = parseFloat(unitQuantity);
-    userIngredient.totalAmount = parseFloat(totalAmount) || 0;
-    userIngredient.unitType = unitType;
-    userIngredient.expiry_date = expiryDate || null;
-
-    const success = await onAddUserIngredient(userIngredient);
-
-    if (!success) {
-      const isExpiring = expiryDate?.trim().length > 0;
-      setErrorMessage(
-        isExpiring
-          ? "This ingredient already exists in your pantry with that expiration date."
-          : "You already have this ingredient in your pantry."
-      );
-    } else {
-      setErrorMessage(null);
-    }
-  };
-
-  const resetForm = () => {
-    setUnitQuantity("");
-    setTotalAmount("");
-    setUnitType("");
-    setExpiryDate("");
-    setErrorMessage(null);
-  };
-
-  const handleClose = () => {
-    resetForm();
-    onClose();
-  };
 
   return (
     <Overlay
       isVisible={visible}
-      onBackdropPress={handleClose}
+      onBackdropPress={onClose}
       overlayStyle={{
         width: "85%",
         backgroundColor: theme.colors.background,
@@ -100,143 +43,214 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
         borderRadius: 10,
       }}
     >
-      <Text
-        h4
-        style={{
-          color: theme.colors.primary,
-          textAlign: "center",
-          marginBottom: 10,
+      <Formik
+        initialValues={{
+          unitQuantity: "1",
+          expiry_date: "",
         }}
-      >
-        Add to Pantry
-      </Text>
+        validationSchema={UserIngredientSchema}
+        onSubmit={async (values, { resetForm }) => {
+          const parsedUnitQty = parseFloat(values.unitQuantity);
+          const baseQty = ingredient.Ing_quantity || 1;
+          const totalAmount = parsedUnitQty * baseQty;
 
-      <Text
-        style={{
-          color: theme.colors.black,
-          textAlign: "center",
-          marginBottom: 10,
-        }}
-      >
-        Ingredient Name: {ingredient?.Ing_name}
-      </Text>
+          userIngredient.unitQuantity = parsedUnitQty;
+          userIngredient.totalAmount = totalAmount;
+          userIngredient.unitType = ingredient.Ing_quantity_units || "";
+          userIngredient.expiry_date = values.expiry_date || null;
 
-      <Input
-        placeholder="Enter Quantity"
-        placeholderTextColor={theme.colors.grey3}
-        keyboardType="numeric"
-        value={unitQuantity}
-        onChangeText={setUnitQuantity}
-        inputStyle={{ color: theme.colors.black }}
-        containerStyle={{ marginBottom: 10 }}
-      />
-
-      <Input
-        placeholder="Total Amount"
-        placeholderTextColor={theme.colors.grey3}
-        value={totalAmount}
-        disabled
-        inputStyle={{ color: theme.colors.black }}
-        containerStyle={{ marginBottom: 10 }}
-      />
-
-      <Input
-        placeholder="Unit Type"
-        placeholderTextColor={theme.colors.grey3}
-        value={unitType}
-        disabled
-        inputStyle={{ color: theme.colors.black }}
-        containerStyle={{ marginBottom: 10 }}
-      />
-
-      <TouchableOpacity
-        onPress={() => setShowDatePicker(true)}
-        activeOpacity={0.9}
-      >
-        <Input
-          label="Expiry Date (optional)"
-          placeholder="YYYY-MM-DD"
-          value={expiryDate}
-          editable={false}
-          pointerEvents="none"
-          leftIcon={{
-            type: "material-community",
-            name: "calendar",
-            onPress: () => setShowDatePicker(true),
-            color: theme.colors.primary,
-          }}
-          rightIcon={
-            expiryDate
-              ? {
-                  type: "material-community",
-                  name: "close-circle",
-                  onPress: () => setExpiryDate(""),
-                  color: theme.colors.error,
-                }
-              : undefined
+          const success = await onAddUserIngredient(userIngredient);
+          if (!success) {
+            setErrorMessage(
+              values.expiry_date?.trim()
+                ? "This ingredient already exists in your pantry with that expiration date."
+                : "You already have this ingredient in your pantry."
+            );
+          } else {
+            setErrorMessage(null);
+            resetForm();
+            onClose();
           }
-        />
-      </TouchableOpacity>
-
-      {showDatePicker && (
-        <DateTimePicker
-          value={expiryDate ? new Date(expiryDate) : new Date()}
-          mode="date"
-          display="default"
-          minimumDate={new Date()}
-          onChange={(_, selectedDate) => {
-            setShowDatePicker(false);
-            if (selectedDate) {
-              const formatted = selectedDate.toISOString().split("T")[0];
-              setExpiryDate(formatted);
-            }
-          }}
-        />
-      )}
-
-      {errorMessage && (
-        <Text
-          style={{
-            color: theme.colors.error,
-            textAlign: "center",
-            marginBottom: 10,
-            fontWeight: "bold",
-          }}
-        >
-          {errorMessage}
-        </Text>
-      )}
-
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          marginTop: 10,
         }}
       >
-        <Button
-          title="Cancel"
-          onPress={handleClose}
-          buttonStyle={{
-            backgroundColor: theme.colors.grey3,
-            borderRadius: 10,
-            paddingVertical: 10,
-            paddingHorizontal: 15,
-          }}
-          titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
-        />
-        <Button
-          title="Save"
-          onPress={handleAddClick}
-          buttonStyle={{
-            backgroundColor: theme.colors.primary,
-            borderRadius: 10,
-            paddingVertical: 10,
-            paddingHorizontal: 15,
-          }}
-          titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
-        />
-      </View>
+        {({
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          values,
+          setFieldValue,
+          errors,
+          touched,
+        }) => {
+          const totalAmount = (() => {
+            const qty = parseFloat(values.unitQuantity);
+            const base = parseFloat(ingredient.Ing_quantity?.toString() || "1");
+            return !isNaN(qty) && !isNaN(base) ? (qty * base).toFixed(0) : "";
+          })();
+
+          return (
+            <>
+              <Text
+                h4
+                style={{
+                  color: theme.colors.primary,
+                  textAlign: "center",
+                  marginBottom: 10,
+                }}
+              >
+                Add to Pantry
+              </Text>
+
+              <Text
+                style={{
+                  color: textColor,
+                  textAlign: "center",
+                  marginBottom: 10,
+                }}
+              >
+                Ingredient Name: {ingredient.Ing_name}
+              </Text>
+
+              <Input
+                label="Quantity"
+                placeholder="Enter Quantity"
+                placeholderTextColor={theme.colors.grey3}
+                keyboardType="numeric"
+                value={values.unitQuantity}
+                onChangeText={handleChange("unitQuantity")}
+                onBlur={handleBlur("unitQuantity")}
+                errorMessage={
+                  touched.unitQuantity && errors.unitQuantity
+                    ? errors.unitQuantity
+                    : undefined
+                }
+                inputStyle={{ color: textColor }}
+                labelStyle={{ color: textColor }}
+                containerStyle={{ marginBottom: 10 }}
+              />
+
+              <Input
+                label="Total Amount"
+                placeholder="0"
+                placeholderTextColor={theme.colors.grey2}
+                value={totalAmount}
+                disabled
+                inputStyle={{ color: textColor }}
+                labelStyle={{ color: textColor }}
+                containerStyle={{ marginBottom: 10 }}
+              />
+
+              <Input
+                label="Unit Type"
+                placeholder="Unit Type"
+                placeholderTextColor={theme.colors.grey3}
+                value={ingredient.Ing_quantity_units || ""}
+                disabled
+                inputStyle={{ color: textColor }}
+                labelStyle={{ color: textColor }}
+                containerStyle={{ marginBottom: 10 }}
+              />
+
+              <TouchableOpacity
+                onPress={() => setShowDatePicker(true)}
+                activeOpacity={0.9}
+              >
+                <Input
+                  label="Expiry Date (optional)"
+                  placeholder="YYYY-MM-DD"
+                  value={values.expiry_date}
+                  editable={false}
+                  pointerEvents="none"
+                  inputStyle={{ color: textColor }}
+                  labelStyle={{ color: textColor }}
+                  leftIcon={{
+                    type: "material-community",
+                    name: "calendar",
+                    onPress: () => setShowDatePicker(true),
+                    color: theme.colors.primary,
+                  }}
+                  rightIcon={
+                    values.expiry_date
+                      ? {
+                          type: "material-community",
+                          name: "close-circle",
+                          onPress: () => setFieldValue("expiry_date", ""),
+                          color: theme.colors.error,
+                        }
+                      : undefined
+                  }
+                />
+              </TouchableOpacity>
+
+              {showDatePicker && (
+                <DateTimePicker
+                  value={
+                    values.expiry_date
+                      ? new Date(values.expiry_date)
+                      : new Date()
+                  }
+                  mode="date"
+                  display="default"
+                  minimumDate={new Date()}
+                  onChange={(_, selectedDate) => {
+                    setShowDatePicker(false);
+                    if (selectedDate) {
+                      const formatted = selectedDate
+                        .toISOString()
+                        .split("T")[0];
+                      setFieldValue("expiry_date", formatted);
+                    }
+                  }}
+                />
+              )}
+
+              {errorMessage && (
+                <Text
+                  style={{
+                    color: theme.colors.error,
+                    textAlign: "center",
+                    marginBottom: 10,
+                    fontWeight: "bold",
+                  }}
+                >
+                  {errorMessage}
+                </Text>
+              )}
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginTop: 10,
+                }}
+              >
+                <Button
+                  title="Cancel"
+                  onPress={onClose}
+                  buttonStyle={{
+                    backgroundColor: theme.colors.grey3,
+                    borderRadius: 10,
+                    paddingVertical: 10,
+                    paddingHorizontal: 15,
+                  }}
+                  titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
+                />
+                <Button
+                  title="Save"
+                  onPress={handleSubmit as any}
+                  buttonStyle={{
+                    backgroundColor: theme.colors.primary,
+                    borderRadius: 10,
+                    paddingVertical: 10,
+                    paddingHorizontal: 15,
+                  }}
+                  titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
+                />
+              </View>
+            </>
+          );
+        }}
+      </Formik>
     </Overlay>
   );
 };

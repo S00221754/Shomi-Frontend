@@ -1,71 +1,60 @@
-import React, { useEffect, useState } from "react";
-import { View, ScrollView, TextInput, Alert } from "react-native";
-import { ListItem, Button, useTheme } from "@rneui/themed";
-import { getIngredients } from "@/services/ingredientsService";
+import React, { useState } from "react";
+import { View, ScrollView, StyleSheet } from "react-native";
+import { ListItem, Button, useTheme, Text, SearchBar } from "@rneui/themed";
 import {
-  getUserIngredientByIngredientId,
   addUserIngredient,
   getUserIngredients,
 } from "@/services/user-ingredientService";
 import { ProductInfo } from "@/Interfaces/ingredient";
 import { UserIngredientInput } from "@/Interfaces/user-ingredient";
-import UserIngredientModal from "@/components//modals/UserIngredientModal";
+import UserIngredientModal from "@/components/modals/UserIngredientModal";
 import { useAuth } from "@/providers/AuthProvider";
-import { showToast } from "@/utils/toast";
+import { useToast } from "@/utils/toast";
+import { usePaginatedIngredients } from "@/hooks/useGetPaginatedIngredients";
+import ShomiButton from "@/components/common/ShomiButton";
 
 const IngredientList = () => {
   const { userId } = useAuth();
   const { theme } = useTheme();
-  const [ingredients, setIngredients] = useState<ProductInfo[]>([]);
-  const [filteredIngredients, setFilteredIngredients] = useState<ProductInfo[]>(
-    []
-  );
-  const [search, setSearch] = useState("");
+  const { showToast } = useToast();
+
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedIngredient, setSelectedIngredient] =
     useState<ProductInfo | null>(null);
   const [userIngredient, setUserIngredient] =
     useState<UserIngredientInput | null>(null);
+  const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    const fetchIngredients = async () => {
-      try {
-        const data = await getIngredients();
-        setIngredients(data);
-        setFilteredIngredients(data);
-      } catch (error) {
-        console.error("Error fetching ingredients:", error);
-      }
-    };
-
-    fetchIngredients();
-  }, []);
+  const {
+    data: ingredients,
+    page,
+    totalPages,
+    loading,
+    setPage,
+    refetch,
+  } = usePaginatedIngredients();
 
   const handleSearch = (text: string) => {
     setSearch(text);
-    const filtered = ingredients.filter((item) =>
-      item.Ing_name.toLowerCase().includes(text.toLowerCase())
-    );
-    setFilteredIngredients(filtered);
   };
 
-  const handleOpenModal = async (ingredient: ProductInfo) => {
-    try {
-      const newUserIngredient: UserIngredientInput = {
-        userId: userId!,
-        ingredientId: ingredient.Ing_id!,
-        unitQuantity: 0,
-        unitType: ingredient.Ing_quantity_units ?? "",
-        totalAmount: 0,
-        expiry_date: "",
-      };
+  const filteredIngredients = ingredients.filter((item) =>
+    item.Ing_name.toLowerCase().includes(search.toLowerCase())
+  );
 
-      setSelectedIngredient(ingredient);
-      setUserIngredient(newUserIngredient);
-      setModalVisible(true);
-    } catch (error) {
-      console.error("Error checking ingredient:", error);
-    }
+  const handleOpenModal = async (ingredient: ProductInfo) => {
+    const newUserIngredient: UserIngredientInput = {
+      userId: userId!,
+      ingredientId: ingredient.Ing_id!,
+      unitQuantity: 0,
+      unitType: ingredient.Ing_quantity_units ?? "",
+      totalAmount: 0,
+      expiry_date: "",
+    };
+
+    setSelectedIngredient(ingredient);
+    setUserIngredient(newUserIngredient);
+    setModalVisible(true);
   };
 
   const handleAddUserIngredient = async (
@@ -80,9 +69,7 @@ const IngredientList = () => {
           (item.expiry_date ?? null) === (data.expiry_date ?? null)
       );
 
-      if (isDuplicate) {
-        return false;
-      }
+      if (isDuplicate) return false;
 
       await addUserIngredient(data);
       setModalVisible(false);
@@ -101,22 +88,31 @@ const IngredientList = () => {
 
   return (
     <View
-      style={{ flex: 1, backgroundColor: theme.colors.background, padding: 10 }}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
-      <TextInput
+      <SearchBar
         placeholder="Search ingredients..."
-        placeholderTextColor={theme.colors.grey3}
-        value={search}
         onChangeText={handleSearch}
-        style={{
-          padding: 10,
-          borderWidth: 1,
-          borderColor: theme.colors.grey3,
+        value={search}
+        round
+        lightTheme={theme.mode === "light"}
+        inputStyle={{
+          color:
+            theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+        }}
+        inputContainerStyle={{
+          backgroundColor:
+            theme.mode === "dark" ? theme.colors.grey0 : theme.colors.white,
           borderRadius: 10,
-          color: theme.colors.black,
-          backgroundColor: theme.colors.white,
+        }}
+        containerStyle={{
+          backgroundColor: theme.colors.background,
+          borderTopWidth: 0,
+          borderBottomWidth: 0,
+          paddingHorizontal: 0,
           marginBottom: 10,
         }}
+        placeholderTextColor={theme.colors.grey3}
       />
 
       <ScrollView>
@@ -125,16 +121,31 @@ const IngredientList = () => {
             key={index}
             bottomDivider
             containerStyle={{
-              backgroundColor: theme.colors.white,
+              backgroundColor:
+                theme.mode === "dark" ? theme.colors.black : theme.colors.white,
               borderRadius: 10,
               marginBottom: 8,
             }}
           >
             <ListItem.Content>
-              <ListItem.Title style={{ color: theme.colors.black }}>
+              <ListItem.Title
+                style={{
+                  color:
+                    theme.mode === "dark"
+                      ? theme.colors.white
+                      : theme.colors.black,
+                }}
+              >
                 {item.Ing_name}
               </ListItem.Title>
-              <ListItem.Subtitle style={{ color: theme.colors.grey2 }}>
+              <ListItem.Subtitle
+                style={{
+                  color:
+                    theme.mode === "dark"
+                      ? theme.colors.grey3
+                      : theme.colors.black,
+                }}
+              >
                 {item.Ing_brand}
               </ListItem.Subtitle>
             </ListItem.Content>
@@ -145,9 +156,43 @@ const IngredientList = () => {
                 backgroundColor: theme.colors.primary,
                 borderRadius: 8,
               }}
+              titleStyle={{ color: theme.colors.white }}
             />
           </ListItem>
         ))}
+
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            marginTop: 16,
+          }}
+        >
+          <ShomiButton
+            icon="chevron-left"
+            disabled={page === 1}
+            onPress={() => setPage((prev) => Math.max(prev - 1, 1))}
+            type="clear"
+          />
+
+          <Text
+            style={{
+              alignSelf: "center",
+              marginHorizontal: 10,
+              color:
+                theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+            }}
+          >
+            Page {page} of {totalPages}
+          </Text>
+
+          <ShomiButton
+            icon="chevron-right"
+            disabled={page === totalPages}
+            onPress={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+            type="clear"
+          />
+        </View>
       </ScrollView>
 
       <UserIngredientModal
@@ -160,5 +205,12 @@ const IngredientList = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 10,
+  },
+});
 
 export default IngredientList;

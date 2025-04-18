@@ -10,8 +10,27 @@ export const getUserIngredients = async (
 ): Promise<UserIngredient[]> => {
   try {
     const response = await axiosInstance.get<UserIngredient[]>(
-      `/user-ingredient/${userId}`
+      `/user-ingredient/`
     );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getPaginatedUserIngredients = async (
+  page: number = 1,
+  limit: number = 10
+): Promise<{
+  data: UserIngredient[];
+  totalItems: number;
+  currentPage: number;
+  totalPages: number;
+}> => {
+  try {
+    const response = await axiosInstance.get(`/user-ingredient/paginated`, {
+      params: { page, limit },
+    });
     return response.data;
   } catch (error) {
     throw error;

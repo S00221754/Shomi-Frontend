@@ -18,11 +18,12 @@ import {
 } from "@/services/recipe.Service";
 import { uploadRecipeImage } from "@/lib/supabase/uploadRecipeImage";
 import { RecipeDTO } from "@/Interfaces/recipe";
-import { showToast } from "@/utils/toast";
+import { useToast } from "@/utils/toast";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
-import recipeValidationSchema from "@/validation/RecipeSchema";
+import { recipeValidationSchema } from "@/validation/RecipeSchema";
 import { ActivityIndicator } from "react-native-paper";
 import { deleteRecipeImage } from "@/lib/supabase/deleteRecipeImage";
+import ShomiButton from "@/components/common/ShomiButton";
 
 const stripHtml = (html: string) => html.replace(/<[^>]*>?/gm, "").trim();
 
@@ -32,6 +33,9 @@ const RecipeFormScreen = () => {
   const { id } = useLocalSearchParams();
   const isEdit = !!id;
   const router = useRouter();
+  const textColor =
+    theme.mode === "dark" ? theme.colors.white : theme.colors.black;
+  const { showToast } = useToast();
 
   const [images, setImages] = useState<string[]>([]);
   const [instructions, setInstructions] = useState("");
@@ -183,16 +187,12 @@ const RecipeFormScreen = () => {
           setFieldValue,
         }) => (
           <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 20 }}>
-            <Button
+            <ShomiButton
               title={`Select Images (${images.length}/3)`}
               onPress={pickImage}
               disabled={images.length >= 3}
               containerStyle={{ marginBottom: 20 }}
-              buttonStyle={{
-                backgroundColor: theme.colors.grey2,
-                borderRadius: 10,
-                paddingVertical: 12,
-              }}
+              color={theme.colors.secondary}
             />
 
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
@@ -222,7 +222,14 @@ const RecipeFormScreen = () => {
 
             <Input
               label="Recipe Name"
-              labelStyle={{ fontWeight: "bold", fontSize: 18 }}
+              labelStyle={{
+                fontWeight: "bold",
+                fontSize: 18,
+                color:
+                  theme.mode === "dark"
+                    ? theme.colors.white
+                    : theme.colors.black,
+              }}
               value={values.recipe_name}
               onChangeText={handleChange("recipe_name")}
               onBlur={handleBlur("recipe_name")}
@@ -232,11 +239,27 @@ const RecipeFormScreen = () => {
                   ? errors.recipe_name
                   : undefined
               }
+              inputStyle={{
+                color:
+                  theme.mode === "dark"
+                    ? theme.colors.white
+                    : theme.colors.black,
+              }}
+              placeholderTextColor={
+                theme.mode === "dark" ? theme.colors.grey2 : theme.colors.grey3
+              }
             />
 
             <Input
               label="Short Description"
-              labelStyle={{ fontWeight: "bold", fontSize: 18 }}
+              labelStyle={{
+                fontWeight: "bold",
+                fontSize: 18,
+                color:
+                  theme.mode === "dark"
+                    ? theme.colors.white
+                    : theme.colors.black,
+              }}
               value={values.recipe_description}
               onChangeText={handleChange("recipe_description")}
               onBlur={handleBlur("recipe_description")}
@@ -246,6 +269,15 @@ const RecipeFormScreen = () => {
                   ? errors.recipe_description
                   : undefined
               }
+              inputStyle={{
+                color:
+                  theme.mode === "dark"
+                    ? theme.colors.white
+                    : theme.colors.black,
+              }}
+              placeholderTextColor={
+                theme.mode === "dark" ? theme.colors.grey2 : theme.colors.grey3
+              }
             />
 
             <View style={{ paddingHorizontal: 10 }}>
@@ -253,7 +285,10 @@ const RecipeFormScreen = () => {
                 style={{
                   fontSize: 18,
                   fontWeight: "bold",
-                  color: theme.colors.grey3,
+                  color:
+                    theme.mode === "dark"
+                      ? theme.colors.white
+                      : theme.colors.black,
                   marginBottom: 4,
                 }}
               >
@@ -277,10 +312,11 @@ const RecipeFormScreen = () => {
                 />
               ))}
 
-              <Button
+              <ShomiButton
                 title="Add Ingredients"
                 onPress={() => setShowIngredientModal(true)}
                 containerStyle={{ marginBottom: 20 }}
+                color={theme.colors.secondary}
               />
 
               {touched.ingredients &&
@@ -296,7 +332,10 @@ const RecipeFormScreen = () => {
                 style={{
                   fontSize: 18,
                   fontWeight: "bold",
-                  color: theme.colors.grey3,
+                  color:
+                    theme.mode === "dark"
+                      ? theme.colors.white
+                      : theme.colors.black,
                   marginBottom: 4,
                 }}
               >
@@ -337,6 +376,14 @@ const RecipeFormScreen = () => {
 
             <Input
               label="Cooking Time (mins)"
+              labelStyle={{
+                fontWeight: "bold",
+                fontSize: 18,
+                color:
+                  theme.mode === "dark"
+                    ? theme.colors.white
+                    : theme.colors.black,
+              }}
               value={values.cooking_time}
               onChangeText={handleChange("cooking_time")}
               onBlur={handleBlur("cooking_time")}
@@ -345,6 +392,15 @@ const RecipeFormScreen = () => {
                 touched.cooking_time && errors.cooking_time
                   ? errors.cooking_time
                   : undefined
+              }
+              inputStyle={{
+                color:
+                  theme.mode === "dark"
+                    ? theme.colors.white
+                    : theme.colors.black,
+              }}
+              placeholderTextColor={
+                theme.mode === "dark" ? theme.colors.grey2 : theme.colors.grey3
               }
             />
 

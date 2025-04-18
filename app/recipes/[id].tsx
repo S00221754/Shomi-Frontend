@@ -35,7 +35,7 @@ import { htmlParser } from "@/utils/htmlparser";
 import { useAuth } from "@/providers/AuthProvider";
 import ShomiButton from "@/components/common/ShomiButton";
 import { addBookmark, removeBookmark } from "@/services/bookmarkRecipeService";
-import { showToast } from "@/utils/toast";
+import { useToast } from "@/utils/toast";
 import DeductionPreviewModal from "@/components/modals/DeductionPreviewModal";
 
 export default function RecipeDetails() {
@@ -45,6 +45,9 @@ export default function RecipeDetails() {
   const { width } = useWindowDimensions();
   const { userId } = useAuth();
   const navigation = useNavigation();
+  const textColor =
+    theme.mode === "dark" ? theme.colors.white : theme.colors.black;
+  const { showToast } = useToast();
 
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -78,23 +81,15 @@ export default function RecipeDetails() {
     }, [id, bookmarked])
   );
 
-  useLayoutEffect(() => {
-    if (recipe) {
-      navigation.setOptions({
-        headerTitle: recipe.recipe_name,
-      });
-    }
-  }, [recipe, userId, navigation, theme]);
-
   const toggleBookmark = async () => {
     if (!recipe) return;
 
     try {
       if (isBookmarked) {
-        await removeBookmark(userId!, recipe.recipe_id);
+        await removeBookmark(recipe.recipe_id);
         setIsBookmarked(false);
       } else {
-        await addBookmark(userId!, recipe.recipe_id);
+        await addBookmark(recipe.recipe_id);
         setIsBookmarked(true);
       }
       showToast(
@@ -111,8 +106,7 @@ export default function RecipeDetails() {
     if (!userId || !recipe?.recipe_id) return;
 
     try {
-      const data = await getRecipeDeductionPreview(recipe.recipe_id, userId);
-
+      const data = await getRecipeDeductionPreview(recipe.recipe_id);
       setDeductionMatches(data);
       setIsPreviewVisible(true);
     } catch (err) {
@@ -135,14 +129,8 @@ export default function RecipeDetails() {
     if (!userId || !recipe?.recipe_id) return;
 
     try {
-      const result = await markRecipeAsCooked(
-        recipe.recipe_id,
-        userId,
-        deductions
-      );
-
+      const result = await markRecipeAsCooked(recipe.recipe_id, deductions);
       console.log("Cooked result:", result);
-
       showToast(
         "success",
         "Recipe Cooked",
@@ -153,6 +141,14 @@ export default function RecipeDetails() {
       showToast("error", "Failed", "Could not deduct from pantry.");
     }
   };
+
+  useLayoutEffect(() => {
+    if (recipe) {
+      navigation.setOptions({
+        headerTitle: recipe.recipe_name,
+      });
+    }
+  }, [navigation, recipe]);
 
   if (loading) {
     return (
@@ -211,28 +207,24 @@ export default function RecipeDetails() {
           backgroundColor: theme.colors.background,
           padding: 20,
         }}
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: 50 }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
       >
-        {/* Images */}
         {recipe.recipe_images && recipe.recipe_images.length > 0 && (
           <ImageCarousel images={recipe.recipe_images} width={width} />
         )}
 
-        {/* Recipe details */}
         <View style={{ marginBottom: 20 }}>
           <Text
             style={{
               fontSize: 18,
               fontWeight: "bold",
-              color: theme.colors.black,
+              color: textColor,
               marginTop: 10,
             }}
           >
             Description
           </Text>
-          <Text
-            style={{ fontSize: 16, color: theme.colors.grey3, marginTop: 5 }}
-          >
+          <Text style={{ fontSize: 16, color: textColor, marginTop: 5 }}>
             {recipe.recipe_description}
           </Text>
         </View>
@@ -242,7 +234,7 @@ export default function RecipeDetails() {
             style={{
               fontSize: 18,
               fontWeight: "bold",
-              color: theme.colors.black,
+              color: textColor,
               marginTop: 15,
             }}
           >
@@ -260,7 +252,7 @@ export default function RecipeDetails() {
             style={{
               fontSize: 18,
               fontWeight: "bold",
-              color: theme.colors.black,
+              color: textColor,
               marginTop: 15,
             }}
           >
@@ -270,11 +262,7 @@ export default function RecipeDetails() {
           {recipe.ingredients.map((ingredient, index) => (
             <Text
               key={index}
-              style={{
-                fontSize: 16,
-                color: theme.colors.black,
-                marginVertical: 3,
-              }}
+              style={{ fontSize: 16, color: textColor, marginVertical: 3 }}
             >
               • {ingredient.quantity} {ingredient.unit}{" "}
               {ingredient.ingredient_name}
@@ -287,7 +275,7 @@ export default function RecipeDetails() {
             style={{
               fontSize: 18,
               fontWeight: "bold",
-              color: theme.colors.black,
+              color: textColor,
               marginTop: 15,
             }}
           >
@@ -296,16 +284,16 @@ export default function RecipeDetails() {
           <Divider style={{ marginVertical: 5 }} />
           {recipe &&
             htmlParser(recipe.recipe_instructions).map((step, idx) => (
-              <Text key={idx}>
+              <Text key={idx} style={{ fontSize: 16, color: textColor }}>
                 {idx + 1}. {step}
               </Text>
             ))}
         </View>
 
-        <View style={{ marginBottom: 10 }}>
+        <View style={{ flexDirection: "row", gap: 10, marginBottom: 20 }}>
           {recipe.author?.id === userId && (
             <ShomiButton
-              title="Edit Recipe"
+              title="Edit"
               icon="pencil"
               color={theme.colors.warning}
               onPress={() =>
@@ -314,21 +302,22 @@ export default function RecipeDetails() {
                   params: { id: recipe.recipe_id },
                 })
               }
+              containerStyle={{ flex: 1 }}
             />
           )}
+          <ShomiButton
+            title={isBookmarked ? "Unbookmark" : "Bookmark"}
+            icon={isBookmarked ? "bookmark" : "bookmark-outline"}
+            color={theme.colors.secondary}
+            onPress={toggleBookmark}
+            containerStyle={{ flex: 1 }}
+          />
         </View>
-
-        <ShomiButton
-          title={isBookmarked ? "Remove Bookmark" : "Bookmark Recipe"}
-          icon={isBookmarked ? "bookmark" : "bookmark-outline"}
-          color={theme.colors.primary}
-          onPress={toggleBookmark}
-        />
 
         <ShomiButton
           title="I've Cooked This"
           icon="check-circle"
-          color={theme.colors.success}
+          color={theme.colors.primary}
           onPress={handleCookedPress}
           buttonStyle={{ marginBottom: 10 }}
         />

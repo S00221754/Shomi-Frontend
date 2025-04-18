@@ -7,9 +7,19 @@ import {
 } from "@/Interfaces/recipe";
 import { DeductionPreview } from "@/Interfaces/recipe";
 
-export const getRecipes = async (): Promise<Recipe[]> => {
+export const getRecipes = async (
+  page: number = 1,
+  limit: number = 10
+): Promise<{
+  data: Recipe[];
+  totalItems: number;
+  currentPage: number;
+  totalPages: number;
+}> => {
   try {
-    const response = await axiosInstance.get<Recipe[]>(`/recipes`);
+    const response = await axiosInstance.get(`/recipes`, {
+      params: { page, limit },
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -26,15 +36,12 @@ export const getRecipeById = async (id: string): Promise<Recipe> => {
 };
 
 export const getRecommendedRecipes = async (
-  userId: string,
   selectedIngredients: string[] = []
 ): Promise<Recipe[]> => {
   try {
     const response = await axiosInstance.post<Recipe[]>(
-      `/recipes/recommended/${userId}`,
-      {
-        selectedIngredients,
-      }
+      `/recipes/recommended`,
+      { selectedIngredients }
     );
     return response.data;
   } catch (error) {
@@ -68,13 +75,11 @@ export const updateRecipe = async (
 };
 
 export const getRecipeDeductionPreview = async (
-  recipeId: string,
-  userId: string
+  recipeId: string
 ): Promise<DeductionPreview[]> => {
   try {
     const response = await axiosInstance.post<DeductionPreview[]>(
-      `/recipes/${recipeId}/deduction-preview`,
-      { user_id: userId }
+      `/recipes/${recipeId}/deduction-preview`
     );
     return response.data;
   } catch (error) {
@@ -84,12 +89,10 @@ export const getRecipeDeductionPreview = async (
 
 export const markRecipeAsCooked = async (
   recipeId: string,
-  userId: string,
   deductions: IngredientsToDeduct[]
 ) => {
   try {
     const response = await axiosInstance.post(`/recipes/${recipeId}/cooked`, {
-      user_id: userId,
       deductions,
     });
     return response.data;

@@ -18,7 +18,8 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   message,
 }) => {
   const { theme } = useTheme();
-
+  const isDark = theme.mode === "dark";
+  const textColor = isDark ? theme.colors.white : theme.colors.black;
   return (
     <Overlay
       isVisible={visible}
@@ -42,7 +43,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       </Text>
       <Text
         style={{
-          color: theme.colors.black,
+          color: textColor,
           textAlign: "center",
           marginBottom: 20,
         }}

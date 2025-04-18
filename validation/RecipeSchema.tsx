@@ -1,6 +1,6 @@
 import * as Yup from "yup";
 
-const recipeValidationSchema = Yup.object().shape({
+export const recipeValidationSchema = Yup.object().shape({
   recipe_name: Yup.string().required("Recipe name is required"),
   recipe_description: Yup.string().required("Short description is required"),
   cooking_time: Yup.number()
@@ -19,4 +19,8 @@ const recipeValidationSchema = Yup.object().shape({
     .min(3, "At least 3 ingredients are required"),
 });
 
-export default recipeValidationSchema;
+export const recipeIngredientValidationSchema = Yup.object().shape({
+  ingredient_id: Yup.string().required("Ingredient is required"),
+  quantity: Yup.number().required("Quantity is required").min(0.01),
+  unit: Yup.string().required("Unit is required"),
+});

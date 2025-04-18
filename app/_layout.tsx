@@ -7,6 +7,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import Toast from "react-native-toast-message";
 import React from "react";
+import { toastConfig } from "@/utils/toastConfig";
 
 // @ts-ignore
 if (typeof global.Buffer === "undefined") {
@@ -26,7 +27,6 @@ console.warn = (...args) => {
   }
   originalWarn(...args);
 };
-
 
 function AppLayout() {
   const { isDarkMode } = useAppTheme();
@@ -61,7 +61,7 @@ function AppLayout() {
             headerStyle: { backgroundColor: theme.colors.background },
             headerTintColor: primaryColor,
             headerShadowVisible: true,
-            headerTitle: "",
+            headerTitle: "Recommended Recipes",
           }}
         />
 
@@ -100,6 +100,17 @@ function AppLayout() {
             headerTitle: "Bookmarked Recipes",
           }}
         />
+
+        <Stack.Screen
+          name="register"
+          options={{
+            headerShown: true,
+            headerStyle: { backgroundColor: theme.colors.background },
+            headerTintColor: primaryColor,
+            headerShadowVisible: true,
+            headerTitle: "Register",
+          }}
+        />
       </Stack>
     </>
   );
@@ -110,7 +121,7 @@ export default function RootLayout() {
     <ThemeProviderWrapper>
       <AuthProvider>
         <AppLayout />
-        <Toast />
+        <Toast config={toastConfig} />
       </AuthProvider>
     </ThemeProviderWrapper>
   );

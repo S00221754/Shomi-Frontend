@@ -12,52 +12,51 @@ import { useColorScheme } from "react-native";
 const lightTheme: CreateThemeOptions = {
   mode: "light",
   lightColors: {
-    primary: "#99BC85", // #a5d38b
-    secondary: "#BEE3B4", //rgb(105, 124, 90)
-    background: "#FDFAF6", // #fcf5ee
-    white: "#FFFFFF", // Fixed extra space issue
-    black: "hsl(0, 0%, 14%)", // #242424
-    grey0: "hsl(220, 6%, 24%)", // #393e42
-    grey1: "hsl(215, 6%, 27%)", // #43484d
-    grey2: "hsl(210, 14%, 42%)", // #5e6977
-    grey3: "hsl(210, 17%, 58%)", // #86939e
-    grey4: "hsl(210, 22%, 78%)", // #bdc6cf
-    grey5: "hsl(210, 33%, 90%)", // #e1e8ee
-    greyOutline: "hsl(0, 0%, 73%)", // #bbb
-    searchBg: "hsl(96, 41%, 87%)", // #dbead2
-    success: "hsl(120, 67%, 42%)", // #52c41a
-    warning: "hsl(38, 90%, 54%)", // #faad14
-    error: "hsl(0, 100%, 50%)", // #ff190c
-    disabled: "hsl(208, 8%, 90%)",
-    divider: "hsl(78, 41%, 83%)", // #dce3c7
+    primary: "#99BC85",
+    secondary: "#AFCB9F",
+    background: "#FDFAF6",
+    white: "#FFFFFF",
+    black: "#242424",
+    grey0: "#3D3D3D",
+    grey1: "#444444",
+    grey2: "#6A6A6A",
+    grey3: "#949494",
+    grey4: "#C7C7C7",
+    grey5: "#E5E5E5",
+    greyOutline: "#BABABA",
+    searchBg: "#D3EDC3",
+    success: "#2FAE4E",
+    warning: "#FFC107",
+    error: "#FF0000",
+    disabled: "#E6E6E6",
+    divider: "#CEE9C8",
   },
 };
 
 const darkTheme: CreateThemeOptions = {
   mode: "dark",
   darkColors: {
-    primary: "#A5D38B", // Lighter green for contrast in dark mode
-    secondary: "#768463", // Muted green for secondary elements
-    background: "#1A1A1A", // Dark grey for comfortable contrast
-    white: "#FFFFFF", // Pure white for contrast
-    black: "hsl(0, 0%, 14%)", // Deep grey-black (fixed syntax)
-    grey0: "#2E2E2E", // Dark grey for main surfaces
-    grey1: "#383838", // Slightly lighter grey for UI depth
-    grey2: "#444444", // Secondary UI elements
-    grey3: "#555555", // Borders and subtle separations
-    grey4: "#666666", // Lighter grey for captions or minor text
-    grey5: "#777777", // Muted grey for disabled elements
-    greyOutline: "#3A3A3A", // Soft grey for outlines and dividers
-    searchBg: "#222222", // Darker background for search bars and inputs
-    success: "#57A773", // Softer green for success messages
-    warning: "#E0A800", // Warm gold for warnings
-    error: "#D9534F", // Softer red for errors to reduce eye strain
-    disabled: "#444444", // Muted grey to indicate disabled elements
-    divider: "#333333", // Soft grey divider for sections
+    primary: "#306844",
+    secondary: "#244c3a",
+    background: "#1A1A1A",
+    white: "#FFFFFF",
+    black: "hsl(0, 0%, 14%)",
+    grey0: "#2E2E2E",
+    grey1: "#383838",
+    grey2: "#444444",
+    grey3: "#555555",
+    grey4: "#666666",
+    grey5: "#777777",
+    greyOutline: "#3A3A3A",
+    searchBg: "#222222",
+    success: "#57A773",
+    warning: "#E0A800",
+    error: "#D9534F",
+    disabled: "#444444",
+    divider: "#333333",
   },
 };
 
-// Storage Key
 const THEME_STORAGE_KEY = "user_theme_preference";
 
 interface ThemeContextType {
@@ -97,7 +96,6 @@ export const ThemeProviderWrapper = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Custom Hook to Use Theme
 export const useAppTheme = (): ThemeContextType => {
   const context = useContext(ThemeContext);
   if (!context) {

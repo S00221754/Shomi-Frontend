@@ -13,32 +13,38 @@ import {
 } from "@/services/bookmarkRecipeService";
 import { getRecipes } from "@/services/recipe.Service";
 import ShomiButton from "@/components/common/ShomiButton";
-import { showToast } from "@/utils/toast";
+import { useToast } from "@/utils/toast";
 
 // This is the main screen of the app that displays a list of recipes
 export default function RecipeScreen() {
   const router = useRouter();
   const { theme } = useTheme();
   const { userId } = useAuth();
+  const { showToast } = useToast();
 
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [fabOpen, setFabOpen] = useState(false);
+
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
         try {
           setLoading(true);
-
-          const [recipesRes, bookmarkedRecipes] = await Promise.all([
-            getRecipes(),
-            getBookmarkRecipes(userId!),
+          const [recipeRes, bookmarkedRecipes] = await Promise.all([
+            getRecipes(1),
+            getBookmarkRecipes(),
           ]);
 
-          setRecipes(recipesRes);
+          setRecipes(recipeRes.data);
+          setPage(2);
+          setHasMore(recipeRes.currentPage < recipeRes.totalPages);
 
           const ids = new Set(bookmarkedRecipes.map((r) => r.recipe_id));
           setBookmarkedIds(ids);
@@ -59,14 +65,14 @@ export default function RecipeScreen() {
 
     try {
       if (isBookmarked) {
-        await removeBookmark(userId!, recipeId);
+        await removeBookmark(recipeId);
         setBookmarkedIds((prev) => {
           const updated = new Set(prev);
           updated.delete(recipeId);
           return updated;
         });
       } else {
-        await addBookmark(userId!, recipeId);
+        await addBookmark(recipeId);
         setBookmarkedIds((prev) => new Set(prev).add(recipeId));
       }
       showToast(
@@ -76,6 +82,22 @@ export default function RecipeScreen() {
       );
     } catch (err) {
       console.error("Failed to toggle bookmark:", err);
+    }
+  };
+
+  const loadMoreRecipes = async () => {
+    if (!hasMore || isLoadingMore) return;
+
+    try {
+      setIsLoadingMore(true);
+      const recipeRes = await getRecipes(page);
+      setRecipes((prev) => [...prev, ...recipeRes.data]);
+      setPage((prev) => prev + 1);
+      setHasMore(recipeRes.currentPage < recipeRes.totalPages);
+    } catch (err) {
+      console.error("Error loading more recipes:", err);
+    } finally {
+      setIsLoadingMore(false);
     }
   };
 
@@ -124,13 +146,48 @@ export default function RecipeScreen() {
       <FlatList
         data={recipes}
         keyExtractor={(item) => item.recipe_id}
+        ListFooterComponent={
+          hasMore ? (
+            <View style={{ paddingVertical: 16 }}>
+              <ShomiButton
+                title={isLoadingMore ? "Loading..." : "Load More"}
+                onPress={loadMoreRecipes}
+                disabled={isLoadingMore}
+                buttonStyle={{
+                  backgroundColor: theme.colors.primary,
+                  borderRadius: 12,
+                  paddingVertical: 10,
+                }}
+                titleStyle={{
+                  fontWeight: "bold",
+                  color: theme.colors.white,
+                }}
+              />
+            </View>
+          ) : (
+            <Text
+              style={{
+                textAlign: "center",
+                marginTop: 12,
+                marginBottom: 20,
+                color: theme.colors.grey3,
+              }}
+            >
+              No more recipes.
+            </Text>
+          )
+        }
         renderItem={({ item }) => (
           <Card
             containerStyle={{
-              backgroundColor: theme.colors.white,
+              backgroundColor:
+                theme.mode === "dark" ? theme.colors.grey0 : theme.colors.white,
               borderRadius: 10,
               padding: 15,
-              shadowColor: theme.colors.black,
+              shadowColor:
+                theme.mode === "dark"
+                  ? theme.colors.greyOutline
+                  : theme.colors.black,
               elevation: 3,
             }}
           >
@@ -152,7 +209,10 @@ export default function RecipeScreen() {
               style={{
                 fontSize: 18,
                 fontWeight: "bold",
-                color: theme.colors.black,
+                color:
+                  theme.mode === "dark"
+                    ? theme.colors.white
+                    : theme.colors.black,
                 textAlign: "center",
               }}
             >
@@ -164,7 +224,10 @@ export default function RecipeScreen() {
             <Text
               style={{
                 fontSize: 14,
-                color: theme.colors.grey3,
+                color:
+                  theme.mode === "dark"
+                    ? theme.colors.white
+                    : theme.colors.grey3,
                 textAlign: "center",
                 marginBottom: 5,
               }}
