@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { View, ScrollView, TextInput, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, ScrollView, StyleSheet } from "react-native";
 import { ListItem, Button, useTheme, Text, SearchBar } from "@rneui/themed";
-import { getIngredients } from "@/services/ingredientsService";
 import {
   addUserIngredient,
   getUserIngredients,
@@ -11,44 +10,37 @@ import { UserIngredientInput } from "@/Interfaces/user-ingredient";
 import UserIngredientModal from "@/components/modals/UserIngredientModal";
 import { useAuth } from "@/providers/AuthProvider";
 import { useToast } from "@/utils/toast";
+import { usePaginatedIngredients } from "@/hooks/useGetPaginatedIngredients";
+import ShomiButton from "@/components/common/ShomiButton";
 
 const IngredientList = () => {
   const { userId } = useAuth();
   const { theme } = useTheme();
   const { showToast } = useToast();
 
-  const [ingredients, setIngredients] = useState<ProductInfo[]>([]);
-  const [filteredIngredients, setFilteredIngredients] = useState<ProductInfo[]>(
-    []
-  );
-  const [search, setSearch] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedIngredient, setSelectedIngredient] =
     useState<ProductInfo | null>(null);
   const [userIngredient, setUserIngredient] =
     useState<UserIngredientInput | null>(null);
+  const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    const fetchIngredients = async () => {
-      try {
-        const data = await getIngredients();
-        setIngredients(data);
-        setFilteredIngredients(data);
-      } catch (error) {
-        console.error("Error fetching ingredients:", error);
-      }
-    };
-
-    fetchIngredients();
-  }, []);
+  const {
+    data: ingredients,
+    page,
+    totalPages,
+    loading,
+    setPage,
+    refetch,
+  } = usePaginatedIngredients();
 
   const handleSearch = (text: string) => {
     setSearch(text);
-    const filtered = ingredients.filter((item) =>
-      item.Ing_name.toLowerCase().includes(text.toLowerCase())
-    );
-    setFilteredIngredients(filtered);
   };
+
+  const filteredIngredients = ingredients.filter((item) =>
+    item.Ing_name.toLowerCase().includes(search.toLowerCase())
+  );
 
   const handleOpenModal = async (ingredient: ProductInfo) => {
     const newUserIngredient: UserIngredientInput = {
@@ -168,6 +160,39 @@ const IngredientList = () => {
             />
           </ListItem>
         ))}
+
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            marginTop: 16,
+          }}
+        >
+          <ShomiButton
+            icon="chevron-left"
+            disabled={page === 1}
+            onPress={() => setPage((prev) => Math.max(prev - 1, 1))}
+            type="clear"
+          />
+
+          <Text
+            style={{
+              alignSelf: "center",
+              marginHorizontal: 10,
+              color:
+                theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+            }}
+          >
+            Page {page} of {totalPages}
+          </Text>
+
+          <ShomiButton
+            icon="chevron-right"
+            disabled={page === totalPages}
+            onPress={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+            type="clear"
+          />
+        </View>
       </ScrollView>
 
       <UserIngredientModal

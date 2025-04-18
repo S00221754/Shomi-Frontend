@@ -10,6 +10,28 @@ export const getIngredients = async () => {
   }
 };
 
+export const getPaginatedIngredients = async (
+  page: number = 1,
+  pageSize: number = 10
+): Promise<{
+  data: ProductInfo[];
+  totalItems: number;
+  currentPage: number;
+  totalPages: number;
+}> => {
+  try {
+    const response = await axiosInstance.get(`/ingredient/paginated`, {
+      params: {
+        page,
+        pageSize,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const addIngredient = async (ingredient: ProductInfo) => {
   try {
     const response = await axiosInstance.post(`/ingredient`, ingredient);

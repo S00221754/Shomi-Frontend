@@ -18,6 +18,25 @@ export const getUserIngredients = async (
   }
 };
 
+export const getPaginatedUserIngredients = async (
+  page: number = 1,
+  limit: number = 10
+): Promise<{
+  data: UserIngredient[];
+  totalItems: number;
+  currentPage: number;
+  totalPages: number;
+}> => {
+  try {
+    const response = await axiosInstance.get(`/user-ingredient/paginated`, {
+      params: { page, limit },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const deleteUserIngredient = async (userIngredientIds: string[]) => {
   try {
     const response = await axiosInstance.delete(`/user-ingredient/`, {

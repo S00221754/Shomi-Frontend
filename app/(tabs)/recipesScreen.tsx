@@ -23,23 +23,28 @@ export default function RecipeScreen() {
   const { showToast } = useToast();
 
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [fabOpen, setFabOpen] = useState(false);
+
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
         try {
           setLoading(true);
-
-          const [recipesRes, bookmarkedRecipes] = await Promise.all([
-            getRecipes(),
+          const [recipeRes, bookmarkedRecipes] = await Promise.all([
+            getRecipes(1),
             getBookmarkRecipes(),
           ]);
 
-          setRecipes(recipesRes);
+          setRecipes(recipeRes.data);
+          setPage(2);
+          setHasMore(recipeRes.currentPage < recipeRes.totalPages);
 
           const ids = new Set(bookmarkedRecipes.map((r) => r.recipe_id));
           setBookmarkedIds(ids);
@@ -77,6 +82,22 @@ export default function RecipeScreen() {
       );
     } catch (err) {
       console.error("Failed to toggle bookmark:", err);
+    }
+  };
+
+  const loadMoreRecipes = async () => {
+    if (!hasMore || isLoadingMore) return;
+
+    try {
+      setIsLoadingMore(true);
+      const recipeRes = await getRecipes(page);
+      setRecipes((prev) => [...prev, ...recipeRes.data]);
+      setPage((prev) => prev + 1);
+      setHasMore(recipeRes.currentPage < recipeRes.totalPages);
+    } catch (err) {
+      console.error("Error loading more recipes:", err);
+    } finally {
+      setIsLoadingMore(false);
     }
   };
 
@@ -125,6 +146,37 @@ export default function RecipeScreen() {
       <FlatList
         data={recipes}
         keyExtractor={(item) => item.recipe_id}
+        ListFooterComponent={
+          hasMore ? (
+            <View style={{ paddingVertical: 16 }}>
+              <ShomiButton
+                title={isLoadingMore ? "Loading..." : "Load More"}
+                onPress={loadMoreRecipes}
+                disabled={isLoadingMore}
+                buttonStyle={{
+                  backgroundColor: theme.colors.primary,
+                  borderRadius: 12,
+                  paddingVertical: 10,
+                }}
+                titleStyle={{
+                  fontWeight: "bold",
+                  color: theme.colors.white,
+                }}
+              />
+            </View>
+          ) : (
+            <Text
+              style={{
+                textAlign: "center",
+                marginTop: 12,
+                marginBottom: 20,
+                color: theme.colors.grey3,
+              }}
+            >
+              No more recipes.
+            </Text>
+          )
+        }
         renderItem={({ item }) => (
           <Card
             containerStyle={{

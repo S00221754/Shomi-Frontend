@@ -7,9 +7,19 @@ import {
 } from "@/Interfaces/recipe";
 import { DeductionPreview } from "@/Interfaces/recipe";
 
-export const getRecipes = async (): Promise<Recipe[]> => {
+export const getRecipes = async (
+  page: number = 1,
+  limit: number = 10
+): Promise<{
+  data: Recipe[];
+  totalItems: number;
+  currentPage: number;
+  totalPages: number;
+}> => {
   try {
-    const response = await axiosInstance.get<Recipe[]>(`/recipes`);
+    const response = await axiosInstance.get(`/recipes`, {
+      params: { page, limit },
+    });
     return response.data;
   } catch (error) {
     throw error;

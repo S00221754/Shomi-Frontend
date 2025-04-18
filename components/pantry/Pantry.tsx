@@ -52,6 +52,7 @@ import dayjs from "dayjs";
 import { ShoppingItem } from "@/Interfaces/shopping-list";
 import { getIngredientById } from "@/services/ingredientsService";
 import { deleteShoppingListItem } from "@/services/shoppingListService";
+import { usePaginatedUserIngredients } from "@/hooks/useGetPaginatedUserIngredients";
 
 //TODO: decouple and try and lessen the amount of code on this and use more components as it is getting too complicated.
 const Pantry: React.FC = () => {
@@ -63,8 +64,15 @@ const Pantry: React.FC = () => {
   const { action, ingredientId, quantity, ingredientName, shopId } =
     useLocalSearchParams();
 
-  const { userIngredients, loading, fetchUserIngredients } =
-    useGetUserIngredients(userId ?? "");
+  const {
+    data: userIngredients,
+    page,
+    totalPages,
+    loading,
+    setPage,
+    refetch,
+  } = usePaginatedUserIngredients(1, 10);
+
   const { handleDeleteUserIngredient } = useDeleteUserIngredient();
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -179,7 +187,7 @@ const Pantry: React.FC = () => {
       if (idsToDelete.length === 0) return;
 
       await handleDeleteUserIngredient(idsToDelete);
-      fetchUserIngredients();
+      refetch();
       showToast(
         "success",
         "Ingredient Removed",
@@ -212,7 +220,7 @@ const Pantry: React.FC = () => {
   ) => {
     try {
       await updateUserIngredient(userIngredientId, userIngredient);
-      fetchUserIngredients();
+      refetch();
       setIsUpdateUserIngredientModalVisible(false);
 
       if (action === "restock" && typeof shopId === "string") {
@@ -261,8 +269,8 @@ const Pantry: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      fetchUserIngredients();
-    }, [fetchUserIngredients])
+      refetch();
+    }, [refetch])
   );
 
   const {
@@ -290,7 +298,7 @@ const Pantry: React.FC = () => {
     setSelectedUserIngredient,
     setSelectedUserIngredientId,
     setIsUpdateUserIngredientModalVisible,
-    fetchUserIngredients,
+    refetch,
     setMatchingIngredientVariants,
     setIsChooseBatchModalVisible
   );
@@ -416,7 +424,7 @@ const Pantry: React.FC = () => {
         <ScrollView
           stickyHeaderIndices={[0]}
           contentContainerStyle={{
-            paddingBottom: selectedIngredients.length > 0 ? 100 : 75,
+            paddingBottom: selectedIngredients.length > 0 ? 125 : 100,
           }}
         >
           <View
@@ -838,6 +846,40 @@ const Pantry: React.FC = () => {
               </ListItem.Accordion>
             </View>
           ))}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              marginTop: 16,
+            }}
+          >
+            <ShomiButton
+              icon="chevron-left"
+              disabled={page === 1}
+              onPress={() => setPage((prev) => Math.max(prev - 1, 1))}
+              type="clear"
+            />
+
+            <Text
+              style={{
+                alignSelf: "center",
+                marginHorizontal: 10,
+                color:
+                  theme.mode === "dark"
+                    ? theme.colors.white
+                    : theme.colors.black,
+              }}
+            >
+              Page {page} of {totalPages}
+            </Text>
+
+            <ShomiButton
+              icon="chevron-right"
+              disabled={page === totalPages}
+              onPress={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+              type="clear"
+            />
+          </View>
         </ScrollView>
       )}
 
