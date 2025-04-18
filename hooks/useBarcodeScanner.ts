@@ -28,9 +28,9 @@ export function useBarcodeScanner(
     } catch (error) {
       console.error("Error scanning barcode:", error);
       onBarcodeScanned({
-        Ing_name: "Product not found",
-        Ing_barcode: "Product not found",
-        Ing_brand: "Product not found",
+        Ing_name: "",
+        Ing_barcode: "",
+        Ing_brand: "",
         status: false,
         In_Database: false,
       });

@@ -7,6 +7,7 @@ import { ViewStyle, TextStyle } from "react-native";
 interface ShomiButtonProps {
   title?: string;
   onPress: () => void;
+  type?: "solid" | "outline" | "clear";
   icon?: string;
   color?: string;
   loading?: boolean;
@@ -20,6 +21,7 @@ const ShomiButton: React.FC<ShomiButtonProps> = ({
   title = "",
   onPress,
   icon,
+  type = "solid",
   color,
   loading = false,
   disabled = false,
@@ -33,6 +35,7 @@ const ShomiButton: React.FC<ShomiButtonProps> = ({
   return (
     <Button
       title={title}
+      type={type}
       icon={
         icon
           ? {
@@ -49,7 +52,11 @@ const ShomiButton: React.FC<ShomiButtonProps> = ({
       disabled={disabled}
       containerStyle={[isIconOnly && { width: 40, height: 40 }, containerStyle]}
       buttonStyle={{
-        backgroundColor: color || theme.colors.primary,
+        backgroundColor:
+          type === "outline" ? "transparent" : color || theme.colors.primary,
+        borderColor:
+          type === "outline" ? color || theme.colors.primary : "transparent",
+        borderWidth: type === "outline" ? 1.5 : 0,
         borderRadius: isIconOnly ? 20 : 12,
         width: isIconOnly ? 40 : undefined,
         height: isIconOnly ? 40 : undefined,
@@ -63,7 +70,7 @@ const ShomiButton: React.FC<ShomiButtonProps> = ({
       titleStyle={{
         fontSize: 16,
         fontWeight: "600",
-        color: "white",
+        color: type === "outline" ? color || theme.colors.primary : "white",
         marginLeft: icon && !isIconOnly ? 8 : 0,
         ...titleStyle,
       }}
