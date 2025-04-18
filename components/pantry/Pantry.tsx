@@ -44,7 +44,10 @@ import ShomiFAB from "../common/ShomiFAB";
 import { showToast } from "@/utils/toast";
 import ShomiButton from "../common/ShomiButton";
 import ChooseBatchModal from "../modals/ChooseBatchModal";
-import { addShoppingListItem } from "@/services/shoppingListService";
+import {
+  addShoppingListItem,
+  getShoppingList,
+} from "@/services/shoppingListService";
 import dayjs from "dayjs";
 import { ShoppingItem } from "@/Interfaces/shopping-list";
 import { getIngredientById } from "@/services/ingredientsService";
@@ -224,6 +227,21 @@ const Pantry: React.FC = () => {
   const handleAddToShoppingList = async (item: UserIngredient) => {
     try {
       if (!userId) return;
+
+      const existingItems = await getShoppingList();
+
+      const alreadyExists = existingItems.some(
+        (entry) => entry.ingredient.Ing_id === item.ingredient.Ing_id
+      );
+
+      if (alreadyExists) {
+        showToast(
+          "error",
+          "Duplicate",
+          "Item is already in your shopping list."
+        );
+        return;
+      }
 
       await addShoppingListItem({
         ingredient_id: item.ingredient.Ing_id,
@@ -617,7 +635,7 @@ const Pantry: React.FC = () => {
                       : theme.colors.black,
                   size: 24,
                 }}
-                noIcon={true} // ✅ this disables default chevron
+                noIcon={true}
               >
                 <View
                   style={{
@@ -633,9 +651,7 @@ const Pantry: React.FC = () => {
                   <View
                     style={{
                       flexDirection: "row",
-                      justifyContent: item.expiry_date
-                        ? "space-between"
-                        : "flex-start",
+                      justifyContent: "space-between",
                       alignItems: "center",
                       paddingHorizontal: 16,
                       paddingVertical: 8,
@@ -644,76 +660,83 @@ const Pantry: React.FC = () => {
                       gap: 12,
                     }}
                   >
-                    <View
-                      style={{ flexDirection: "row", alignItems: "center" }}
-                    >
-                      <Icon
-                        name="scale-balance"
-                        type="material-community"
-                        size={18}
-                        color={
-                          theme.mode === "dark"
-                            ? theme.colors.white
-                            : theme.colors.black
-                        }
-                        style={{ marginRight: 6 }}
-                      />
-                      <Text
-                        style={{
-                          color:
+                    <View style={{ flex: 1, gap: 6 }}>
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                      >
+                        <Icon
+                          name="scale-balance"
+                          type="material-community"
+                          size={18}
+                          color={
                             theme.mode === "dark"
                               ? theme.colors.white
-                              : theme.colors.black,
-                          fontSize: 14,
-                        }}
-                      >
-                        Quantity:{" "}
-                        <Text style={{ fontWeight: "bold" }}>
-                          {item.unitQuantity || "N/A"}
-                        </Text>
-                      </Text>
-                    </View>
-
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        marginTop: 4,
-                      }}
-                    >
-                      <Icon
-                        name="package-variant"
-                        type="material-community"
-                        size={18}
-                        color={
-                          theme.mode === "dark"
-                            ? theme.colors.white
-                            : theme.colors.black
-                        }
-                        style={{ marginRight: 6 }}
-                      />
-                      <Text
-                        style={{
-                          color:
-                            theme.mode === "dark"
-                              ? theme.colors.white
-                              : theme.colors.black,
-                          fontSize: 14,
-                        }}
-                      >
-                        Amount:{" "}
+                              : theme.colors.black
+                          }
+                          style={{ marginRight: 6 }}
+                        />
                         <Text
                           style={{
                             color:
                               theme.mode === "dark"
                                 ? theme.colors.white
                                 : theme.colors.black,
-                            fontWeight: "bold",
+                            fontSize: 14,
                           }}
                         >
-                          {item.totalAmount || "Unknown"} {item.unitType || ""}
+                          Quantity:{" "}
+                          <Text
+                            style={{
+                              fontWeight: "bold",
+                              color:
+                                theme.mode === "dark"
+                                  ? theme.colors.white
+                                  : theme.colors.black,
+                            }}
+                          >
+                            {item.unitQuantity || "N/A"}
+                          </Text>
                         </Text>
-                      </Text>
+                      </View>
+
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                      >
+                        <Icon
+                          name="package-variant"
+                          type="material-community"
+                          size={18}
+                          color={
+                            theme.mode === "dark"
+                              ? theme.colors.white
+                              : theme.colors.black
+                          }
+                          style={{ marginRight: 6 }}
+                        />
+                        <Text
+                          style={{
+                            color:
+                              theme.mode === "dark"
+                                ? theme.colors.white
+                                : theme.colors.black,
+                            fontSize: 14,
+                          }}
+                        >
+                          Amount:{" "}
+                          <Text
+                            style={{
+                              fontWeight: "bold",
+                              color:
+                                theme.mode === "dark"
+                                  ? theme.colors.white
+                                  : theme.colors.black,
+                            }}
+                          >
+                            {item.totalAmount || "Unknown"}{" "}
+                            {item.unitType || ""}
+                          </Text>
+                        </Text>
+                      </View>
                     </View>
 
                     {item.expiry_date && (
@@ -743,11 +766,11 @@ const Pantry: React.FC = () => {
                           Expiry:{" "}
                           <Text
                             style={{
+                              fontWeight: "bold",
                               color:
                                 theme.mode === "dark"
                                   ? theme.colors.white
                                   : theme.colors.black,
-                              fontWeight: "bold",
                             }}
                           >
                             {item.expiry_date}
@@ -906,7 +929,10 @@ const Pantry: React.FC = () => {
 
       <ChooseBatchModal
         visible={isChooseBatchModalVisible}
-        onClose={() => setIsChooseBatchModalVisible(false)}
+        onClose={() => {
+          setIsChooseBatchModalVisible(false);
+          router.replace("/(tabs)");
+        }}
         ingredientName={
           scannedData?.Ing_name ||
           selectedShoppingItem?.ingredient.Ing_name ||

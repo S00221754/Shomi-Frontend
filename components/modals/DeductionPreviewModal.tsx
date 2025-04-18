@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { View, FlatList } from "react-native";
 import { Overlay, Text, Button, useTheme } from "@rneui/themed";
 import { DeductionPreview } from "@/Interfaces/recipe";
 import { UserIngredient } from "@/Interfaces/ingredient";
 import BottomSheetSelect from "@/components/common/ShomiBottomSheet";
 import { getUserIngredients } from "@/services/user-ingredientService";
+import ShomiButton from "../common/ShomiButton";
 
 interface DeductionPreviewModalProps {
   visible: boolean;
@@ -22,6 +23,8 @@ const DeductionPreviewModal: React.FC<DeductionPreviewModalProps> = ({
   onConfirm,
 }) => {
   const { theme } = useTheme();
+  const isDark = theme.mode === "dark";
+  const textColor = isDark ? theme.colors.white : theme.colors.black;
 
   const [localData, setLocalData] = useState<DeductionPreview[]>(data);
   const [pantryOptions, setPantryOptions] = useState<UserIngredient[]>([]);
@@ -49,7 +52,6 @@ const DeductionPreviewModal: React.FC<DeductionPreviewModalProps> = ({
 
   const handleSelectPantryItem = (item: UserIngredient) => {
     if (selectedIndex === null) return;
-
     const updated = [...localData];
     updated[selectedIndex].matched_user_ingredient = {
       id: item.id,
@@ -59,7 +61,6 @@ const DeductionPreviewModal: React.FC<DeductionPreviewModalProps> = ({
     };
     updated[selectedIndex].reason = "User selected manually";
     updated[selectedIndex].confidence_score = 10;
-
     setLocalData(updated);
     setSelectedIndex(null);
   };
@@ -85,7 +86,14 @@ const DeductionPreviewModal: React.FC<DeductionPreviewModalProps> = ({
       }}
     >
       <>
-        <Text h4 style={{ textAlign: "center", marginBottom: 15 }}>
+        <Text
+          h4
+          style={{
+            textAlign: "center",
+            marginBottom: 15,
+            color: theme.colors.primary,
+          }}
+        >
           This Is What We Matched With Your Pantry
         </Text>
 
@@ -99,20 +107,22 @@ const DeductionPreviewModal: React.FC<DeductionPreviewModalProps> = ({
               style={{
                 marginBottom: 12,
                 padding: 15,
-                backgroundColor: theme.colors.white,
+                backgroundColor: isDark
+                  ? theme.colors.black
+                  : theme.colors.white,
                 borderRadius: 10,
                 shadowColor: "#000",
                 shadowOpacity: 0.05,
                 shadowRadius: 4,
                 shadowOffset: { width: 0, height: 2 },
                 borderWidth: 1,
-                borderColor: theme.colors.grey3,
+                borderColor: theme.colors.greyOutline,
               }}
             >
               <Text
                 style={{
                   marginBottom: 6,
-                  color: theme.colors.grey1,
+                  color: textColor,
                   textAlign: "center",
                 }}
               >
@@ -123,7 +133,7 @@ const DeductionPreviewModal: React.FC<DeductionPreviewModalProps> = ({
               <Text
                 style={{
                   fontWeight: "500",
-                  color: theme.colors.grey2,
+                  color: textColor,
                   textAlign: "center",
                   marginVertical: 2,
                   marginBottom: 6,
@@ -184,11 +194,23 @@ const DeductionPreviewModal: React.FC<DeductionPreviewModalProps> = ({
         />
 
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <Button title="Cancel" onPress={onClose} />
-          <Button
+          <ShomiButton
+            title="Cancel"
+            onPress={onClose}
+            buttonStyle={{
+              backgroundColor: theme.colors.grey3,
+              paddingHorizontal: 20,
+            }}
+            titleStyle={{ color: theme.colors.white }}
+          />
+          <ShomiButton
             title="Confirm"
             onPress={() => onConfirm(localData)}
-            buttonStyle={{ backgroundColor: theme.colors.success }}
+            buttonStyle={{
+              backgroundColor: theme.colors.primary,
+              paddingHorizontal: 20,
+            }}
+            titleStyle={{ color: theme.colors.white }}
           />
         </View>
 

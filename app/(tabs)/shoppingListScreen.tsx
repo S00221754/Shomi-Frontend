@@ -4,13 +4,11 @@ import { CheckBox, Icon, Text, useTheme, ListItem } from "@rneui/themed";
 import {
   deleteShoppingListItem,
   getShoppingList,
-  markItemAsPurchased,
 } from "@/services/shoppingListService";
 import { useAuth } from "@/providers/AuthProvider";
 import { ShoppingItem } from "@/Interfaces/shopping-list";
 import { showToast } from "@/utils/toast";
-import { useFocusEffect } from "expo-router";
-import { router } from "expo-router";
+import { useFocusEffect, router } from "expo-router";
 import {
   getUserIngredients,
   updateUserIngredient,
@@ -18,6 +16,9 @@ import {
 
 const ShoppingListScreen = () => {
   const { theme } = useTheme();
+  const isDark = theme.mode === "dark";
+  const textColor = isDark ? theme.colors.white : theme.colors.black;
+
   const { userId } = useAuth();
   const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
   const [expandedItems, setExpandedItems] = useState<{
@@ -50,12 +51,10 @@ const ShoppingListScreen = () => {
 
   const handleMarkAsBought = async (item: ShoppingItem) => {
     const allUserIngredients = await getUserIngredients(userId!);
-
     const matchingVariants = allUserIngredients.filter(
       (ui) => ui.ingredient.Ing_id === item.ingredient.Ing_id
     );
 
-    // if there is more than one variant, go to the restock screen because the logic for batches is there
     if (matchingVariants.length > 1) {
       router.push({
         pathname: "/(tabs)",
@@ -70,7 +69,6 @@ const ShoppingListScreen = () => {
       return;
     }
 
-    // automatically restock the item if there is only one variant
     const pantryItem = matchingVariants[0];
     const updated = {
       unitQuantity: pantryItem.unitQuantity + item.Shop_quantity,
@@ -83,11 +81,9 @@ const ShoppingListScreen = () => {
 
     await updateUserIngredient(pantryItem.id, updated);
     await deleteShoppingListItem(item.Shop_id);
-
     setShoppingItems((prev) =>
       prev.filter((si) => si.Shop_id !== item.Shop_id)
     );
-
     showToast("success", "Restocked", `${item.ingredient.Ing_name} updated`);
   };
 
@@ -128,7 +124,7 @@ const ShoppingListScreen = () => {
         <Text
           style={{
             textAlign: "center",
-            color: theme.colors.grey2,
+            color: textColor,
             fontSize: 16,
           }}
         >
@@ -144,11 +140,9 @@ const ShoppingListScreen = () => {
               style={{
                 marginBottom: 16,
                 borderRadius: 16,
-                backgroundColor: theme.colors.white,
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 6,
+                backgroundColor: isDark
+                  ? theme.colors.black
+                  : theme.colors.white,
                 elevation: 4,
                 overflow: "hidden",
               }}
@@ -161,20 +155,35 @@ const ShoppingListScreen = () => {
                   paddingHorizontal: 16,
                   paddingVertical: 16,
                 }}
+                noIcon
                 content={
-                  <>
-                    <ListItem.Content>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flex: 1,
+                    }}
+                  >
+                    <ListItem.Content style={{ flex: 1 }}>
                       <ListItem.Title
                         style={{
                           fontWeight: "bold",
-                          color: theme.colors.black,
+                          color: textColor,
                           fontSize: 16,
                         }}
                       >
                         {item.ingredient.Ing_name}
                       </ListItem.Title>
                     </ListItem.Content>
-                    <View style={{ flexDirection: "row", gap: 12 }}>
+
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 12,
+                      }}
+                    >
                       <Icon
                         name="check-circle-outline"
                         type="material-community"
@@ -189,8 +198,18 @@ const ShoppingListScreen = () => {
                         size={26}
                         onPress={() => handleDismissItem(item.Shop_id)}
                       />
+                      <Icon
+                        name={
+                          expandedItems[item.Shop_id]
+                            ? "chevron-up"
+                            : "chevron-down"
+                        }
+                        type="material-community"
+                        color={textColor}
+                        size={24}
+                      />
                     </View>
-                  </>
+                  </View>
                 }
               >
                 <View
@@ -201,19 +220,15 @@ const ShoppingListScreen = () => {
                     paddingTop: 4,
                   }}
                 >
-                  <Text style={{ color: theme.colors.grey1, fontSize: 14 }}>
+                  <Text style={{ color: textColor, fontSize: 14 }}>
                     Reason:{" "}
-                    <Text
-                      style={{ fontWeight: "bold", color: theme.colors.black }}
-                    >
+                    <Text style={{ fontWeight: "bold", color: textColor }}>
                       {item.Shop_reason || "N/A"}
                     </Text>
                   </Text>
-                  <Text style={{ color: theme.colors.grey1, fontSize: 14 }}>
+                  <Text style={{ color: textColor, fontSize: 14 }}>
                     Quantity:{" "}
-                    <Text
-                      style={{ fontWeight: "bold", color: theme.colors.black }}
-                    >
+                    <Text style={{ fontWeight: "bold", color: textColor }}>
                       {item.Shop_quantity}
                     </Text>
                   </Text>

@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { TouchableOpacity, View } from "react-native";
-import { Overlay, Button, Text, Input } from "@rneui/themed";
-import { useTheme } from "@rneui/themed";
+import { Overlay, Button, Text, Input, useTheme } from "@rneui/themed";
 import { UserIngredientInput } from "@/Interfaces/user-ingredient";
 import { ProductInfo } from "@/Interfaces/ingredient";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -24,6 +23,8 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
   ingredient,
 }) => {
   const { theme } = useTheme();
+  const isDark = theme.mode === "dark";
+  const textColor = isDark ? theme.colors.white : theme.colors.black;
   const prevIngredientRef = useRef<ProductInfo | null>(null);
 
   const [unitQuantity, setUnitQuantity] = useState("");
@@ -36,9 +37,7 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
   useEffect(() => {
     if (ingredient && ingredient !== prevIngredientRef.current) {
       prevIngredientRef.current = ingredient;
-
       setTotalAmount(ingredient.Ing_quantity?.toString() || "");
-
       setUnitType(ingredient.Ing_quantity_units || "");
     }
   }, [ingredient, visible]);
@@ -56,30 +55,28 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
 
   const handleAddClick = async () => {
     if (!unitQuantity || !unitType) return;
-    
+
     userIngredient.unitQuantity = parseFloat(unitQuantity);
     userIngredient.totalAmount = parseFloat(totalAmount) || 0;
     userIngredient.unitType = unitType;
     userIngredient.expiry_date = expiryDate || null;
 
     const success = await onAddUserIngredient(userIngredient);
-
     if (!success) {
-      const isExpiring = expiryDate?.trim().length > 0;
       setErrorMessage(
-        isExpiring
+        expiryDate?.trim()
           ? "This ingredient already exists in your pantry with that expiration date."
           : "You already have this ingredient in your pantry."
       );
     } else {
       setErrorMessage(null);
+      setUnitQuantity("");
+      setExpiryDate("");
     }
   };
 
   const resetForm = () => {
     setUnitQuantity("");
-    setTotalAmount("");
-    setUnitType("");
     setExpiryDate("");
     setErrorMessage(null);
   };
@@ -113,12 +110,12 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
 
       <Text
         style={{
-          color: theme.colors.black,
+          color: textColor,
           textAlign: "center",
           marginBottom: 10,
         }}
       >
-        Ingredient Name: {ingredient?.Ing_name}
+        Ingredient Name: {ingredient.Ing_name}
       </Text>
 
       <Input
@@ -127,16 +124,16 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
         keyboardType="numeric"
         value={unitQuantity}
         onChangeText={setUnitQuantity}
-        inputStyle={{ color: theme.colors.black }}
+        inputStyle={{ color: textColor }}
         containerStyle={{ marginBottom: 10 }}
       />
 
       <Input
         placeholder="Total Amount"
-        placeholderTextColor={theme.colors.grey3}
+        placeholderTextColor={theme.colors.grey5}
         value={totalAmount}
         disabled
-        inputStyle={{ color: theme.colors.black }}
+        inputStyle={{ color: textColor }}
         containerStyle={{ marginBottom: 10 }}
       />
 
@@ -145,7 +142,7 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
         placeholderTextColor={theme.colors.grey3}
         value={unitType}
         disabled
-        inputStyle={{ color: theme.colors.black }}
+        inputStyle={{ color: textColor }}
         containerStyle={{ marginBottom: 10 }}
       />
 
@@ -159,6 +156,12 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
           value={expiryDate}
           editable={false}
           pointerEvents="none"
+          inputStyle={{
+            color: isDark ? theme.colors.white : theme.colors.black,
+          }}
+          labelStyle={{
+            color: isDark ? theme.colors.white : theme.colors.black,
+          }}
           leftIcon={{
             type: "material-community",
             name: "calendar",

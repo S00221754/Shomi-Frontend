@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, TextInput, Alert } from "react-native";
-import { ListItem, Button, useTheme } from "@rneui/themed";
+import { View, ScrollView, TextInput, StyleSheet } from "react-native";
+import { ListItem, Button, useTheme, Text, SearchBar } from "@rneui/themed";
 import { getIngredients } from "@/services/ingredientsService";
 import {
   addUserIngredient,
@@ -8,7 +8,7 @@ import {
 } from "@/services/user-ingredientService";
 import { ProductInfo } from "@/Interfaces/ingredient";
 import { UserIngredientInput } from "@/Interfaces/user-ingredient";
-import UserIngredientModal from "@/components//modals/UserIngredientModal";
+import UserIngredientModal from "@/components/modals/UserIngredientModal";
 import { useAuth } from "@/providers/AuthProvider";
 import { showToast } from "@/utils/toast";
 
@@ -49,22 +49,18 @@ const IngredientList = () => {
   };
 
   const handleOpenModal = async (ingredient: ProductInfo) => {
-    try {
-      const newUserIngredient: UserIngredientInput = {
-        userId: userId!,
-        ingredientId: ingredient.Ing_id!,
-        unitQuantity: 0,
-        unitType: ingredient.Ing_quantity_units ?? "",
-        totalAmount: 0,
-        expiry_date: "",
-      };
+    const newUserIngredient: UserIngredientInput = {
+      userId: userId!,
+      ingredientId: ingredient.Ing_id!,
+      unitQuantity: 0,
+      unitType: ingredient.Ing_quantity_units ?? "",
+      totalAmount: 0,
+      expiry_date: "",
+    };
 
-      setSelectedIngredient(ingredient);
-      setUserIngredient(newUserIngredient);
-      setModalVisible(true);
-    } catch (error) {
-      console.error("Error checking ingredient:", error);
-    }
+    setSelectedIngredient(ingredient);
+    setUserIngredient(newUserIngredient);
+    setModalVisible(true);
   };
 
   const handleAddUserIngredient = async (
@@ -79,9 +75,7 @@ const IngredientList = () => {
           (item.expiry_date ?? null) === (data.expiry_date ?? null)
       );
 
-      if (isDuplicate) {
-        return false;
-      }
+      if (isDuplicate) return false;
 
       await addUserIngredient(data);
       setModalVisible(false);
@@ -100,22 +94,31 @@ const IngredientList = () => {
 
   return (
     <View
-      style={{ flex: 1, backgroundColor: theme.colors.background, padding: 10 }}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
-      <TextInput
+      <SearchBar
         placeholder="Search ingredients..."
-        placeholderTextColor={theme.colors.grey3}
-        value={search}
         onChangeText={handleSearch}
-        style={{
-          padding: 10,
-          borderWidth: 1,
-          borderColor: theme.colors.grey3,
+        value={search}
+        round
+        lightTheme={theme.mode === "light"}
+        inputStyle={{
+          color:
+            theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+        }}
+        inputContainerStyle={{
+          backgroundColor:
+            theme.mode === "dark" ? theme.colors.grey0 : theme.colors.white,
           borderRadius: 10,
-          color: theme.colors.black,
-          backgroundColor: theme.colors.white,
+        }}
+        containerStyle={{
+          backgroundColor: theme.colors.background,
+          borderTopWidth: 0,
+          borderBottomWidth: 0,
+          paddingHorizontal: 0,
           marginBottom: 10,
         }}
+        placeholderTextColor={theme.colors.grey3}
       />
 
       <ScrollView>
@@ -124,16 +127,31 @@ const IngredientList = () => {
             key={index}
             bottomDivider
             containerStyle={{
-              backgroundColor: theme.colors.white,
+              backgroundColor:
+                theme.mode === "dark" ? theme.colors.black : theme.colors.white,
               borderRadius: 10,
               marginBottom: 8,
             }}
           >
             <ListItem.Content>
-              <ListItem.Title style={{ color: theme.colors.black }}>
+              <ListItem.Title
+                style={{
+                  color:
+                    theme.mode === "dark"
+                      ? theme.colors.white
+                      : theme.colors.black,
+                }}
+              >
                 {item.Ing_name}
               </ListItem.Title>
-              <ListItem.Subtitle style={{ color: theme.colors.grey2 }}>
+              <ListItem.Subtitle
+                style={{
+                  color:
+                    theme.mode === "dark"
+                      ? theme.colors.grey3
+                      : theme.colors.black,
+                }}
+              >
                 {item.Ing_brand}
               </ListItem.Subtitle>
             </ListItem.Content>
@@ -144,6 +162,7 @@ const IngredientList = () => {
                 backgroundColor: theme.colors.primary,
                 borderRadius: 8,
               }}
+              titleStyle={{ color: theme.colors.white }}
             />
           </ListItem>
         ))}
@@ -159,5 +178,12 @@ const IngredientList = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 10,
+  },
+});
 
 export default IngredientList;

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { TouchableOpacity, View } from "react-native";
-import { Overlay, Button, Text, Input } from "@rneui/themed";
-import { useTheme } from "@rneui/themed";
+import { Overlay, Button, Text, Input, useTheme } from "@rneui/themed";
 import { UserIngredientUpdate } from "@/Interfaces/user-ingredient";
 import { UserIngredient } from "@/Interfaces/ingredient";
 import { getIngredientById } from "@/services/ingredientsService";
@@ -26,6 +25,8 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
   userIngredientId,
 }) => {
   const { theme } = useTheme();
+  const isDark = theme.mode === "dark";
+
   const [unitQuantity, setUnitQuantity] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
   const [unitType, setUnitType] = useState("");
@@ -111,8 +112,9 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
         keyboardType="numeric"
         value={unitQuantity}
         onChangeText={setUnitQuantity}
-        inputStyle={{ color: theme.colors.black }}
+        inputStyle={{ color: isDark ? theme.colors.white : theme.colors.black }}
         containerStyle={{ marginBottom: 10 }}
+        labelStyle={{ color: isDark ? theme.colors.white : theme.colors.black }}
       />
 
       <Input
@@ -121,8 +123,9 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
         placeholderTextColor={theme.colors.grey3}
         value={totalAmount}
         disabled
-        inputStyle={{ color: theme.colors.black }}
+        inputStyle={{ color: isDark ? theme.colors.white : theme.colors.black }}
         containerStyle={{ marginBottom: 10 }}
+        labelStyle={{ color: isDark ? theme.colors.white : theme.colors.black }}
       />
 
       <Input
@@ -131,8 +134,9 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
         placeholderTextColor={theme.colors.grey3}
         value={unitType}
         disabled
-        inputStyle={{ color: theme.colors.black }}
+        inputStyle={{ color: isDark ? theme.colors.white : theme.colors.black }}
         containerStyle={{ marginBottom: 10 }}
+        labelStyle={{ color: isDark ? theme.colors.white : theme.colors.black }}
       />
 
       <TouchableOpacity
@@ -145,6 +149,12 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
           value={expiryDate}
           editable={false}
           pointerEvents="none"
+          inputStyle={{
+            color: isDark ? theme.colors.white : theme.colors.black,
+          }}
+          labelStyle={{
+            color: isDark ? theme.colors.white : theme.colors.black,
+          }}
           leftIcon={{
             type: "material-community",
             name: "calendar",

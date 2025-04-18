@@ -1,9 +1,10 @@
 import React from "react";
-import { View, FlatList, TouchableOpacity } from "react-native";
-import { Overlay, Text, useTheme, Icon } from "@rneui/themed";
+import { View, FlatList, Pressable } from "react-native";
+import { Overlay, Text, useTheme } from "@rneui/themed";
 import { UserIngredient } from "@/Interfaces/ingredient";
+import ShomiButton from "@/components/common/ShomiButton";
+import { Icon } from "@rneui/themed";
 
-// This component is a modal that allows the user to choose a batch of an ingredient from a list of variants. It displays the variants in a list and provides an option to add a new variant.
 interface ChooseBatchModalProps {
   visible: boolean;
   onClose: () => void;
@@ -22,6 +23,8 @@ const ChooseBatchModal: React.FC<ChooseBatchModalProps> = ({
   ingredientName,
 }) => {
   const { theme } = useTheme();
+  const isDark = theme.mode === "dark";
+  const textColor = isDark ? theme.colors.white : theme.colors.black;
 
   return (
     <Overlay
@@ -34,7 +37,14 @@ const ChooseBatchModal: React.FC<ChooseBatchModalProps> = ({
         borderRadius: 10,
       }}
     >
-      <Text h4 style={{ textAlign: "center", marginBottom: 10 }}>
+      <Text
+        h4
+        style={{
+          textAlign: "center",
+          marginBottom: 10,
+          color: theme.colors.primary,
+        }}
+      >
         Choose a Batch for {ingredientName}
       </Text>
 
@@ -42,44 +52,55 @@ const ChooseBatchModal: React.FC<ChooseBatchModalProps> = ({
         data={variants}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TouchableOpacity
+          <Pressable
             onPress={() => onSelectVariant(item)}
             style={{
               padding: 12,
               borderBottomWidth: 1,
-              borderColor: theme.colors.grey3,
+              borderColor: theme.colors.greyOutline,
             }}
           >
-            <Text style={{ color: theme.colors.black, fontWeight: "600" }}>
+            <Text style={{ color: textColor, fontWeight: "600" }}>
               Quantity: {item.unitQuantity} | Total: {item.totalAmount}{" "}
               {item.unitType || ""}
             </Text>
-            <Text style={{ color: theme.colors.grey2 }}>
+            <Text style={{ color: theme.colors.grey3 }}>
               Expiry: {item.expiry_date || "None"}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         )}
         ListFooterComponent={() => (
-          <TouchableOpacity
-            onPress={onAddNewVariant}
-            style={{
-              padding: 16,
-              marginTop: 10,
-              backgroundColor: theme.colors.primary,
-              borderRadius: 8,
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ color: theme.colors.white, fontWeight: "bold" }}>
-              <Icon
-                name="plus"
-                type="material-community"
-                color="white"
-                size={16}
-              />{" "}
-              Add New Variant
-            </Text>
-          </TouchableOpacity>
+          <View style={{ marginTop: 16, gap: 10 }}>
+            <ShomiButton
+              title="Add New Variant"
+              icon="plus"
+              onPress={onAddNewVariant}
+              color={theme.colors.primary}
+              buttonStyle={{
+                borderRadius: 10,
+                paddingVertical: 10,
+              }}
+              titleStyle={{
+                fontWeight: "bold",
+                color: theme.colors.white,
+              }}
+            />
+
+            <ShomiButton
+              title="Cancel"
+              icon="close"
+              onPress={onClose}
+              color={theme.colors.error}
+              buttonStyle={{
+                borderRadius: 10,
+                paddingVertical: 10,
+              }}
+              titleStyle={{
+                fontWeight: "bold",
+                color: theme.colors.white,
+              }}
+            />
+          </View>
         )}
       />
     </Overlay>

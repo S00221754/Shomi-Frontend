@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { View } from "react-native";
-import { Overlay, Button, Text, Input, Icon } from "@rneui/themed";
-import { useTheme, BottomSheet, SearchBar, ListItem } from "@rneui/themed";
+import { Overlay, Button, Text, Input, useTheme } from "@rneui/themed";
 import { ProductInfo } from "@/Interfaces/ingredient";
 import { useGetUnitTypes } from "@/hooks/useGetUnitTypes";
 import { UnitType } from "@/Interfaces/unit-type";
 import ShomiBottomSheet from "../common/ShomiBottomSheet";
 import { useGetIngredientCategories } from "@/hooks/useGetIngredientCategories";
 import { IngredientCategory } from "@/Interfaces/ingredient-category";
+import ShomiButton from "../common/ShomiButton";
 
-// Initially was only to show up when details were missing but open food facts does not give catogories consistently so we prompt the user to enter the details.
 interface IngredientModalProps {
   visible: boolean;
   onClose: () => void;
   ingredient: ProductInfo | null;
   onAddIngredient: (ingredient: ProductInfo) => Promise<void>;
 }
-//TODO: openfoodfacts api can return no name so need to fix this.
+
 const IngredientModal: React.FC<IngredientModalProps> = ({
   visible,
   onClose,
@@ -24,17 +23,17 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
   onAddIngredient,
 }) => {
   const { theme } = useTheme();
+  const isDark = theme.mode === "dark";
+  const textColor = isDark ? theme.colors.white : theme.colors.black;
 
   const { unitTypes } = useGetUnitTypes();
+  const { categories } = useGetIngredientCategories();
 
   const [isSheetVisible, setIsSheetVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUnitTypes, setFilteredUnitTypes] = useState<UnitType[]>([]);
-
   const [unitType, setUnitType] = useState("");
   const [quantity, setQuantity] = useState("");
-
-  const { categories } = useGetIngredientCategories();
   const [selectedCategory, setSelectedCategory] =
     useState<IngredientCategory | null>(null);
   const [isCategorySheetVisible, setIsCategorySheetVisible] = useState(false);
@@ -73,24 +72,20 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
     }
   }, [ingredient, categories]);
 
-  if (!ingredient) return null;
-
   const handleAddClick = async () => {
     if (!unitType || !quantity) return;
 
     if (selectedCategory) {
-      ingredient.category = {
+      ingredient!.category = {
         id: selectedCategory.id,
         name: selectedCategory.name,
       };
     }
 
-    ingredient.Ing_quantity_units = unitType;
-    ingredient.Ing_quantity = parseFloat(quantity);
+    ingredient!.Ing_quantity_units = unitType;
+    ingredient!.Ing_quantity = parseFloat(quantity);
 
-    await onAddIngredient(ingredient);
-    console.log("resetting form", ingredient);
-
+    await onAddIngredient(ingredient!);
     resetForm();
   };
 
@@ -98,11 +93,10 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
     setUnitType("");
     setQuantity("");
     setSelectedCategory(null);
-
-    if (ingredient) {
-      ingredient.category = undefined;
-    }
+    if (ingredient) ingredient.category = undefined;
   };
+
+  if (!ingredient) return null;
 
   return (
     <>
@@ -128,11 +122,7 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
         </Text>
 
         <Text
-          style={{
-            color: theme.colors.black,
-            textAlign: "center",
-            marginBottom: 10,
-          }}
+          style={{ color: textColor, textAlign: "center", marginBottom: 10 }}
         >
           {ingredient.Ing_name}{" "}
           {ingredient.Ing_brand ? `(${ingredient.Ing_brand})` : ""}
@@ -145,57 +135,36 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
             keyboardType="numeric"
             value={quantity}
             onChangeText={setQuantity}
-            inputStyle={{ color: theme.colors.black }}
+            inputStyle={{ color: textColor }}
             containerStyle={{ marginBottom: 10 }}
           />
         )}
 
         {!ingredient.Ing_quantity_units && (
           <>
-            <Text style={{ color: theme.colors.black, marginBottom: 5 }}>
+            <Text style={{ color: textColor, marginBottom: 5 }}>
               Select Unit Type
             </Text>
-            <Button
-              title={unitType ? unitType : "Select a unit type"}
+            <ShomiButton
+              title={unitType || "Select a unit type"}
               onPress={() => setIsSheetVisible(true)}
-              type="outline"
-              buttonStyle={{
-                borderColor: theme.colors.grey3,
-                borderRadius: 8,
-                backgroundColor: theme.colors.white,
-                marginBottom: 10,
-              }}
-              titleStyle={{
-                color: unitType ? theme.colors.black : theme.colors.grey2,
-                textAlign: "left",
-              }}
+              color={theme.colors.secondary}
             />
           </>
         )}
 
+        {/* Category selection using ShomiButton */}
         {!ingredient.category?.id && (
           <>
-            <Text style={{ color: theme.colors.black, marginBottom: 5 }}>
+            <Text style={{ color: textColor, marginBottom: 5 }}>
               Select Category
             </Text>
-            <Button
+            <ShomiButton
               title={
                 selectedCategory ? selectedCategory.name : "Select a category"
               }
               onPress={() => setIsCategorySheetVisible(true)}
-              type="outline"
-              buttonStyle={{
-                borderColor: theme.colors.grey3,
-                borderRadius: 8,
-                backgroundColor: theme.colors.white,
-                marginBottom: 10,
-              }}
-              titleStyle={{
-                color: selectedCategory
-                  ? theme.colors.black
-                  : theme.colors.grey2,
-                textAlign: "left",
-              }}
+              color={theme.colors.secondary}
             />
           </>
         )}
