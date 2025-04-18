@@ -41,7 +41,7 @@ import {
   UserIngredient,
 } from "@/Interfaces/ingredient";
 import ShomiFAB from "../common/ShomiFAB";
-import { showToast } from "@/utils/toast";
+import { useToast } from "@/utils/toast";
 import ShomiButton from "../common/ShomiButton";
 import ChooseBatchModal from "../modals/ChooseBatchModal";
 import {
@@ -58,6 +58,8 @@ const Pantry: React.FC = () => {
   const { theme } = useTheme();
   const { userId } = useAuth();
   const router = useRouter();
+  const { showToast } = useToast();
+
   const { action, ingredientId, quantity, ingredientName, shopId } =
     useLocalSearchParams();
 

@@ -35,7 +35,7 @@ import { htmlParser } from "@/utils/htmlparser";
 import { useAuth } from "@/providers/AuthProvider";
 import ShomiButton from "@/components/common/ShomiButton";
 import { addBookmark, removeBookmark } from "@/services/bookmarkRecipeService";
-import { showToast } from "@/utils/toast";
+import { useToast } from "@/utils/toast";
 import DeductionPreviewModal from "@/components/modals/DeductionPreviewModal";
 
 export default function RecipeDetails() {
@@ -47,6 +47,7 @@ export default function RecipeDetails() {
   const navigation = useNavigation();
   const textColor =
     theme.mode === "dark" ? theme.colors.white : theme.colors.black;
+  const { showToast } = useToast();
 
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState<boolean>(true);

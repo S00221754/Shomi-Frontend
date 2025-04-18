@@ -8,7 +8,7 @@ import {
   getBookmarkRecipes,
   removeBookmark,
 } from "@/services/bookmarkRecipeService";
-import { showToast } from "@/utils/toast";
+import { useToast } from "@/utils/toast";
 import ShomiButton from "@/components/common/ShomiButton";
 
 export default function BookmarkedRecipesScreen() {
@@ -18,6 +18,7 @@ export default function BookmarkedRecipesScreen() {
   const { theme } = useTheme();
   const router = useRouter();
   const { userId } = useAuth();
+  const { showToast } = useToast();
 
   useFocusEffect(
     useCallback(() => {

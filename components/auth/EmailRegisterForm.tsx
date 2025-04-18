@@ -6,12 +6,13 @@ import { supabase } from "@/lib/supabase";
 import ShomiButton from "../common/ShomiButton";
 import { useRouter } from "expo-router";
 import RegisterSchema from "@/validation/RegisterSchema";
-import { showToast } from "@/utils/toast";
+import { useToast } from "@/utils/toast";
 
 export default function EmailRegisterForm() {
   const { theme } = useTheme();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
 
   const isDark = theme.mode === "dark";
   const textColor = isDark ? theme.colors.white : theme.colors.black;

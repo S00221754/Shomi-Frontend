@@ -7,7 +7,7 @@ import {
 } from "@/services/shoppingListService";
 import { useAuth } from "@/providers/AuthProvider";
 import { ShoppingItem } from "@/Interfaces/shopping-list";
-import { showToast } from "@/utils/toast";
+import { useToast } from "@/utils/toast";
 import { useFocusEffect, router } from "expo-router";
 import {
   getUserIngredients,
@@ -18,6 +18,7 @@ const ShoppingListScreen = () => {
   const { theme } = useTheme();
   const isDark = theme.mode === "dark";
   const textColor = isDark ? theme.colors.white : theme.colors.black;
+  const { showToast } = useToast();
 
   const { userId } = useAuth();
   const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);

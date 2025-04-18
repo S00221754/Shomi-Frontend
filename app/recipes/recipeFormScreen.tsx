@@ -18,9 +18,9 @@ import {
 } from "@/services/recipe.Service";
 import { uploadRecipeImage } from "@/lib/supabase/uploadRecipeImage";
 import { RecipeDTO } from "@/Interfaces/recipe";
-import { showToast } from "@/utils/toast";
+import { useToast } from "@/utils/toast";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
-import recipeValidationSchema from "@/validation/RecipeSchema";
+import { recipeValidationSchema } from "@/validation/RecipeSchema";
 import { ActivityIndicator } from "react-native-paper";
 import { deleteRecipeImage } from "@/lib/supabase/deleteRecipeImage";
 import ShomiButton from "@/components/common/ShomiButton";
@@ -33,6 +33,9 @@ const RecipeFormScreen = () => {
   const { id } = useLocalSearchParams();
   const isEdit = !!id;
   const router = useRouter();
+  const textColor =
+    theme.mode === "dark" ? theme.colors.white : theme.colors.black;
+  const { showToast } = useToast();
 
   const [images, setImages] = useState<string[]>([]);
   const [instructions, setInstructions] = useState("");

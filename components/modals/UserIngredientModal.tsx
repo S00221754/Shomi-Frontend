@@ -1,12 +1,11 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Overlay, Button, Text, Input, useTheme } from "@rneui/themed";
 import { Formik } from "formik";
-import * as Yup from "yup";
 import { UserIngredientInput } from "@/Interfaces/user-ingredient";
 import { ProductInfo } from "@/Interfaces/ingredient";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import AddUserIngredientSchema from "@/validation/UserIngredientSchema";
+import UserIngredientSchema from "@/validation/UserIngredientSchema";
 
 interface UserIngredientModalProps {
   visible: boolean;
@@ -49,7 +48,7 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
           unitQuantity: "1",
           expiry_date: "",
         }}
-        validationSchema={AddUserIngredientSchema}
+        validationSchema={UserIngredientSchema}
         onSubmit={async (values, { resetForm }) => {
           const parsedUnitQty = parseFloat(values.unitQuantity);
           const baseQty = ingredient.Ing_quantity || 1;

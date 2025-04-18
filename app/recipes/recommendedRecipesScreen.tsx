@@ -14,6 +14,7 @@ export default function RecommendedRecipesScreen() {
   const params = useLocalSearchParams();
   const { theme } = useTheme();
   const isDark = theme.mode === "dark";
+  
 
   const selectedIngredients = params.selectedIngredients
     ? JSON.parse(params.selectedIngredients as string)

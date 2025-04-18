@@ -13,13 +13,14 @@ import {
 } from "@/services/bookmarkRecipeService";
 import { getRecipes } from "@/services/recipe.Service";
 import ShomiButton from "@/components/common/ShomiButton";
-import { showToast } from "@/utils/toast";
+import { useToast } from "@/utils/toast";
 
 // This is the main screen of the app that displays a list of recipes
 export default function RecipeScreen() {
   const router = useRouter();
   const { theme } = useTheme();
   const { userId } = useAuth();
+  const { showToast } = useToast();
 
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -132,7 +133,9 @@ export default function RecipeScreen() {
               borderRadius: 10,
               padding: 15,
               shadowColor:
-                theme.mode === "dark" ? theme.colors.greyOutline : theme.colors.black,
+                theme.mode === "dark"
+                  ? theme.colors.greyOutline
+                  : theme.colors.black,
               elevation: 3,
             }}
           >

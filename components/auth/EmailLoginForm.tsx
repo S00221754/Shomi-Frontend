@@ -6,13 +6,14 @@ import * as Yup from "yup";
 import { supabase } from "@/lib/supabase";
 import ShomiButton from "../common/ShomiButton";
 import LoginSchema from "@/validation/LoginSchema";
-import { showToast } from "@/utils/toast";
+import { useToast } from "@/utils/toast";
 
 export default function EmailLoginForm() {
   const { theme } = useTheme();
   const isDark = theme.mode === "dark";
   const textColor = isDark ? theme.colors.white : theme.colors.black;
   const placeholderColor = isDark ? theme.colors.grey2 : theme.colors.grey3;
+  const { showToast } = useToast();
 
   const [loading, setLoading] = useState(false);
 

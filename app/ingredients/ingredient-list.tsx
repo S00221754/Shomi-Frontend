@@ -10,11 +10,13 @@ import { ProductInfo } from "@/Interfaces/ingredient";
 import { UserIngredientInput } from "@/Interfaces/user-ingredient";
 import UserIngredientModal from "@/components/modals/UserIngredientModal";
 import { useAuth } from "@/providers/AuthProvider";
-import { showToast } from "@/utils/toast";
+import { useToast } from "@/utils/toast";
 
 const IngredientList = () => {
   const { userId } = useAuth();
   const { theme } = useTheme();
+  const { showToast } = useToast();
+
   const [ingredients, setIngredients] = useState<ProductInfo[]>([]);
   const [filteredIngredients, setFilteredIngredients] = useState<ProductInfo[]>(
     []

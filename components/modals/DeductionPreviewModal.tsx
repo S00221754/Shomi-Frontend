@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { View, FlatList } from "react-native";
 import { Overlay, Text, Button, useTheme } from "@rneui/themed";
 import { DeductionPreview } from "@/Interfaces/recipe";
@@ -30,12 +30,17 @@ const DeductionPreviewModal: React.FC<DeductionPreviewModalProps> = ({
   const [pantryOptions, setPantryOptions] = useState<UserIngredient[]>([]);
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [showError, setShowError] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (visible && userId) {
       getUserIngredients(userId)
         .then(setPantryOptions)
         .catch((err) => console.error("Error loading pantry:", err));
+
+      setError("");
+      setShowError(false);
     }
   }, [visible, userId]);
 
@@ -52,6 +57,19 @@ const DeductionPreviewModal: React.FC<DeductionPreviewModalProps> = ({
 
   const handleSelectPantryItem = (item: UserIngredient) => {
     if (selectedIndex === null) return;
+
+    const recipeUnitType = localData[selectedIndex].recipe_ingredient.unit;
+    const recipeBaseType = getUnitBaseType(recipeUnitType);
+    const selectedBaseType = getUnitBaseType(item.unitType);
+
+    if (recipeBaseType !== selectedBaseType) {
+      setShowError(true);
+      setError(
+        `The selected ingredient (${item.ingredient.Ing_name}) does not match the recipe ingredients unit type (${recipeUnitType}).`
+      );
+      return;
+    }
+
     const updated = [...localData];
     updated[selectedIndex].matched_user_ingredient = {
       id: item.id,
@@ -73,6 +91,16 @@ const DeductionPreviewModal: React.FC<DeductionPreviewModalProps> = ({
     setLocalData(updated);
   };
 
+  const getUnitBaseType = (unit: string): "mass" | "volume" | null => {
+    const massUnits = ["g", "kg", "mg", "oz", "lb"];
+    const volumeUnits = ["ml", "l", "tsp", "tbsp", "cup"];
+    if (massUnits.includes(unit)) return "mass";
+    if (volumeUnits.includes(unit)) return "volume";
+    return null;
+  };
+
+  const allResolved = localData.some((item) => item.matched_user_ingredient);
+
   return (
     <Overlay
       isVisible={visible}
@@ -85,145 +113,152 @@ const DeductionPreviewModal: React.FC<DeductionPreviewModalProps> = ({
         borderRadius: 10,
       }}
     >
-      <>
-        <Text
-          h4
-          style={{
-            textAlign: "center",
-            marginBottom: 15,
-            color: theme.colors.primary,
-          }}
-        >
-          This Is What We Matched With Your Pantry
-        </Text>
+      <Text
+        h4
+        style={{
+          textAlign: "center",
+          marginBottom: 15,
+          color: theme.colors.primary,
+        }}
+      >
+        This Is What We Matched With Your Pantry
+      </Text>
 
-        <FlatList
-          data={localData}
-          keyExtractor={(item, index) =>
-            item.recipe_ingredient.ingredient_id + index
-          }
-          renderItem={({ item, index }) => (
-            <View
+      <FlatList
+        data={localData}
+        keyExtractor={(item, index) =>
+          item.recipe_ingredient.ingredient_id + index
+        }
+        renderItem={({ item, index }) => (
+          <View
+            style={{
+              marginBottom: 12,
+              padding: 15,
+              backgroundColor: isDark ? theme.colors.black : theme.colors.white,
+              borderRadius: 10,
+              shadowColor: "#000",
+              shadowOpacity: 0.05,
+              shadowRadius: 4,
+              shadowOffset: { width: 0, height: 2 },
+              borderWidth: 1,
+              borderColor: theme.colors.greyOutline,
+            }}
+          >
+            <Text
+              style={{ marginBottom: 6, color: textColor, textAlign: "center" }}
+            >
+              {item.recipe_ingredient.quantity} {item.recipe_ingredient.unit}{" "}
+              {item.recipe_ingredient.ingredient_name}
+            </Text>
+
+            <Text
               style={{
-                marginBottom: 12,
-                padding: 15,
-                backgroundColor: isDark
-                  ? theme.colors.black
-                  : theme.colors.white,
-                borderRadius: 10,
-                shadowColor: "#000",
-                shadowOpacity: 0.05,
-                shadowRadius: 4,
-                shadowOffset: { width: 0, height: 2 },
-                borderWidth: 1,
-                borderColor: theme.colors.greyOutline,
+                fontWeight: "500",
+                color: textColor,
+                textAlign: "center",
+                marginVertical: 2,
+                marginBottom: 6,
               }}
             >
-              <Text
-                style={{
-                  marginBottom: 6,
-                  color: textColor,
-                  textAlign: "center",
-                }}
-              >
-                {item.recipe_ingredient.quantity} {item.recipe_ingredient.unit}{" "}
-                {item.recipe_ingredient.ingredient_name}
-              </Text>
+              matches
+            </Text>
 
-              <Text
-                style={{
-                  fontWeight: "500",
-                  color: textColor,
-                  textAlign: "center",
-                  marginVertical: 2,
-                  marginBottom: 6,
-                }}
-              >
-                matches
-              </Text>
+            <Text
+              style={{
+                color: item.matched_user_ingredient
+                  ? theme.colors.success
+                  : theme.colors.error,
+                fontWeight: "600",
+                textAlign: "center",
+              }}
+            >
+              {item.matched_user_ingredient
+                ? item.matched_user_ingredient.ingredient_name
+                : "No match"}
+            </Text>
 
-              <Text
-                style={{
-                  color: item.matched_user_ingredient
-                    ? theme.colors.success
-                    : theme.colors.error,
-                  fontWeight: "600",
-                  textAlign: "center",
+            <View
+              style={{
+                flexDirection: "row",
+                marginTop: 10,
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Button
+                title="Edit"
+                type="clear"
+                onPress={() => handleOpenSelect(index)}
+                icon={{
+                  name: "pencil",
+                  type: "material-community",
+                  size: 16,
+                  color: theme.colors.primary,
                 }}
-              >
-                {item.matched_user_ingredient
-                  ? item.matched_user_ingredient.ingredient_name
-                  : "No match"}
-              </Text>
-
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginTop: 10,
-                  alignItems: "center",
-                  justifyContent: "space-between",
+                titleStyle={{ color: theme.colors.primary, marginLeft: 4 }}
+              />
+              <Button
+                title="Dismiss"
+                type="clear"
+                onPress={() => handleDismiss(index)}
+                icon={{
+                  name: "close",
+                  type: "material-community",
+                  size: 16,
+                  color: theme.colors.error,
                 }}
-              >
-                <Button
-                  title="Edit"
-                  type="clear"
-                  onPress={() => handleOpenSelect(index)}
-                  icon={{
-                    name: "pencil",
-                    type: "material-community",
-                    size: 16,
-                    color: theme.colors.primary,
-                  }}
-                  titleStyle={{ color: theme.colors.primary, marginLeft: 4 }}
-                />
-                <Button
-                  title="Dismiss"
-                  type="clear"
-                  onPress={() => handleDismiss(index)}
-                  icon={{
-                    name: "close",
-                    type: "material-community",
-                    size: 16,
-                    color: theme.colors.error,
-                  }}
-                  titleStyle={{ color: theme.colors.error, marginLeft: 4 }}
-                />
-              </View>
+                titleStyle={{ color: theme.colors.error, marginLeft: 4 }}
+              />
             </View>
-          )}
-        />
+          </View>
+        )}
+      />
 
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <ShomiButton
-            title="Cancel"
-            onPress={onClose}
-            buttonStyle={{
-              backgroundColor: theme.colors.grey3,
-              paddingHorizontal: 20,
-            }}
-            titleStyle={{ color: theme.colors.white }}
-          />
-          <ShomiButton
-            title="Confirm"
-            onPress={() => onConfirm(localData)}
-            buttonStyle={{
-              backgroundColor: theme.colors.primary,
-              paddingHorizontal: 20,
-            }}
-            titleStyle={{ color: theme.colors.white }}
-          />
-        </View>
+      {showError && (
+        <Text
+          style={{
+            color: theme.colors.error,
+            textAlign: "center",
+            marginTop: 10,
+            fontWeight: "bold",
+            marginBottom: 10,
+          }}
+        >
+          {error}
+        </Text>
+      )}
 
-        <BottomSheetSelect<UserIngredient>
-          isVisible={isBottomSheetVisible}
-          onClose={() => setIsBottomSheetVisible(false)}
-          data={pantryOptions}
-          onSelect={handleSelectPantryItem}
-          keyExtractor={(item) => item.id}
-          labelExtractor={(item) => `${item.ingredient.Ing_name}`}
-          placeholder="Search pantry..."
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <ShomiButton
+          title="Cancel"
+          onPress={onClose}
+          buttonStyle={{
+            backgroundColor: theme.colors.grey3,
+            paddingHorizontal: 20,
+          }}
+          titleStyle={{ color: theme.colors.white }}
         />
-      </>
+        <ShomiButton
+          title="Confirm"
+          onPress={() => onConfirm(localData)}
+          disabled={!allResolved}
+          buttonStyle={{
+            backgroundColor: theme.colors.primary,
+            paddingHorizontal: 20,
+          }}
+          titleStyle={{ color: theme.colors.white }}
+        />
+      </View>
+
+      <BottomSheetSelect<UserIngredient>
+        isVisible={isBottomSheetVisible}
+        onClose={() => setIsBottomSheetVisible(false)}
+        data={pantryOptions}
+        onSelect={handleSelectPantryItem}
+        keyExtractor={(item) => item.id}
+        labelExtractor={(item) => `${item.ingredient.Ing_name}`}
+        placeholder="Search pantry..."
+      />
     </Overlay>
   );
 };
