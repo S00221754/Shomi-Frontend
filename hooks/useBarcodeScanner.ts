@@ -1,15 +1,9 @@
 import { useState } from "react";
 import { useCameraPermissions } from "expo-camera";
-import {
-  getIngredientByBarcode,
-  fetchIngredientFromAPI,
-} from "../services/scanService";
+import { getIngredientByBarcode, fetchIngredientFromAPI } from "../services/scanService";
 import { ProductInfo } from "../Interfaces/ingredient";
 
-export function useBarcodeScanner(
-  onBarcodeScanned: (product: ProductInfo) => void,
-  onStopScanning: () => void
-) {
+export function useBarcodeScanner(onBarcodeScanned: (product: ProductInfo) => void, onStopScanning: () => void) {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
 

@@ -3,9 +3,7 @@ import axios from "axios";
 import { ProductInfo } from "../Interfaces/ingredient";
 
 // fetch ingredient info from database
-export const getIngredientByBarcode = async (
-  barcode: string
-): Promise<ProductInfo | null> => {
+export const getIngredientByBarcode = async (barcode: string): Promise<ProductInfo | null> => {
   try {
     const response = await axiosInstance.get(`/ingredient/barcode/${barcode}`);
     return response.data;
@@ -16,9 +14,7 @@ export const getIngredientByBarcode = async (
 };
 
 // uses openfoodfacts API to fetch ingredient info
-export const fetchIngredientFromAPI = async (
-  barcode: string
-): Promise<ProductInfo> => {
+export const fetchIngredientFromAPI = async (barcode: string): Promise<ProductInfo> => {
   try {
     const apiUrl = `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`;
     const response = await axios.get(apiUrl);

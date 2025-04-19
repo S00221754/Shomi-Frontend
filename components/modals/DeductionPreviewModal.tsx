@@ -15,13 +15,7 @@ interface DeductionPreviewModalProps {
   onConfirm: (final: DeductionPreview[]) => void;
 }
 
-const DeductionPreviewModal: React.FC<DeductionPreviewModalProps> = ({
-  visible,
-  onClose,
-  data,
-  userId,
-  onConfirm,
-}) => {
+const DeductionPreviewModal: React.FC<DeductionPreviewModalProps> = ({ visible, onClose, data, userId, onConfirm }) => {
   const { theme } = useTheme();
   const isDark = theme.mode === "dark";
   const textColor = isDark ? theme.colors.white : theme.colors.black;
@@ -126,9 +120,7 @@ const DeductionPreviewModal: React.FC<DeductionPreviewModalProps> = ({
 
       <FlatList
         data={localData}
-        keyExtractor={(item, index) =>
-          item.recipe_ingredient.ingredient_id + index
-        }
+        keyExtractor={(item, index) => item.recipe_ingredient.ingredient_id + index}
         renderItem={({ item, index }) => (
           <View
             style={{
@@ -144,11 +136,8 @@ const DeductionPreviewModal: React.FC<DeductionPreviewModalProps> = ({
               borderColor: theme.colors.greyOutline,
             }}
           >
-            <Text
-              style={{ marginBottom: 6, color: textColor, textAlign: "center" }}
-            >
-              {item.recipe_ingredient.quantity} {item.recipe_ingredient.unit}{" "}
-              {item.recipe_ingredient.ingredient_name}
+            <Text style={{ marginBottom: 6, color: textColor, textAlign: "center" }}>
+              {item.recipe_ingredient.quantity} {item.recipe_ingredient.unit} {item.recipe_ingredient.ingredient_name}
             </Text>
 
             <Text
@@ -165,16 +154,12 @@ const DeductionPreviewModal: React.FC<DeductionPreviewModalProps> = ({
 
             <Text
               style={{
-                color: item.matched_user_ingredient
-                  ? theme.colors.success
-                  : theme.colors.error,
+                color: item.matched_user_ingredient ? theme.colors.success : theme.colors.error,
                 fontWeight: "600",
                 textAlign: "center",
               }}
             >
-              {item.matched_user_ingredient
-                ? item.matched_user_ingredient.ingredient_name
-                : "No match"}
+              {item.matched_user_ingredient ? item.matched_user_ingredient.ingredient_name : "No match"}
             </Text>
 
             <View

@@ -11,9 +11,7 @@ interface UserIngredientModalProps {
   visible: boolean;
   onClose: () => void;
   userIngredient: UserIngredientInput | null;
-  onAddUserIngredient: (
-    userIngredient: UserIngredientInput
-  ) => Promise<boolean>;
+  onAddUserIngredient: (userIngredient: UserIngredientInput) => Promise<boolean>;
   ingredient: ProductInfo | null;
 }
 
@@ -73,15 +71,7 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
           }
         }}
       >
-        {({
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          values,
-          setFieldValue,
-          errors,
-          touched,
-        }) => {
+        {({ handleChange, handleBlur, handleSubmit, values, setFieldValue, errors, touched }) => {
           const totalAmount = (() => {
             const qty = parseFloat(values.unitQuantity);
             const base = parseFloat(ingredient.Ing_quantity?.toString() || "1");
@@ -119,11 +109,7 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
                 value={values.unitQuantity}
                 onChangeText={handleChange("unitQuantity")}
                 onBlur={handleBlur("unitQuantity")}
-                errorMessage={
-                  touched.unitQuantity && errors.unitQuantity
-                    ? errors.unitQuantity
-                    : undefined
-                }
+                errorMessage={touched.unitQuantity && errors.unitQuantity ? errors.unitQuantity : undefined}
                 inputStyle={{ color: textColor }}
                 labelStyle={{ color: textColor }}
                 containerStyle={{ marginBottom: 10 }}
@@ -151,10 +137,7 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
                 containerStyle={{ marginBottom: 10 }}
               />
 
-              <TouchableOpacity
-                onPress={() => setShowDatePicker(true)}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity onPress={() => setShowDatePicker(true)} activeOpacity={0.9}>
                 <Input
                   label="Expiry Date (optional)"
                   placeholder="YYYY-MM-DD"
@@ -184,20 +167,14 @@ const UserIngredientModal: React.FC<UserIngredientModalProps> = ({
 
               {showDatePicker && (
                 <DateTimePicker
-                  value={
-                    values.expiry_date
-                      ? new Date(values.expiry_date)
-                      : new Date()
-                  }
+                  value={values.expiry_date ? new Date(values.expiry_date) : new Date()}
                   mode="date"
                   display="default"
                   minimumDate={new Date()}
                   onChange={(_, selectedDate) => {
                     setShowDatePicker(false);
                     if (selectedDate) {
-                      const formatted = selectedDate
-                        .toISOString()
-                        .split("T")[0];
+                      const formatted = selectedDate.toISOString().split("T")[0];
                       setFieldValue("expiry_date", formatted);
                     }
                   }}

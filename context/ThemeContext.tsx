@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  ReactNode,
-  useEffect,
-  useState,
-} from "react";
+import React, { createContext, useContext, ReactNode, useEffect, useState } from "react";
 import { ThemeProvider, createTheme, CreateThemeOptions } from "@rneui/themed";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useColorScheme } from "react-native";
@@ -24,7 +18,7 @@ const lightTheme: CreateThemeOptions = {
     grey4: "#C7C7C7",
     grey5: "#E5E5E5",
     greyOutline: "#BABABA",
-    searchBg: "#D3EDC3",
+    searchBg: "#F2EEE9",
     success: "#2FAE4E",
     warning: "#FFC107",
     error: "#FF0000",

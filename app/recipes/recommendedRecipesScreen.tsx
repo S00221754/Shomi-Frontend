@@ -14,11 +14,8 @@ export default function RecommendedRecipesScreen() {
   const params = useLocalSearchParams();
   const { theme } = useTheme();
   const isDark = theme.mode === "dark";
-  
 
-  const selectedIngredients = params.selectedIngredients
-    ? JSON.parse(params.selectedIngredients as string)
-    : [];
+  const selectedIngredients = params.selectedIngredients ? JSON.parse(params.selectedIngredients as string) : [];
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -66,19 +63,18 @@ export default function RecommendedRecipesScreen() {
             elevation: 3,
           }}
         >
-          {Array.isArray(recipe.recipe_images) &&
-            recipe.recipe_images.length > 0 && (
-              <Card.Image
-                source={{ uri: recipe.recipe_images[0] }}
-                style={{
-                  width: "100%",
-                  height: 180,
-                  borderRadius: 10,
-                  marginBottom: 12,
-                }}
-                resizeMode="cover"
-              />
-            )}
+          {Array.isArray(recipe.recipe_images) && recipe.recipe_images.length > 0 && (
+            <Card.Image
+              source={{ uri: recipe.recipe_images[0] }}
+              style={{
+                width: "100%",
+                height: 180,
+                borderRadius: 10,
+                marginBottom: 12,
+              }}
+              resizeMode="cover"
+            />
+          )}
 
           <Card.Title
             style={{

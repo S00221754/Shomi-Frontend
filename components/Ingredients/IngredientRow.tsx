@@ -9,11 +9,7 @@ interface IngredientRowProps {
   onRemove: () => void;
 }
 
-const IngredientRow: React.FC<IngredientRowProps> = ({
-  ingredient,
-  onPress,
-  onRemove,
-}) => {
+const IngredientRow: React.FC<IngredientRowProps> = ({ ingredient, onPress, onRemove }) => {
   const { theme } = useTheme();
   const isDark = theme.mode === "dark";
 

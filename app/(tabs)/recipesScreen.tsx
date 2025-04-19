@@ -6,11 +6,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { useTheme } from "@rneui/themed";
 import ShomiFAB from "@/components/common/ShomiFAB";
 import { useAuth } from "@/providers/AuthProvider";
-import {
-  getBookmarkRecipes,
-  addBookmark,
-  removeBookmark,
-} from "@/services/bookmarkRecipeService";
+import { getBookmarkRecipes, addBookmark, removeBookmark } from "@/services/bookmarkRecipeService";
 import { getRecipes } from "@/services/recipe.Service";
 import ShomiButton from "@/components/common/ShomiButton";
 import { useToast } from "@/utils/toast";
@@ -37,10 +33,7 @@ export default function RecipeScreen() {
       const fetchData = async () => {
         try {
           setLoading(true);
-          const [recipeRes, bookmarkedRecipes] = await Promise.all([
-            getRecipes(1),
-            getBookmarkRecipes(),
-          ]);
+          const [recipeRes, bookmarkedRecipes] = await Promise.all([getRecipes(1), getBookmarkRecipes()]);
 
           setRecipes(recipeRes.data);
           setPage(2);
@@ -75,11 +68,7 @@ export default function RecipeScreen() {
         await addBookmark(recipeId);
         setBookmarkedIds((prev) => new Set(prev).add(recipeId));
       }
-      showToast(
-        "success",
-        "Bookmark Updated",
-        isBookmarked ? "Removed" : "Added"
-      );
+      showToast("success", "Bookmark Updated", isBookmarked ? "Removed" : "Added");
     } catch (err) {
       console.error("Failed to toggle bookmark:", err);
     }
@@ -140,9 +129,7 @@ export default function RecipeScreen() {
   }
 
   return (
-    <View
-      style={{ flex: 1, backgroundColor: theme.colors.background, padding: 20 }}
-    >
+    <View style={{ flex: 1, backgroundColor: theme.colors.background, padding: 20 }}>
       <FlatList
         data={recipes}
         keyExtractor={(item) => item.recipe_id}
@@ -180,39 +167,31 @@ export default function RecipeScreen() {
         renderItem={({ item }) => (
           <Card
             containerStyle={{
-              backgroundColor:
-                theme.mode === "dark" ? theme.colors.grey0 : theme.colors.white,
+              backgroundColor: theme.mode === "dark" ? theme.colors.grey0 : theme.colors.white,
               borderRadius: 10,
               padding: 15,
-              shadowColor:
-                theme.mode === "dark"
-                  ? theme.colors.greyOutline
-                  : theme.colors.black,
+              shadowColor: theme.mode === "dark" ? theme.colors.greyOutline : theme.colors.black,
               elevation: 3,
             }}
           >
-            {Array.isArray(item.recipe_images) &&
-              item.recipe_images.length > 0 && (
-                <Card.Image
-                  source={{ uri: item.recipe_images[0] }}
-                  style={{
-                    width: "100%",
-                    height: 180,
-                    borderRadius: 10,
-                    marginBottom: 12,
-                  }}
-                  resizeMode="cover"
-                />
-              )}
+            {Array.isArray(item.recipe_images) && item.recipe_images.length > 0 && (
+              <Card.Image
+                source={{ uri: item.recipe_images[0] }}
+                style={{
+                  width: "100%",
+                  height: 180,
+                  borderRadius: 10,
+                  marginBottom: 12,
+                }}
+                resizeMode="cover"
+              />
+            )}
 
             <Card.Title
               style={{
                 fontSize: 18,
                 fontWeight: "bold",
-                color:
-                  theme.mode === "dark"
-                    ? theme.colors.white
-                    : theme.colors.black,
+                color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
                 textAlign: "center",
               }}
             >
@@ -224,10 +203,7 @@ export default function RecipeScreen() {
             <Text
               style={{
                 fontSize: 14,
-                color:
-                  theme.mode === "dark"
-                    ? theme.colors.white
-                    : theme.colors.grey3,
+                color: theme.mode === "dark" ? theme.colors.white : theme.colors.grey3,
                 textAlign: "center",
                 marginBottom: 5,
               }}
@@ -268,11 +244,7 @@ export default function RecipeScreen() {
               />
 
               <ShomiButton
-                icon={
-                  bookmarkedIds.has(item.recipe_id)
-                    ? "bookmark"
-                    : "bookmark-outline"
-                }
+                icon={bookmarkedIds.has(item.recipe_id) ? "bookmark" : "bookmark-outline"}
                 onPress={() => toggleBookmark(item.recipe_id)}
               />
             </View>
@@ -286,14 +258,12 @@ export default function RecipeScreen() {
           {
             icon: "plus",
             label: "Add New Recipe",
-            onPress: () =>
-              router.push({ pathname: "/recipes/recipeFormScreen" }),
+            onPress: () => router.push({ pathname: "/recipes/recipeFormScreen" }),
           },
           {
             icon: "magnify",
             label: "Use Pantry Recipe Search",
-            onPress: () =>
-              router.push({ pathname: "/recipes/recommendedRecipesScreen" }),
+            onPress: () => router.push({ pathname: "/recipes/recommendedRecipesScreen" }),
           },
           {
             icon: "bookmark",

@@ -1,33 +1,8 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from "react";
-import {
-  View,
-  ScrollView,
-  ActivityIndicator,
-  useWindowDimensions,
-  Image,
-  Pressable,
-} from "react-native";
-import {
-  useRouter,
-  useLocalSearchParams,
-  useNavigation,
-  useFocusEffect,
-} from "expo-router";
-import {
-  getRecipeById,
-  getRecipeDeductionPreview,
-  markRecipeAsCooked,
-} from "../../services/recipe.Service";
-import {
-  DeductionPreview,
-  IngredientsToDeduct,
-  Recipe,
-} from "../../Interfaces/recipe";
+import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { View, ScrollView, ActivityIndicator, useWindowDimensions, Image, Pressable } from "react-native";
+import { useRouter, useLocalSearchParams, useNavigation, useFocusEffect } from "expo-router";
+import { getRecipeById, getRecipeDeductionPreview, markRecipeAsCooked } from "../../services/recipe.Service";
+import { DeductionPreview, IngredientsToDeduct, Recipe } from "../../Interfaces/recipe";
 import { Text, Button, Divider, Icon } from "@rneui/themed";
 import { useTheme } from "@rneui/themed";
 import ImageCarousel from "@/components/Recipe/ImageCarousel";
@@ -45,20 +20,15 @@ export default function RecipeDetails() {
   const { width } = useWindowDimensions();
   const { userId } = useAuth();
   const navigation = useNavigation();
-  const textColor =
-    theme.mode === "dark" ? theme.colors.white : theme.colors.black;
+  const textColor = theme.mode === "dark" ? theme.colors.white : theme.colors.black;
   const { showToast } = useToast();
 
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [isBookmarked, setIsBookmarked] = useState<boolean>(
-    bookmarked === "true"
-  );
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(bookmarked === "true");
 
-  const [deductionMatches, setDeductionMatches] = useState<DeductionPreview[]>(
-    []
-  );
+  const [deductionMatches, setDeductionMatches] = useState<DeductionPreview[]>([]);
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
 
   useFocusEffect(
@@ -92,11 +62,7 @@ export default function RecipeDetails() {
         await addBookmark(recipe.recipe_id);
         setIsBookmarked(true);
       }
-      showToast(
-        "success",
-        "Bookmark Updated",
-        isBookmarked ? "Removed" : "Added"
-      );
+      showToast("success", "Bookmark Updated", isBookmarked ? "Removed" : "Added");
     } catch (err) {
       console.error("Failed to toggle bookmark:", err);
     }
@@ -224,9 +190,7 @@ export default function RecipeDetails() {
           >
             Description
           </Text>
-          <Text style={{ fontSize: 16, color: textColor, marginTop: 5 }}>
-            {recipe.recipe_description}
-          </Text>
+          <Text style={{ fontSize: 16, color: textColor, marginTop: 5 }}>{recipe.recipe_description}</Text>
         </View>
 
         <View style={{ marginBottom: 20 }}>
@@ -240,11 +204,7 @@ export default function RecipeDetails() {
           >
             Cooking Time
           </Text>
-          <Text
-            style={{ fontSize: 16, color: theme.colors.primary, marginTop: 5 }}
-          >
-            {recipe.cooking_time} minutes
-          </Text>
+          <Text style={{ fontSize: 16, color: theme.colors.primary, marginTop: 5 }}>{recipe.cooking_time} minutes</Text>
         </View>
 
         <View style={{ marginBottom: 20 }}>
@@ -260,12 +220,8 @@ export default function RecipeDetails() {
           </Text>
           <Divider style={{ marginVertical: 5 }} />
           {recipe.ingredients.map((ingredient, index) => (
-            <Text
-              key={index}
-              style={{ fontSize: 16, color: textColor, marginVertical: 3 }}
-            >
-              • {ingredient.quantity} {ingredient.unit}{" "}
-              {ingredient.ingredient_name}
+            <Text key={index} style={{ fontSize: 16, color: textColor, marginVertical: 3 }}>
+              • {ingredient.quantity} {ingredient.unit} {ingredient.ingredient_name}
             </Text>
           ))}
         </View>

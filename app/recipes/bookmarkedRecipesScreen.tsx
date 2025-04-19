@@ -4,10 +4,7 @@ import { Text, Card, Button, Icon, useTheme } from "@rneui/themed";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Recipe } from "@/Interfaces/recipe";
 import { useAuth } from "@/providers/AuthProvider";
-import {
-  getBookmarkRecipes,
-  removeBookmark,
-} from "@/services/bookmarkRecipeService";
+import { getBookmarkRecipes, removeBookmark } from "@/services/bookmarkRecipeService";
 import { useToast } from "@/utils/toast";
 import ShomiButton from "@/components/common/ShomiButton";
 
@@ -81,9 +78,7 @@ export default function BookmarkedRecipesScreen() {
   }
 
   return (
-    <View
-      style={{ flex: 1, backgroundColor: theme.colors.background, padding: 20 }}
-    >
+    <View style={{ flex: 1, backgroundColor: theme.colors.background, padding: 20 }}>
       <FlatList
         data={recipes}
         keyExtractor={(item) => item.recipe_id}
@@ -96,29 +91,24 @@ export default function BookmarkedRecipesScreen() {
               elevation: 3,
             }}
           >
-            {Array.isArray(item.recipe_images) &&
-              item.recipe_images.length > 0 && (
-                <Card.Image
-                  source={{ uri: item.recipe_images[0] }}
-                  style={{
-                    width: "100%",
-                    height: 180,
-                    borderRadius: 10,
-                    marginBottom: 12,
-                  }}
-                  resizeMode="cover"
-                />
-              )}
+            {Array.isArray(item.recipe_images) && item.recipe_images.length > 0 && (
+              <Card.Image
+                source={{ uri: item.recipe_images[0] }}
+                style={{
+                  width: "100%",
+                  height: 180,
+                  borderRadius: 10,
+                  marginBottom: 12,
+                }}
+                resizeMode="cover"
+              />
+            )}
 
-            <Card.Title style={{ textAlign: "center", fontSize: 18 }}>
-              {item.recipe_name}
-            </Card.Title>
+            <Card.Title style={{ textAlign: "center", fontSize: 18 }}>{item.recipe_name}</Card.Title>
 
             <Card.Divider />
 
-            <Text style={{ textAlign: "center", color: theme.colors.grey3 }}>
-              {item.recipe_description}
-            </Text>
+            <Text style={{ textAlign: "center", color: theme.colors.grey3 }}>{item.recipe_description}</Text>
 
             <Text
               style={{
@@ -151,10 +141,7 @@ export default function BookmarkedRecipesScreen() {
                 titleStyle={{ fontWeight: "bold", color: theme.colors.white }}
               />
 
-              <ShomiButton
-                icon="bookmark"
-                onPress={() => handleRemoveBookmark(item.recipe_id)}
-              />
+              <ShomiButton icon="bookmark" onPress={() => handleRemoveBookmark(item.recipe_id)} />
             </View>
           </Card>
         )}

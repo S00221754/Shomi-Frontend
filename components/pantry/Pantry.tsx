@@ -11,82 +11,232 @@ import IngredientModal from "@/components/modals/IngredientModal";
 import UserIngredientModal from "@/components/modals/UserIngredientModal";
 import { useScannerState } from "@/hooks/useScannerState";
 import { useScannerLogic } from "@/hooks/useScannerLogic";
-import {
-  UserIngredientInput,
-  UserIngredientUpdate,
-} from "@/Interfaces/user-ingredient";
+import { UserIngredientInput, UserIngredientUpdate } from "@/Interfaces/user-ingredient";
 import { updateUserIngredient } from "@/services/user-ingredientService";
 import UpdateUserIngredientModal from "../modals/UpdateUserIngredientModal";
 import { UserIngredient } from "@/Interfaces/ingredient";
 import ShomiFAB from "../common/ShomiFAB";
 import { useToast } from "@/utils/toast";
-import PantryHeader from "./PantryHeader"; // Import PantryHeader
-import PantryList from "./PantryList"; // Import PantryList
+import PantryHeader from "./PantryHeader";
+import PantryList from "./PantryList";
 import ChooseBatchModal from "../modals/ChooseBatchModal";
-import {
-  addShoppingListItem,
-  getShoppingList,
-} from "@/services/shoppingListService";
+import { addShoppingListItem, getShoppingList } from "@/services/shoppingListService";
 import { ShoppingItem } from "@/Interfaces/shopping-list";
 import { getIngredientById } from "@/services/ingredientsService";
 import { deleteShoppingListItem } from "@/services/shoppingListService";
 import { usePaginatedUserIngredients } from "@/hooks/useGetPaginatedUserIngredients";
 import { isExpired, isExpiringSoon } from "@/utils/dateHelpers";
+import ShomiButton from "../common/ShomiButton";
 
 const Pantry: React.FC = () => {
+  //#region hooks and states
+
   const { theme } = useTheme();
   const { userId } = useAuth();
   const router = useRouter();
   const { showToast } = useToast();
-  const { action, ingredientId, quantity, ingredientName, shopId } =
-    useLocalSearchParams();
-  const {
-    data: userIngredients,
-    page,
-    totalPages,
-    loading,
-    setPage,
-    refetch,
-  } = usePaginatedUserIngredients(1, 10);
+  const { action, ingredientId, quantity, ingredientName, shopId } = useLocalSearchParams();
+
+  const { data: userIngredients, page, totalPages, loading, setPage, refetch } = usePaginatedUserIngredients(1, 10);
+  const { userIngredients: allUserIngredients } = useGetUserIngredients(userId!);
   const { handleDeleteUserIngredient } = useDeleteUserIngredient();
+  //#endregion
+
+  //#region modal states
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedIngredientId, setSelectedIngredientId] = useState<
-    string | null
-  >(null);
+  const [isUpdateUserIngredientModalVisible, setIsUpdateUserIngredientModalVisible] = useState(false);
+  const [isChooseBatchModalVisible, setIsChooseBatchModalVisible] = useState(false);
+
+  //#endregion
+
+  //#region ingredient states
+
+  const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(null);
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
-  const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>(
-    {}
-  );
+  const [selectedUserIngredient, setSelectedUserIngredient] = useState<UserIngredient | null>(null);
+  const [selectedUserIngredientId, setSelectedUserIngredientId] = useState<string | null>(null);
+  const [matchingIngredientVariants, setMatchingIngredientVariants] = useState<UserIngredient[]>([]);
+  const [selectedShoppingItem, setSelectedShoppingItem] = useState<ShoppingItem | null>(null);
+
+  //#endregion
+
+  //#region filter states
+
+  const [search, setSearch] = useState("");
+  const [expiryFilter, setExpiryFilter] = useState<"Soon" | "Expired" | null>(null);
+  const [stockFilter, setStockFilter] = useState<"Low" | "OutOfStock" | null>(null);
+
+  //#endregion
+
+  //#region other states
+
   const [fabOpen, setFabOpen] = useState(false);
   const [scanning, setScanning] = useState(false);
-  const [
-    isUpdateUserIngredientModalVisible,
-    setIsUpdateUserIngredientModalVisible,
-  ] = useState(false);
-  const [selectedUserIngredient, setSelectedUserIngredient] =
-    useState<UserIngredient | null>(null);
-  const [selectedUserIngredientId, setSelectedUserIngredientId] = useState<
-    string | null
-  >(null);
-  const [matchingIngredientVariants, setMatchingIngredientVariants] = useState<
-    UserIngredient[]
-  >([]);
-  const [isChooseBatchModalVisible, setIsChooseBatchModalVisible] =
-    useState(false);
 
-  const [selectedShoppingItem, setSelectedShoppingItem] =
-    useState<ShoppingItem | null>(null);
-  const [search, setSearch] = useState("");
-  const [expiryFilter, setExpiryFilter] = useState<"Soon" | "Expired" | null>(
-    null
+  //#endregion
+
+  //#region scanner states
+
+  const {
+    isAddIngredientModalVisible,
+    isAddUserIngredientModalVisible,
+    closeIngredientModal,
+    closeUserIngredientModal,
+    setIsAddIngredientModalVisible,
+    setIsAddUserIngredientModalVisible,
+  } = useScannerState();
+
+  const {
+    scannedData,
+    userIngredient,
+    setUserIngredient,
+    handleBarcodeScanned,
+    handleAddIngredient,
+    handleAddUserIngredient,
+  } = useScannerLogic(
+    userIngredients,
+    setIsAddIngredientModalVisible,
+    setIsAddUserIngredientModalVisible,
+    setSelectedUserIngredient,
+    setSelectedUserIngredientId,
+    setIsUpdateUserIngredientModalVisible,
+    refetch,
+    setMatchingIngredientVariants,
+    setIsChooseBatchModalVisible
   );
-  const [stockFilter, setStockFilter] = useState<"Low" | "OutOfStock" | null>(
-    null
-  );
+
+  //#endregion
+
+  //#region filter logic
+
+  const isFiltering = !!search || expiryFilter !== null || stockFilter !== null;
+
+  const baseIngredients = isFiltering ? allUserIngredients : userIngredients;
+
+  const filteredUserIngredients = baseIngredients.filter((item) => {
+    const nameMatch = item.ingredient.Ing_name.toLowerCase().includes(search.toLowerCase());
+
+    const expiryMatch =
+      expiryFilter === null ||
+      (expiryFilter === "Soon" && isExpiringSoon(item.expiry_date)) ||
+      (expiryFilter === "Expired" && isExpired(item.expiry_date));
+
+    const totalAmount = parseFloat(item.totalAmount);
+
+    const stockMatch =
+      stockFilter === null ||
+      (stockFilter === "Low" &&
+        totalAmount > 0 &&
+        item.ingredient.Ing_quantity &&
+        totalAmount <= item.ingredient.Ing_quantity * 0.25) ||
+      (stockFilter === "OutOfStock" && totalAmount === 0);
+
+    return nameMatch && expiryMatch && stockMatch;
+  });
+
+  //#endregion
+
+  //#region functions
+
+  const handleDeletePress = (id: string) => {
+    setSelectedIngredientId(id);
+    setModalVisible(true);
+  };
+
+  const handleFindRecipes = () => {
+    const selectedIngIds = userIngredients
+      .filter((item) => selectedIngredients.includes(item.id))
+      .map((item) => item.ingredient.Ing_id.toString());
+    router.push({
+      pathname: "/recipes/recommendedRecipesScreen",
+      params: { selectedIngredients: JSON.stringify(selectedIngIds) },
+    });
+  };
+
+  const handleUpdateIngredient = async (userIngredientId: string, userIngredient: UserIngredientUpdate) => {
+    try {
+      await updateUserIngredient(userIngredientId, userIngredient);
+      refetch();
+      setIsUpdateUserIngredientModalVisible(false);
+
+      if (action === "restock" && typeof shopId === "string") {
+        await deleteShoppingListItem(shopId);
+      }
+
+      router.replace("/(tabs)");
+      showToast("success", "Ingredient Updated");
+    } catch (error) {
+      console.error("Error updating ingredient:", error);
+    }
+  };
+
+  const handleAddToShoppingList = async (item: UserIngredient) => {
+    try {
+      if (!userId) return;
+      const existingItems = await getShoppingList();
+
+      const alreadyExists = existingItems.some((entry) => entry.ingredient.Ing_id === item.ingredient.Ing_id);
+      if (alreadyExists) {
+        showToast("error", "Duplicate", "Item is already in your shopping list.");
+        return;
+      }
+
+      await addShoppingListItem({
+        ingredient_id: item.ingredient.Ing_id,
+        Shop_quantity: 1,
+        Shop_added_automatically: false,
+        Shop_reason: "",
+      });
+      showToast("success", "Added", "Item added to your shopping list.");
+    } catch (error) {
+      console.error("Error adding to shopping list:", error);
+      showToast("error", "Error", "Could not add to shopping list.");
+    }
+  };
+
+  const handleAddNewVariant = () => {
+    const source = scannedData ?? selectedShoppingItem?.ingredient;
+    if (!source || !userId) return;
+    const newIngredient: UserIngredientInput = {
+      userId,
+      ingredientId: source.Ing_id!,
+      unitQuantity: selectedShoppingItem?.Shop_quantity || 0,
+      totalAmount: (selectedShoppingItem?.Shop_quantity || 0) * (source.Ing_quantity || 1),
+      unitType: source.Ing_quantity_units || "",
+      expiry_date: "",
+    };
+
+    setUserIngredient(newIngredient);
+    setIsChooseBatchModalVisible(false);
+    setIsAddUserIngredientModalVisible(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      const idsToDelete =
+        selectedIngredients.length > 0 ? selectedIngredients : selectedIngredientId ? [selectedIngredientId] : [];
+
+      if (idsToDelete.length === 0) return;
+
+      await handleDeleteUserIngredient(idsToDelete);
+      refetch();
+      showToast("success", "Ingredient Removed", "Ingredient removed successfully.");
+    } catch (error) {
+      console.error("Delete failed:", error);
+    } finally {
+      setModalVisible(false);
+      setSelectedIngredients([]);
+      setSelectedIngredientId(null);
+      setFabOpen(false);
+    }
+  };
+
+  //#endregion
+
+  //#region effects
 
   useEffect(() => {
-    //TODO: either find a better solution or put this somewhere to be reusable
     const handleRestock = async () => {
       const id = Array.isArray(ingredientId) ? ingredientId[0] : ingredientId;
       const qty = Array.isArray(quantity) ? quantity[0] : quantity;
@@ -99,9 +249,7 @@ const Pantry: React.FC = () => {
 
       if (!ingredient) return;
 
-      const matching = userIngredients.filter(
-        (ui) => ui.ingredient.Ing_id === parsedId
-      );
+      const matching = userIngredients.filter((ui) => ui.ingredient.Ing_id === parsedId);
 
       if (matching.length > 1) {
         setMatchingIngredientVariants(matching);
@@ -133,191 +281,14 @@ const Pantry: React.FC = () => {
     handleRestock();
   }, [action, ingredientId, quantity, shopId, userIngredients]);
 
-  const handleDeletePress = (id: string) => {
-    setSelectedIngredientId(id);
-    setModalVisible(true);
-  };
-
-  const toggleIngredientSelection = (
-    ingredientId: string,
-    isChecked: boolean
-  ) => {
-    setSelectedIngredients((prev) =>
-      isChecked
-        ? [...prev, ingredientId]
-        : prev.filter((id) => id !== ingredientId)
-    );
-  };
-
-  const toggleRowExpansion = (ingredientId: string) => {
-    setExpandedRows((prev) => ({
-      ...prev,
-      [ingredientId]: !prev[ingredientId],
-    }));
-  };
-
-  const handleConfirmDelete = async () => {
-    try {
-      const idsToDelete =
-        selectedIngredients.length > 0
-          ? selectedIngredients
-          : selectedIngredientId
-          ? [selectedIngredientId]
-          : [];
-
-      if (idsToDelete.length === 0) return;
-
-      await handleDeleteUserIngredient(idsToDelete);
-      refetch();
-      showToast(
-        "success",
-        "Ingredient Removed",
-        "Ingredient removed successfully."
-      );
-    } catch (error) {
-      console.error("Delete failed:", error);
-    } finally {
-      setModalVisible(false);
-      setSelectedIngredients([]);
-      setSelectedIngredientId(null);
-      setFabOpen(false);
-    }
-  };
-
-  const handleFindRecipes = () => {
-    const selectedIngIds = userIngredients
-      .filter((item) => selectedIngredients.includes(item.id))
-      .map((item) => item.ingredient.Ing_id.toString());
-    router.push({
-      pathname: "/recipes/recommendedRecipesScreen",
-      params: { selectedIngredients: JSON.stringify(selectedIngIds) },
-    });
-  };
-
-  const handleUpdateIngredient = async (
-    userIngredientId: string,
-    userIngredient: UserIngredientUpdate
-  ) => {
-    try {
-      await updateUserIngredient(userIngredientId, userIngredient);
-      refetch();
-      setIsUpdateUserIngredientModalVisible(false);
-
-      if (action === "restock" && typeof shopId === "string") {
-        await deleteShoppingListItem(shopId);
-      }
-
-      router.replace("/(tabs)");
-      showToast("success", "Ingredient Updated");
-    } catch (error) {
-      console.error("Error updating ingredient:", error);
-    }
-  };
-
-  const handleAddToShoppingList = async (item: UserIngredient) => {
-    try {
-      if (!userId) return;
-      const existingItems = await getShoppingList();
-
-      const alreadyExists = existingItems.some(
-        (entry) => entry.ingredient.Ing_id === item.ingredient.Ing_id
-      );
-      if (alreadyExists) {
-        showToast(
-          "error",
-          "Duplicate",
-          "Item is already in your shopping list."
-        );
-        return;
-      }
-
-      await addShoppingListItem({
-        ingredient_id: item.ingredient.Ing_id,
-        Shop_quantity: 1,
-        Shop_added_automatically: false,
-        Shop_reason: "",
-      });
-      showToast("success", "Added", "Item added to your shopping list.");
-    } catch (error) {
-      console.error("Error adding to shopping list:", error);
-      showToast("error", "Error", "Could not add to shopping list.");
-    }
-  };
-
   useFocusEffect(
     useCallback(() => {
       refetch();
+      setSelectedIngredients([]);
     }, [refetch])
   );
 
-  const {
-    isAddIngredientModalVisible,
-    isAddUserIngredientModalVisible,
-    handleScanProduct,
-    handleStopScanning,
-    closeIngredientModal,
-    closeUserIngredientModal,
-    setIsAddIngredientModalVisible,
-    setIsAddUserIngredientModalVisible,
-  } = useScannerState();
-  const {
-    scannedData,
-    userIngredient,
-    setUserIngredient,
-    handleBarcodeScanned,
-    handleAddIngredient,
-    handleAddUserIngredient,
-  } = useScannerLogic(
-    userIngredients,
-    setIsAddIngredientModalVisible,
-    setIsAddUserIngredientModalVisible,
-    setSelectedUserIngredient,
-    setSelectedUserIngredientId,
-    setIsUpdateUserIngredientModalVisible,
-    refetch,
-    setMatchingIngredientVariants,
-    setIsChooseBatchModalVisible
-  );
-  const handleAddNewVariant = () => {
-    const source = scannedData ?? selectedShoppingItem?.ingredient;
-    if (!source || !userId) return;
-    const newIngredient: UserIngredientInput = {
-      userId,
-      ingredientId: source.Ing_id!,
-      unitQuantity: selectedShoppingItem?.Shop_quantity || 0,
-      totalAmount:
-        (selectedShoppingItem?.Shop_quantity || 0) * (source.Ing_quantity || 1),
-      unitType: source.Ing_quantity_units || "",
-      expiry_date: "",
-    };
-
-    setUserIngredient(newIngredient);
-    setIsChooseBatchModalVisible(false);
-    setIsAddUserIngredientModalVisible(true);
-  };
-
-  const filteredUserIngredients = userIngredients.filter((item) => {
-    const nameMatch = item.ingredient.Ing_name.toLowerCase().includes(
-      search.toLowerCase()
-    );
-
-    const expiryMatch =
-      expiryFilter === null ||
-      (expiryFilter === "Soon" && isExpiringSoon(item.expiry_date)) ||
-      (expiryFilter === "Expired" && isExpired(item.expiry_date));
-
-    const totalAmount = parseFloat(item.totalAmount);
-
-    const stockMatch =
-      stockFilter === null ||
-      (stockFilter === "Low" &&
-        totalAmount > 0 &&
-        item.ingredient.Ing_quantity &&
-        totalAmount <= item.ingredient.Ing_quantity * 0.25) ||
-      (stockFilter === "OutOfStock" && totalAmount === 0);
-
-    return nameMatch && expiryMatch && stockMatch;
-  });
+  //#endregion
 
   if (loading) {
     return (
@@ -353,41 +324,37 @@ const Pantry: React.FC = () => {
             zIndex: 999,
           }}
         >
-          <BarcodeScan
-            onStopScanning={() => setScanning(false)}
-            onBarcodeScanned={handleBarcodeScanned}
-          />
+          <BarcodeScan onStopScanning={() => setScanning(false)} onBarcodeScanned={handleBarcodeScanned} />
         </View>
       ) : (
         <>
           <PantryHeader
-            search={search}
-            setSearch={setSearch}
-            expiryFilter={expiryFilter}
-            setExpiryFilter={setExpiryFilter}
-            stockFilter={stockFilter}
-            setStockFilter={setStockFilter}
-            onClearFilters={() => {
-              setSearch("");
-              setExpiryFilter(null);
-              setStockFilter(null);
+            onFiltersChange={(filters) => {
+              setSearch(filters.search);
+              setExpiryFilter(filters.expiryFilter);
+              setStockFilter(filters.stockFilter);
             }}
           />
           <PantryList
             userIngredients={filteredUserIngredients}
             selectedIngredients={selectedIngredients}
-            toggleIngredientSelection={toggleIngredientSelection}
-            expandedRows={expandedRows}
-            toggleRowExpansion={toggleRowExpansion}
-            handleAddToShoppingList={handleAddToShoppingList}
-            handleDeletePress={handleDeletePress}
-            handleEditPress={(item) => {
+            onSelectIngredient={(id, isSelected) => {
+              if (isSelected) {
+                setSelectedIngredients((prev) => [...prev, id]);
+              } else {
+                setSelectedIngredients((prev) => prev.filter((itemId) => itemId !== id));
+              }
+            }}
+            onAddToShoppingList={handleAddToShoppingList}
+            onEditIngredient={(item) => {
               setSelectedUserIngredient(item);
               setSelectedUserIngredientId(item.id);
               setIsUpdateUserIngredientModalVisible(true);
             }}
+            onDeleteIngredient={handleDeletePress}
             page={page}
             totalPages={totalPages}
+            isFiltering={isFiltering}
             setPage={setPage}
           />
 
@@ -395,23 +362,13 @@ const Pantry: React.FC = () => {
             <Animated.View
               style={{
                 position: "absolute",
-                left: 20,
+                left: 15,
                 bottom: 20,
-                width: "80%",
+                width: "75%",
                 opacity: selectedIngredients.length > 0 ? 1 : 0,
               }}
             >
-              <Button
-                title="Find Recipes"
-                onPress={handleFindRecipes}
-                buttonStyle={{
-                  backgroundColor: theme.colors.primary,
-                  borderRadius: 20,
-                  paddingVertical: 12,
-                  paddingHorizontal: 20,
-                }}
-                titleStyle={{ color: theme.colors.white, fontWeight: "bold" }}
-              />
+              <ShomiButton title="Find Recipes" onPress={handleFindRecipes} />
             </Animated.View>
           )}
 
@@ -459,9 +416,7 @@ const Pantry: React.FC = () => {
             onClose={closeUserIngredientModal}
             userIngredient={userIngredient}
             onAddUserIngredient={handleAddUserIngredient}
-            ingredient={
-              (scannedData || selectedShoppingItem?.ingredient) ?? null
-            }
+            ingredient={(scannedData || selectedShoppingItem?.ingredient) ?? null}
           />
           <IngredientModal
             visible={isAddIngredientModalVisible}
@@ -487,11 +442,7 @@ const Pantry: React.FC = () => {
               setIsChooseBatchModalVisible(false);
               router.replace("/(tabs)");
             }}
-            ingredientName={
-              scannedData?.Ing_name ||
-              selectedShoppingItem?.ingredient.Ing_name ||
-              ""
-            }
+            ingredientName={scannedData?.Ing_name || selectedShoppingItem?.ingredient.Ing_name || ""}
             variants={matchingIngredientVariants}
             onSelectVariant={(variant: UserIngredient) => {
               setSelectedUserIngredient(variant);

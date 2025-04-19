@@ -19,12 +19,7 @@ interface RecipeIngredientModalProps {
   initialData?: SelectedIngredient;
 }
 
-const RecipeIngredientModal: React.FC<RecipeIngredientModalProps> = ({
-  visible,
-  onClose,
-  onSave,
-  initialData,
-}) => {
+const RecipeIngredientModal: React.FC<RecipeIngredientModalProps> = ({ visible, onClose, onSave, initialData }) => {
   const { theme } = useTheme();
   const isDark = theme.mode === "dark";
   const textColor = isDark ? theme.colors.white : theme.colors.black;
@@ -33,24 +28,19 @@ const RecipeIngredientModal: React.FC<RecipeIngredientModalProps> = ({
 
   const [ingredientSheetVisible, setIngredientSheetVisible] = useState(false);
   const [unitTypeSheetVisible, setUnitTypeSheetVisible] = useState(false);
-  const [selectedIngredient, setSelectedIngredient] =
-    useState<ProductInfo | null>(null);
+  const [selectedIngredient, setSelectedIngredient] = useState<ProductInfo | null>(null);
   const [filteredUnitTypes, setFilteredUnitTypes] = useState<UnitType[]>([]);
 
   useEffect(() => {
     if (initialData) {
-      const found = ingredients.find(
-        (ing) => ing.Ing_id!.toString() === initialData.ingredient_id
-      );
+      const found = ingredients.find((ing) => ing.Ing_id!.toString() === initialData.ingredient_id);
       if (found) setSelectedIngredient(found);
     }
   }, [initialData, ingredients]);
 
   useEffect(() => {
     if (selectedIngredient?.Ing_quantity_units) {
-      const selected = unitTypes.find(
-        (u) => u.name === selectedIngredient.Ing_quantity_units
-      );
+      const selected = unitTypes.find((u) => u.name === selectedIngredient.Ing_quantity_units);
       if (selected?.type) {
         setFilteredUnitTypes(unitTypes.filter((u) => u.type === selected.type));
       }
@@ -87,15 +77,7 @@ const RecipeIngredientModal: React.FC<RecipeIngredientModalProps> = ({
           onClose();
         }}
       >
-        {({
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          values,
-          setFieldValue,
-          errors,
-          touched,
-        }) => (
+        {({ handleChange, handleBlur, handleSubmit, values, setFieldValue, errors, touched }) => (
           <>
             <Text
               h4
@@ -108,9 +90,7 @@ const RecipeIngredientModal: React.FC<RecipeIngredientModalProps> = ({
               {initialData ? "Edit Ingredient" : "Add Ingredient"}
             </Text>
 
-            <Text style={{ color: textColor, marginBottom: 4 }}>
-              Ingredient
-            </Text>
+            <Text style={{ color: textColor, marginBottom: 4 }}>Ingredient</Text>
             <ShomiButton
               title={values.ingredient_name || "Select Ingredient"}
               onPress={() => setIngredientSheetVisible(true)}
@@ -120,9 +100,7 @@ const RecipeIngredientModal: React.FC<RecipeIngredientModalProps> = ({
               color={theme.colors.secondary}
             />
             {touched.ingredient_name && errors.ingredient_name && (
-              <Text style={{ color: theme.colors.error, marginBottom: 10 }}>
-                {errors.ingredient_name}
-              </Text>
+              <Text style={{ color: theme.colors.error, marginBottom: 10 }}>{errors.ingredient_name}</Text>
             )}
 
             <Input
@@ -131,11 +109,7 @@ const RecipeIngredientModal: React.FC<RecipeIngredientModalProps> = ({
               onChangeText={handleChange("quantity")}
               onBlur={handleBlur("quantity")}
               keyboardType="numeric"
-              errorMessage={
-                touched.quantity && errors.quantity
-                  ? errors.quantity
-                  : undefined
-              }
+              errorMessage={touched.quantity && errors.quantity ? errors.quantity : undefined}
               inputStyle={{
                 color: textColor,
               }}
@@ -145,9 +119,7 @@ const RecipeIngredientModal: React.FC<RecipeIngredientModalProps> = ({
               containerStyle={{ marginBottom: 10 }}
             />
 
-            <Text style={{ color: theme.colors.grey3, marginBottom: 4 }}>
-              Unit
-            </Text>
+            <Text style={{ color: theme.colors.grey3, marginBottom: 4 }}>Unit</Text>
             <ShomiButton
               title={values.unit || "Select Unit Type"}
               onPress={() => setUnitTypeSheetVisible(true)}
@@ -157,14 +129,10 @@ const RecipeIngredientModal: React.FC<RecipeIngredientModalProps> = ({
               color={theme.colors.secondary}
             />
             {touched.unit && errors.unit && (
-              <Text style={{ color: theme.colors.error, marginBottom: 10 }}>
-                {errors.unit}
-              </Text>
+              <Text style={{ color: theme.colors.error, marginBottom: 10 }}>{errors.unit}</Text>
             )}
 
-            <View
-              style={{ flexDirection: "row", justifyContent: "space-between" }}
-            >
+            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
               <ShomiButton
                 title="Cancel"
                 onPress={onClose}

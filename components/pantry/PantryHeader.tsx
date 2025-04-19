@@ -1,33 +1,24 @@
-import React from "react";
-import { View, Text } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, Animated } from "react-native";
 import { SearchBar, useTheme } from "@rneui/themed";
-import ShomiButton from "../common/ShomiButton";
 import { Dropdown } from "react-native-element-dropdown";
+import ShomiButton from "../common/ShomiButton";
 
 interface PantryHeaderProps {
-  search: string;
-  setSearch: React.Dispatch<React.SetStateAction<string>>;
-  expiryFilter: "Soon" | "Expired" | null;
-  setExpiryFilter: React.Dispatch<
-    React.SetStateAction<"Soon" | "Expired" | null>
-  >;
-  stockFilter: "Low" | "OutOfStock" | null;
-  setStockFilter: React.Dispatch<
-    React.SetStateAction<"Low" | "OutOfStock" | null>
-  >;
-  onClearFilters: () => void;
+  onFiltersChange: (filters: {
+    search: string;
+    expiryFilter: "Soon" | "Expired" | null;
+    stockFilter: "Low" | "OutOfStock" | null;
+  }) => void;
 }
 
-const PantryHeader: React.FC<PantryHeaderProps> = ({
-  search,
-  setSearch,
-  expiryFilter,
-  setExpiryFilter,
-  stockFilter,
-  setStockFilter,
-  onClearFilters,
-}) => {
+const PantryHeader: React.FC<PantryHeaderProps> = ({ onFiltersChange }) => {
+  //#region states, hooks, variables and effects
+
   const { theme } = useTheme();
+  const [search, setSearch] = useState("");
+  const [expiryFilter, setExpiryFilter] = useState<"Soon" | "Expired" | null>(null);
+  const [stockFilter, setStockFilter] = useState<"Low" | "OutOfStock" | null>(null);
 
   const expiryOptions = [
     { label: "Select", value: null },
@@ -41,21 +32,31 @@ const PantryHeader: React.FC<PantryHeaderProps> = ({
     { label: "Out of Stock", value: "OutOfStock" },
   ];
 
+  useEffect(() => {
+    onFiltersChange({
+      search: search.trim(),
+      expiryFilter,
+      stockFilter,
+    });
+  }, [search, expiryFilter, stockFilter]);
+
+  //#endregion
+
   return (
-    <View style={{ marginBottom: 16 }}>
+    <View style={{ marginBottom: 16, padding: 10 }}>
       <SearchBar
         placeholder="Search pantry..."
-        onChangeText={setSearch}
+        onChangeText={(text) => {
+          setSearch(text);
+        }}
         value={search}
         round
         lightTheme={theme.mode === "light"}
         inputStyle={{
-          color:
-            theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+          color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
         }}
         inputContainerStyle={{
-          backgroundColor:
-            theme.mode === "dark" ? theme.colors.grey0 : theme.colors.white,
+          backgroundColor: theme.colors.searchBg,
           borderRadius: 10,
         }}
         containerStyle={{
@@ -81,8 +82,7 @@ const PantryHeader: React.FC<PantryHeaderProps> = ({
             style={{
               fontWeight: "600",
               marginBottom: 4,
-              color:
-                theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+              color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
               textAlign: "center",
             }}
           >
@@ -99,8 +99,7 @@ const PantryHeader: React.FC<PantryHeaderProps> = ({
             }}
             placeholderStyle={{ color: theme.colors.grey3 }}
             selectedTextStyle={{
-              color:
-                theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+              color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
             }}
             containerStyle={{
               borderWidth: 1,
@@ -113,10 +112,11 @@ const PantryHeader: React.FC<PantryHeaderProps> = ({
             valueField="value"
             placeholder="Select"
             value={expiryFilter}
-            onChange={(item) => setExpiryFilter(item.value ?? null)}
+            onChange={(item) => {
+              setExpiryFilter(item.value ?? null);
+            }}
             itemTextStyle={{
-              color:
-                theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+              color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
             }}
             activeColor={theme.colors.primary}
           />
@@ -127,8 +127,7 @@ const PantryHeader: React.FC<PantryHeaderProps> = ({
             style={{
               fontWeight: "600",
               marginBottom: 4,
-              color:
-                theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+              color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
               textAlign: "center",
             }}
           >
@@ -145,8 +144,7 @@ const PantryHeader: React.FC<PantryHeaderProps> = ({
             }}
             placeholderStyle={{ color: theme.colors.grey3 }}
             selectedTextStyle={{
-              color:
-                theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+              color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
             }}
             containerStyle={{
               borderWidth: 1,
@@ -159,10 +157,11 @@ const PantryHeader: React.FC<PantryHeaderProps> = ({
             valueField="value"
             placeholder="Select"
             value={stockFilter}
-            onChange={(item) => setStockFilter(item.value ?? null)}
+            onChange={(item) => {
+              setStockFilter(item.value ?? null);
+            }}
             itemTextStyle={{
-              color:
-                theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+              color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
             }}
             activeColor={theme.colors.primary}
           />
@@ -174,7 +173,11 @@ const PantryHeader: React.FC<PantryHeaderProps> = ({
           title="Clear Filters"
           icon="close-circle"
           color={theme.colors.error}
-          onPress={onClearFilters}
+          onPress={() => {
+            setSearch("");
+            setExpiryFilter(null);
+            setStockFilter(null);
+          }}
         />
       )}
     </View>

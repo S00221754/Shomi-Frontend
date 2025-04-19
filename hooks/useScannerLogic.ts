@@ -2,10 +2,7 @@ import { useState } from "react";
 import { ProductInfo, UserIngredient } from "../Interfaces/ingredient";
 import { addIngredient } from "../services/ingredientsService";
 import { useAuth } from "@/providers/AuthProvider";
-import {
-  addUserIngredient,
-  getUserIngredients,
-} from "@/services/user-ingredientService";
+import { addUserIngredient, getUserIngredients } from "@/services/user-ingredientService";
 import { UserIngredientInput } from "@/Interfaces/user-ingredient";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { deleteShoppingListItem } from "@/services/shoppingListService";
@@ -23,8 +20,7 @@ export const useScannerLogic = (
 ) => {
   const { userId } = useAuth();
   const [scannedData, setScannedData] = useState<ProductInfo | null>(null);
-  const [userIngredient, setUserIngredient] =
-    useState<UserIngredientInput | null>(null);
+  const [userIngredient, setUserIngredient] = useState<UserIngredientInput | null>(null);
 
   const router = useRouter();
   const { action, shopId } = useLocalSearchParams();
@@ -63,9 +59,7 @@ export const useScannerLogic = (
 
     setScannedData(resolvedIngredient);
 
-    const matchingVariants = userIngredients.filter(
-      (item) => item.ingredient.Ing_id === resolvedIngredient.Ing_id
-    );
+    const matchingVariants = userIngredients.filter((item) => item.ingredient.Ing_id === resolvedIngredient.Ing_id);
 
     if (matchingVariants.length > 1) {
       setMatchingIngredientVariants(matchingVariants);
@@ -128,9 +122,7 @@ export const useScannerLogic = (
     }
   };
 
-  const handleAddUserIngredient = async (
-    userIngredient: UserIngredientInput
-  ): Promise<boolean> => {
+  const handleAddUserIngredient = async (userIngredient: UserIngredientInput): Promise<boolean> => {
     try {
       const allUserIngredients = await getUserIngredients(userId!);
 
@@ -174,11 +166,7 @@ export const useScannerLogic = (
 const getMissingFields = (product: ProductInfo) => {
   let missing = [];
 
-  if (
-    !product.Ing_name ||
-    product.Ing_name.trim() === "" ||
-    product.Ing_name.toLowerCase().includes("not found")
-  ) {
+  if (!product.Ing_name || product.Ing_name.trim() === "" || product.Ing_name.toLowerCase().includes("not found")) {
     missing.push("Product Name");
   }
 

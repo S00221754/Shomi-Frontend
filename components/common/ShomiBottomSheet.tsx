@@ -1,12 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { View, ScrollView, Text } from "react-native";
-import {
-  BottomSheet,
-  SearchBar,
-  Icon,
-  ListItem,
-  useTheme,
-} from "@rneui/themed";
+import { BottomSheet, SearchBar, Icon, ListItem, useTheme } from "@rneui/themed";
 
 interface BottomSheetSelectProps<T> {
   isVisible: boolean;
@@ -42,10 +36,7 @@ function BottomSheetSelect<T>({
   };
 
   const filteredData = useMemo(
-    () =>
-      data.filter((item) =>
-        labelExtractor(item).toLowerCase().includes(searchTerm.toLowerCase())
-      ),
+    () => data.filter((item) => labelExtractor(item).toLowerCase().includes(searchTerm.toLowerCase())),
     [searchTerm, data, labelExtractor]
   );
 
@@ -75,10 +66,7 @@ function BottomSheetSelect<T>({
               value={searchTerm}
               round
               inputStyle={{
-                color:
-                  theme.mode === "dark"
-                    ? theme.colors.white
-                    : theme.colors.black,
+                color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
               }}
               containerStyle={{
                 backgroundColor: theme.colors.background,
@@ -116,10 +104,7 @@ function BottomSheetSelect<T>({
             <Text
               style={{
                 textAlign: "center",
-                color:
-                  theme.mode === "dark"
-                    ? theme.colors.grey3
-                    : theme.colors.grey1,
+                color: theme.mode === "dark" ? theme.colors.grey3 : theme.colors.grey1,
                 padding: 20,
               }}
             >
@@ -127,18 +112,11 @@ function BottomSheetSelect<T>({
             </Text>
           ) : (
             filteredData.map((item) => (
-              <ListItem
-                key={keyExtractor(item)}
-                bottomDivider
-                onPress={() => handleSelect(item)}
-              >
+              <ListItem key={keyExtractor(item)} bottomDivider onPress={() => handleSelect(item)}>
                 <ListItem.Content>
                   <ListItem.Title
                     style={{
-                      color:
-                        theme.mode === "dark"
-                          ? theme.colors.white
-                          : theme.colors.black,
+                      color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
                     }}
                   >
                     {labelExtractor(item)}

@@ -31,12 +31,9 @@ export default function TabLayout() {
 
       try {
         const savedToken = await AsyncStorage.getItem("expo_push_token");
-        const savedUserId = await AsyncStorage.getItem(
-          "expo_push_token_user_id"
-        );
+        const savedUserId = await AsyncStorage.getItem("expo_push_token_user_id");
 
-        const shouldUpdateToken =
-          savedToken !== token || savedUserId !== user.id;
+        const shouldUpdateToken = savedToken !== token || savedUserId !== user.id;
 
         if (!shouldUpdateToken) {
           return;
@@ -55,10 +52,7 @@ export default function TabLayout() {
 
   // logout function to remove the expo push token and sign out the user
   const handleLogout = async () => {
-    await AsyncStorage.multiRemove([
-      "expo_push_token",
-      "expo_push_token_user_id",
-    ]);
+    await AsyncStorage.multiRemove(["expo_push_token", "expo_push_token_user_id"]);
     await supabase.auth.signOut();
   };
 
@@ -71,8 +65,7 @@ export default function TabLayout() {
           headerShadowVisible: true,
           headerTintColor: theme.colors.primary,
           tabBarStyle: { backgroundColor: theme.colors.background },
-          tabBarInactiveTintColor:
-            theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+          tabBarInactiveTintColor: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
 
           headerLeft: () => (
             <View style={{ marginLeft: 12 }}>
@@ -86,14 +79,7 @@ export default function TabLayout() {
             <Button
               type="clear"
               onPress={() => setShowSettings((prev) => !prev)}
-              icon={
-                <Icon
-                  name="settings"
-                  type="feather"
-                  color={theme.colors.primary}
-                  size={22}
-                />
-              }
+              icon={<Icon name="settings" type="feather" color={theme.colors.primary} size={22} />}
               buttonStyle={{ marginRight: 10 }}
             />
           ),
@@ -104,11 +90,7 @@ export default function TabLayout() {
           options={{
             title: "Recipes",
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                name={focused ? "book" : "book-outline"}
-                color={color}
-                size={24}
-              />
+              <Ionicons name={focused ? "book" : "book-outline"} color={color} size={24} />
             ),
           }}
         />
@@ -117,11 +99,7 @@ export default function TabLayout() {
           options={{
             title: "Pantry",
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                name={focused ? "basket" : "basket-outline"}
-                color={color}
-                size={24}
-              />
+              <Ionicons name={focused ? "basket" : "basket-outline"} color={color} size={24} />
             ),
           }}
         />
@@ -130,11 +108,7 @@ export default function TabLayout() {
           options={{
             title: "Shopping List",
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                name={focused ? "list" : "list-outline"}
-                color={color}
-                size={24}
-              />
+              <Ionicons name={focused ? "list" : "list-outline"} color={color} size={24} />
             ),
           }}
         />
@@ -152,10 +126,7 @@ export default function TabLayout() {
           width: 180,
           padding: 0,
           borderRadius: 10,
-          backgroundColor:
-            theme.mode === "dark"
-              ? theme.colors.grey3
-              : theme.colors.background,
+          backgroundColor: theme.mode === "dark" ? theme.colors.grey3 : theme.colors.background,
           borderColor: theme.colors.grey0,
           borderWidth: theme.mode === "dark" ? 1 : 0,
           shadowColor: "#000",
@@ -173,18 +144,11 @@ export default function TabLayout() {
             }}
             bottomDivider
           >
-            <Icon
-              name={isDarkMode ? "sunny" : "moon"}
-              type="ionicon"
-              color={theme.colors.primary}
-            />
+            <Icon name={isDarkMode ? "sunny" : "moon"} type="ionicon" color={theme.colors.primary} />
             <ListItem.Content>
               <ListItem.Title
                 style={{
-                  color:
-                    theme.mode === "dark"
-                      ? theme.colors.white
-                      : theme.colors.black,
+                  color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
                 }}
               >
                 {isDarkMode ? "Light Mode" : "Dark Mode"}

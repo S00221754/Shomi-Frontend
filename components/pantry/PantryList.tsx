@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, ScrollView, Text } from "react-native";
 import { Card, useTheme } from "@rneui/themed";
 import PantryItem from "./PantryItem";
@@ -8,31 +8,41 @@ import { UserIngredient } from "@/Interfaces/ingredient";
 interface PantryListProps {
   userIngredients: UserIngredient[];
   selectedIngredients: string[];
-  toggleIngredientSelection: (ingredientId: string, isChecked: boolean) => void;
-  expandedRows: { [key: string]: boolean };
-  toggleRowExpansion: (ingredientId: string) => void;
-  handleAddToShoppingList: (item: UserIngredient) => Promise<void>;
-  handleDeletePress: (id: string) => void;
-  handleEditPress: (item: UserIngredient) => void;
+  onSelectIngredient: (id: string, isSelected: boolean) => void;
+  onAddToShoppingList: (item: UserIngredient) => void;
+  onEditIngredient: (item: UserIngredient) => void;
+  onDeleteIngredient: (id: string) => void;
   page: number;
   totalPages: number;
+  isFiltering: boolean;
   setPage: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const PantryList: React.FC<PantryListProps> = ({
   userIngredients,
   selectedIngredients,
-  toggleIngredientSelection,
-  expandedRows,
-  toggleRowExpansion,
-  handleAddToShoppingList,
-  handleDeletePress,
-  handleEditPress,
+  onSelectIngredient,
+  onAddToShoppingList,
+  onEditIngredient,
+  onDeleteIngredient,
   page,
   totalPages,
+  isFiltering,
   setPage,
 }) => {
+  //#region sates, hooks and handlers
+
   const { theme } = useTheme();
+  const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>({});
+
+  const handleRowExpansion = (ingredientId: string, isExpanded: boolean) => {
+    setExpandedRows((prev) => ({
+      ...prev,
+      [ingredientId]: isExpanded,
+    }));
+  };
+
+  //#endregion
 
   return (
     <ScrollView
@@ -43,15 +53,14 @@ const PantryList: React.FC<PantryListProps> = ({
     >
       <View
         style={{
-          backgroundColor:
-            theme.mode === "dark" ? theme.colors.grey5 : theme.colors.grey4,
+          backgroundColor: theme.mode === "dark" ? theme.colors.grey5 : theme.colors.grey4,
         }}
       >
         <View
           style={{
             flexDirection: "row",
             padding: 12,
-            paddingRight: 60, //this is to keep the headers aligned with the content
+            paddingRight: 60,
             backgroundColor: theme.colors.primary,
             borderBottomWidth: 1,
             borderBottomColor: theme.colors.greyOutline,
@@ -113,16 +122,14 @@ const PantryList: React.FC<PantryListProps> = ({
       {userIngredients.length === 0 && (
         <Card
           containerStyle={{
-            backgroundColor:
-              theme.mode === "dark" ? theme.colors.black : theme.colors.white,
+            backgroundColor: theme.mode === "dark" ? theme.colors.black : theme.colors.white,
             borderRadius: 10,
             margin: 16,
           }}
         >
           <Text
             style={{
-              color:
-                theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+              color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
               textAlign: "center",
             }}
           >
@@ -130,51 +137,51 @@ const PantryList: React.FC<PantryListProps> = ({
           </Text>
         </Card>
       )}
+      {/* User Ingredients List */}
       {userIngredients.map((item) => (
         <PantryItem
           key={item.id}
           item={item}
-          isSelected={selectedIngredients.includes(item.id)}
-          toggleIngredientSelection={toggleIngredientSelection}
-          isExpanded={expandedRows[item.id]}
-          toggleRowExpansion={toggleRowExpansion}
-          handleAddToShoppingList={handleAddToShoppingList}
-          handleDeletePress={handleDeletePress}
-          handleEditPress={handleEditPress}
+          onSelect={onSelectIngredient}
+          onExpand={handleRowExpansion}
+          onAddToShoppingList={onAddToShoppingList}
+          onEdit={onEditIngredient}
+          onDelete={onDeleteIngredient}
         />
       ))}
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "center",
-          marginTop: 16,
-        }}
-      >
-        <ShomiButton
-          icon="chevron-left"
-          disabled={page === 1}
-          onPress={() => setPage((prev) => Math.max(prev - 1, 1))}
-          type="clear"
-        />
-
-        <Text
+      {!isFiltering && (
+        <View
           style={{
-            alignSelf: "center",
-            marginHorizontal: 10,
-            color:
-              theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+            flexDirection: "row",
+            justifyContent: "center",
+            marginTop: 16,
           }}
         >
-          Page {page} of {totalPages}
-        </Text>
+          <ShomiButton
+            icon="chevron-left"
+            disabled={page === 1}
+            onPress={() => setPage((prev) => Math.max(prev - 1, 1))}
+            type="clear"
+          />
 
-        <ShomiButton
-          icon="chevron-right"
-          disabled={page === totalPages}
-          onPress={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-          type="clear"
-        />
-      </View>
+          <Text
+            style={{
+              alignSelf: "center",
+              marginHorizontal: 10,
+              color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+            }}
+          >
+            Page {page} of {totalPages}
+          </Text>
+
+          <ShomiButton
+            icon="chevron-right"
+            disabled={page === totalPages}
+            onPress={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+            type="clear"
+          />
+        </View>
+      )}
     </ScrollView>
   );
 };

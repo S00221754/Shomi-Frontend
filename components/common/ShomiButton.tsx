@@ -52,10 +52,8 @@ const ShomiButton: React.FC<ShomiButtonProps> = ({
       disabled={disabled}
       containerStyle={[isIconOnly && { width: 40, height: 40 }, containerStyle]}
       buttonStyle={{
-        backgroundColor:
-          type === "outline" ? "transparent" : color || theme.colors.primary,
-        borderColor:
-          type === "outline" ? color || theme.colors.primary : "transparent",
+        backgroundColor: type === "outline" ? "transparent" : color || theme.colors.primary,
+        borderColor: type === "outline" ? color || theme.colors.primary : "transparent",
         borderWidth: type === "outline" ? 1.5 : 0,
         borderRadius: isIconOnly ? 20 : 12,
         width: isIconOnly ? 40 : undefined,

@@ -1,32 +1,41 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { ListItem, CheckBox, Icon, useTheme } from "@rneui/themed";
 import { UserIngredient } from "@/Interfaces/ingredient";
-import { renderExpiryBadge, renderQuantityBadge } from "./PantryHelper"; // Import helper functions
+import { renderExpiryBadge, renderQuantityBadge } from "./PantryHelper";
 import ShomiButton from "../common/ShomiButton";
 
 interface PantryItemProps {
   item: UserIngredient;
-  isSelected: boolean;
-  toggleIngredientSelection: (ingredientId: string, isChecked: boolean) => void;
-  isExpanded: boolean;
-  toggleRowExpansion: (ingredientId: string) => void;
-  handleAddToShoppingList: (item: UserIngredient) => Promise<void>;
-  handleDeletePress: (id: string) => void;
-  handleEditPress: (item: UserIngredient) => void;
+  onSelect: (id: string, isSelected: boolean) => void;
+  onExpand: (id: string, isExpanded: boolean) => void;
+  onAddToShoppingList: (item: UserIngredient) => void;
+  onEdit: (item: UserIngredient) => void;
+  onDelete: (id: string) => void;
 }
 
-const PantryItem: React.FC<PantryItemProps> = ({
-  item,
-  isSelected,
-  toggleIngredientSelection,
-  isExpanded,
-  toggleRowExpansion,
-  handleAddToShoppingList,
-  handleDeletePress,
-  handleEditPress,
-}) => {
+const PantryItem: React.FC<PantryItemProps> = ({ item, onSelect, onExpand, onAddToShoppingList, onEdit, onDelete }) => {
+  //#region hooks
+
   const { theme } = useTheme();
+  const [isItemSelected, setIsItemSelected] = useState(false);
+  const [isItemExpanded, setIsItemExpanded] = useState(false);
+
+  //#endregion
+
+  //#region handlers
+
+  const handleSelection = () => {
+    setIsItemSelected(!isItemSelected);
+    onSelect(item.id, !isItemSelected);
+  };
+
+  const handleExpansion = () => {
+    setIsItemExpanded(!isItemExpanded);
+    onExpand(item.id, !isItemExpanded);
+  };
+
+  //#endregion
 
   return (
     <View
@@ -34,8 +43,7 @@ const PantryItem: React.FC<PantryItemProps> = ({
       style={{
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.greyOutline,
-        backgroundColor:
-          theme.mode === "dark" ? theme.colors.black : theme.colors.white,
+        backgroundColor: theme.mode === "dark" ? theme.colors.black : theme.colors.white,
       }}
     >
       <ListItem.Accordion
@@ -48,10 +56,7 @@ const PantryItem: React.FC<PantryItemProps> = ({
               paddingVertical: 10,
             }}
           >
-            <Pressable
-              onPress={() => toggleIngredientSelection(item.id, !isSelected)}
-              style={{ padding: 7 }}
-            >
+            <Pressable onPress={handleSelection} style={{ padding: 7 }}>
               <View
                 style={{
                   flex: 1,
@@ -60,16 +65,10 @@ const PantryItem: React.FC<PantryItemProps> = ({
                 }}
               >
                 <CheckBox
-                  checked={isSelected}
-                  onPress={() =>
-                    toggleIngredientSelection(item.id, !isSelected)
-                  }
+                  checked={isItemSelected}
+                  onPress={handleSelection}
                   checkedColor={theme.colors.primary}
-                  uncheckedColor={
-                    theme.mode === "dark"
-                      ? theme.colors.white
-                      : theme.colors.greyOutline
-                  }
+                  uncheckedColor={theme.mode === "dark" ? theme.colors.white : theme.colors.greyOutline}
                   containerStyle={{
                     backgroundColor: "transparent",
                     borderWidth: 0,
@@ -106,10 +105,7 @@ const PantryItem: React.FC<PantryItemProps> = ({
                 >
                   <Text
                     style={{
-                      color:
-                        theme.mode === "dark"
-                          ? theme.colors.white
-                          : theme.colors.black,
+                      color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
                     }}
                   >
                     {item.ingredient.Ing_name}
@@ -129,33 +125,26 @@ const PantryItem: React.FC<PantryItemProps> = ({
             >
               {item.expiry_date && renderExpiryBadge(item.expiry_date)}
               {item.ingredient?.Ing_quantity != null &&
-                renderQuantityBadge(
-                  item.totalAmount,
-                  item.ingredient.Ing_quantity
-                )}
+                renderQuantityBadge(item.totalAmount, item.ingredient.Ing_quantity)}
             </View>
 
             <Icon
-              name={isExpanded ? "chevron-up" : "chevron-down"}
+              name={isItemExpanded ? "chevron-up" : "chevron-down"}
               type="material-community"
-              color={
-                theme.mode === "dark" ? theme.colors.white : theme.colors.black
-              }
+              color={theme.mode === "dark" ? theme.colors.white : theme.colors.black}
               size={24}
             />
           </View>
         }
         containerStyle={{
-          backgroundColor:
-            theme.mode === "dark" ? theme.colors.black : theme.colors.white,
+          backgroundColor: theme.mode === "dark" ? theme.colors.black : theme.colors.white,
         }}
-        isExpanded={isExpanded}
-        onPress={() => toggleRowExpansion(item.id)}
+        isExpanded={isItemExpanded}
+        onPress={handleExpansion}
         expandIcon={{
           name: "chevron-down",
           type: "material-community",
-          color:
-            theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+          color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
           size: 24,
         }}
         noIcon={true}
@@ -163,8 +152,7 @@ const PantryItem: React.FC<PantryItemProps> = ({
         <View
           style={{
             padding: 10,
-            backgroundColor:
-              theme.mode === "dark" ? theme.colors.black : theme.colors.white,
+            backgroundColor: theme.mode === "dark" ? theme.colors.black : theme.colors.white,
             borderRadius: 5,
             gap: 10,
           }}
@@ -187,19 +175,12 @@ const PantryItem: React.FC<PantryItemProps> = ({
                   name="scale-balance"
                   type="material-community"
                   size={18}
-                  color={
-                    theme.mode === "dark"
-                      ? theme.colors.white
-                      : theme.colors.black
-                  }
+                  color={theme.mode === "dark" ? theme.colors.white : theme.colors.black}
                   style={{ marginRight: 6 }}
                 />
                 <Text
                   style={{
-                    color:
-                      theme.mode === "dark"
-                        ? theme.colors.white
-                        : theme.colors.black,
+                    color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
                     fontSize: 14,
                   }}
                 >
@@ -207,10 +188,7 @@ const PantryItem: React.FC<PantryItemProps> = ({
                   <Text
                     style={{
                       fontWeight: "bold",
-                      color:
-                        theme.mode === "dark"
-                          ? theme.colors.white
-                          : theme.colors.black,
+                      color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
                     }}
                   >
                     {item.unitQuantity || "N/A"}
@@ -223,19 +201,12 @@ const PantryItem: React.FC<PantryItemProps> = ({
                   name="package-variant"
                   type="material-community"
                   size={18}
-                  color={
-                    theme.mode === "dark"
-                      ? theme.colors.white
-                      : theme.colors.black
-                  }
+                  color={theme.mode === "dark" ? theme.colors.white : theme.colors.black}
                   style={{ marginRight: 6 }}
                 />
                 <Text
                   style={{
-                    color:
-                      theme.mode === "dark"
-                        ? theme.colors.white
-                        : theme.colors.black,
+                    color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
                     fontSize: 14,
                   }}
                 >
@@ -243,10 +214,7 @@ const PantryItem: React.FC<PantryItemProps> = ({
                   <Text
                     style={{
                       fontWeight: "bold",
-                      color:
-                        theme.mode === "dark"
-                          ? theme.colors.white
-                          : theme.colors.black,
+                      color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
                     }}
                   >
                     {item.totalAmount || "Unknown"} {item.unitType || ""}
@@ -261,19 +229,12 @@ const PantryItem: React.FC<PantryItemProps> = ({
                   name="calendar-clock"
                   type="material-community"
                   size={18}
-                  color={
-                    theme.mode === "dark"
-                      ? theme.colors.white
-                      : theme.colors.black
-                  }
+                  color={theme.mode === "dark" ? theme.colors.white : theme.colors.black}
                   style={{ marginRight: 6 }}
                 />
                 <Text
                   style={{
-                    color:
-                      theme.mode === "dark"
-                        ? theme.colors.white
-                        : theme.colors.black,
+                    color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
                     fontSize: 14,
                   }}
                 >
@@ -281,10 +242,7 @@ const PantryItem: React.FC<PantryItemProps> = ({
                   <Text
                     style={{
                       fontWeight: "bold",
-                      color:
-                        theme.mode === "dark"
-                          ? theme.colors.white
-                          : theme.colors.black,
+                      color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
                     }}
                   >
                     {item.expiry_date}
@@ -309,19 +267,19 @@ const PantryItem: React.FC<PantryItemProps> = ({
                 title: "Add to List",
                 icon: "cart-plus",
                 color: theme.colors.primary,
-                onPress: () => handleAddToShoppingList(item),
+                onPress: () => onAddToShoppingList(item),
               },
               {
                 title: "Edit",
                 icon: "pencil",
                 color: theme.colors.warning,
-                onPress: () => handleEditPress(item),
+                onPress: () => onEdit(item),
               },
               {
                 title: "Delete",
                 icon: "delete",
                 color: theme.colors.error,
-                onPress: () => handleDeletePress(item.id),
+                onPress: () => onDelete(item.id),
               },
             ].map((btn, idx) => (
               <View style={{ flex: 1 }} key={idx}>

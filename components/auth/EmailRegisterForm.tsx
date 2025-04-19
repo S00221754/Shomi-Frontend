@@ -18,11 +18,7 @@ export default function EmailRegisterForm() {
   const textColor = isDark ? theme.colors.white : theme.colors.black;
   const placeholderColor = isDark ? theme.colors.grey2 : theme.colors.grey3;
 
-  const handleRegister = async (
-    name: string,
-    email: string,
-    password: string
-  ) => {
+  const handleRegister = async (name: string, email: string, password: string) => {
     Keyboard.dismiss();
     setLoading(true);
 
@@ -72,18 +68,9 @@ export default function EmailRegisterForm() {
       <Formik
         initialValues={{ name: "", email: "", password: "" }}
         validationSchema={RegisterSchema}
-        onSubmit={({ name, email, password }) =>
-          handleRegister(name, email, password)
-        }
+        onSubmit={({ name, email, password }) => handleRegister(name, email, password)}
       >
-        {({
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          values,
-          errors,
-          touched,
-        }) => (
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
           <>
             <Input
               label="Full Name"
@@ -94,9 +81,7 @@ export default function EmailRegisterForm() {
               inputStyle={{ color: textColor }}
               labelStyle={{ color: textColor }}
               placeholderTextColor={placeholderColor}
-              errorMessage={
-                touched.name && errors.name ? errors.name : undefined
-              }
+              errorMessage={touched.name && errors.name ? errors.name : undefined}
             />
             <Input
               label="Email"
@@ -107,9 +92,7 @@ export default function EmailRegisterForm() {
               inputStyle={{ color: textColor }}
               labelStyle={{ color: textColor }}
               placeholderTextColor={placeholderColor}
-              errorMessage={
-                touched.email && errors.email ? errors.email : undefined
-              }
+              errorMessage={touched.email && errors.email ? errors.email : undefined}
             />
             <Input
               label="Password"
@@ -121,31 +104,15 @@ export default function EmailRegisterForm() {
               inputStyle={{ color: textColor }}
               labelStyle={{ color: textColor }}
               placeholderTextColor={placeholderColor}
-              errorMessage={
-                touched.password && errors.password
-                  ? errors.password
-                  : undefined
-              }
+              errorMessage={touched.password && errors.password ? errors.password : undefined}
             />
 
-            <ShomiButton
-              title="Register"
-              onPress={handleSubmit as any}
-              loading={loading}
-              disabled={loading}
-            />
+            <ShomiButton title="Register" onPress={handleSubmit as any} loading={loading} disabled={loading} />
 
-            <Pressable
-              onPress={() => router.push("/login")}
-              style={{ marginTop: 16, alignItems: "center" }}
-            >
+            <Pressable onPress={() => router.push("/login")} style={{ marginTop: 16, alignItems: "center" }}>
               <Text style={{ fontSize: 14, color: theme.colors.grey2 }}>
                 Already have an account?{" "}
-                <Text
-                  style={{ color: theme.colors.primary, fontWeight: "bold" }}
-                >
-                  Sign in
-                </Text>
+                <Text style={{ color: theme.colors.primary, fontWeight: "bold" }}>Sign in</Text>
               </Text>
             </Pressable>
           </>

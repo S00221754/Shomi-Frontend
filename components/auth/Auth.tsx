@@ -45,10 +45,7 @@ const performOAuth = async () => {
   });
   if (error) throw error;
 
-  const res = await WebBrowser.openAuthSessionAsync(
-    data?.url ?? "",
-    redirectTo
-  );
+  const res = await WebBrowser.openAuthSessionAsync(data?.url ?? "", redirectTo);
 
   if (res.type === "success") {
     const { url } = res;

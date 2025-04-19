@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { getPaginatedIngredients  } from "@/services/ingredientsService";
+import { getPaginatedIngredients } from "@/services/ingredientsService";
 import { ProductInfo } from "@/Interfaces/ingredient";
 
 export const usePaginatedIngredients = (initialPage = 1, limit = 10) => {

@@ -2,6 +2,9 @@ import { Badge, useTheme } from "@rneui/themed";
 import dayjs from "dayjs";
 import { ExpiryStatus, QuantityStatus } from "@/Interfaces/ingredient";
 
+// This file is to place all the helper functions related to the pantry
+
+// This function is used to get the expiry status of an ingredient based on its expiry date
 export const getExpiryStatus = (expiryDate: string): ExpiryStatus => {
   const today = dayjs();
   const expiry = dayjs(expiryDate);
@@ -11,9 +14,11 @@ export const getExpiryStatus = (expiryDate: string): ExpiryStatus => {
   return ExpiryStatus.Fresh;
 };
 
+// This function is used to render the expiry badge based on the expiry date of an ingredient
 export const renderExpiryBadge = (expiryDate: string) => {
   const { theme } = useTheme();
   const status = getExpiryStatus(expiryDate);
+
   const ingredientStatus = {
     [ExpiryStatus.Expired]: "error",
     [ExpiryStatus.Soon]: "warning",
@@ -30,10 +35,8 @@ export const renderExpiryBadge = (expiryDate: string) => {
   );
 };
 
-export const getQuantityStatus = (
-  totalAmountStr: string,
-  baseAmount: number
-): QuantityStatus => {
+// This function is used to get the quantity status of an ingredient based on its total amount and base amount
+export const getQuantityStatus = (totalAmountStr: string, baseAmount: number): QuantityStatus => {
   const totalAmount = parseFloat(totalAmountStr);
 
   if (isNaN(totalAmount)) return QuantityStatus.OutOfStock;
@@ -43,10 +46,8 @@ export const getQuantityStatus = (
   return QuantityStatus.InStock;
 };
 
-export const renderQuantityBadge = (
-  totalAmount: string,
-  baseAmount: number
-) => {
+// This function is used to render the quantity badge based on the total amount and base amount of an ingredient
+export const renderQuantityBadge = (totalAmount: string, baseAmount: number) => {
   const { theme } = useTheme();
   const status = getQuantityStatus(totalAmount, baseAmount);
   const quantityColor = {
