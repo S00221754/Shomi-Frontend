@@ -45,7 +45,7 @@ const ChooseBatchModal: React.FC<ChooseBatchModalProps> = ({
           color: theme.colors.primary,
         }}
       >
-        Choose a Batch for {ingredientName}
+        Choose a Batch
       </Text>
 
       <FlatList
@@ -69,7 +69,7 @@ const ChooseBatchModal: React.FC<ChooseBatchModalProps> = ({
         ListFooterComponent={() => (
           <View style={{ marginTop: 16, gap: 10 }}>
             <ShomiButton
-              title="Add New Variant"
+              title="Add New Batch"
               icon="plus"
               onPress={onAddNewVariant}
               color={theme.colors.primary}

@@ -10,6 +10,7 @@ interface BottomSheetSelectProps<T> {
   keyExtractor: (item: T) => string | number;
   labelExtractor: (item: T) => string;
   placeholder?: string;
+  descriptionExtractor?: (item: T) => string | undefined;
 }
 
 function BottomSheetSelect<T>({
@@ -20,6 +21,7 @@ function BottomSheetSelect<T>({
   keyExtractor,
   labelExtractor,
   placeholder = "Search...",
+  descriptionExtractor,
 }: BottomSheetSelectProps<T>) {
   const { theme } = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
@@ -121,6 +123,15 @@ function BottomSheetSelect<T>({
                   >
                     {labelExtractor(item)}
                   </ListItem.Title>
+                  {descriptionExtractor && descriptionExtractor(item) && (
+                    <ListItem.Subtitle
+                      style={{
+                        color: theme.colors.grey3,
+                      }}
+                    >
+                      {descriptionExtractor(item)}
+                    </ListItem.Subtitle>
+                  )}
                 </ListItem.Content>
               </ListItem>
             ))

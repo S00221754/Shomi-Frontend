@@ -141,7 +141,7 @@ const RecipeIngredientModal: React.FC<RecipeIngredientModalProps> = ({ visible, 
               />
               <ShomiButton
                 title={initialData ? "Update" : "Add"}
-                onPress={handleSubmit as any}
+                onPress={handleSubmit}
                 buttonStyle={{ backgroundColor: theme.colors.primary }}
                 titleStyle={{ color: theme.colors.white }}
               />

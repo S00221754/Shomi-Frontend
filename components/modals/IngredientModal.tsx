@@ -53,7 +53,7 @@ const IngredientModal: React.FC<IngredientModalProps> = ({ visible, onClose, ing
 
   if (!ingredient) return null;
 
-  const isMissing = (field: any) => !field || field === "";
+  const isMissing = (field: any) => !field || field === "" || field === "0";
 
   return (
     <>
@@ -108,6 +108,17 @@ const IngredientModal: React.FC<IngredientModalProps> = ({ visible, onClose, ing
                 }}
               >
                 Enter Missing Details
+              </Text>
+
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: theme.colors.grey3,
+                  textAlign: "center",
+                  marginBottom: 10,
+                }}
+              >
+                Ingredient information provided by Open Food Facts.
               </Text>
 
               <Input
@@ -220,6 +231,7 @@ const IngredientModal: React.FC<IngredientModalProps> = ({ visible, onClose, ing
         keyExtractor={(cat) => cat.id}
         labelExtractor={(cat) => cat.name}
         placeholder="Search categories..."
+        descriptionExtractor={(cat) => cat.description || ""}
       />
     </>
   );

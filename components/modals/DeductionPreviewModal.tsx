@@ -88,8 +88,10 @@ const DeductionPreviewModal: React.FC<DeductionPreviewModalProps> = ({ visible, 
   const getUnitBaseType = (unit: string): "mass" | "volume" | null => {
     const massUnits = ["g", "kg", "mg", "oz", "lb"];
     const volumeUnits = ["ml", "l", "tsp", "tbsp", "cup"];
+    const specialUnits = ["clove", "slice", "egg"];
     if (massUnits.includes(unit)) return "mass";
     if (volumeUnits.includes(unit)) return "volume";
+    if (specialUnits.includes(unit)) return null;
     return null;
   };
 

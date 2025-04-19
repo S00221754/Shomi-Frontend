@@ -6,6 +6,7 @@ import { addUserIngredient, getUserIngredients } from "@/services/user-ingredien
 import { UserIngredientInput } from "@/Interfaces/user-ingredient";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { deleteShoppingListItem } from "@/services/shoppingListService";
+import { useToast } from "@/utils/toast";
 
 export const useScannerLogic = (
   userIngredients: UserIngredient[],
@@ -19,6 +20,7 @@ export const useScannerLogic = (
   setIsChooseBatchModalVisible: (visible: boolean) => void
 ) => {
   const { userId } = useAuth();
+  const { showToast } = useToast();
   const [scannedData, setScannedData] = useState<ProductInfo | null>(null);
   const [userIngredient, setUserIngredient] = useState<UserIngredientInput | null>(null);
 
@@ -139,6 +141,7 @@ export const useScannerLogic = (
       await addUserIngredient(userIngredient);
       fetchUserIngredients();
       setIsAddUserIngredientModalVisible(false);
+      showToast("success", "Ingredient Added", "Ingredient added successfully.");
 
       if (action === "restock" && typeof shopId === "string") {
         await deleteShoppingListItem(shopId);
@@ -174,7 +177,7 @@ const getMissingFields = (product: ProductInfo) => {
     missing.push("Brand");
   }
 
-  if (!product.Ing_quantity) {
+  if (!product.Ing_quantity || product.Ing_quantity <= 0) {
     missing.push("Quantity");
   }
 
