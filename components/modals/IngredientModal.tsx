@@ -18,12 +18,7 @@ interface IngredientModalProps {
   onAddIngredient: (ingredient: ProductInfo) => Promise<void>;
 }
 
-const IngredientModal: React.FC<IngredientModalProps> = ({
-  visible,
-  onClose,
-  ingredient,
-  onAddIngredient,
-}) => {
+const IngredientModal: React.FC<IngredientModalProps> = ({ visible, onClose, ingredient, onAddIngredient }) => {
   const { theme } = useTheme();
   const isDark = theme.mode === "dark";
   const textColor = isDark ? theme.colors.white : theme.colors.black;
@@ -34,8 +29,7 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
   const [isSheetVisible, setIsSheetVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUnitTypes, setFilteredUnitTypes] = useState<UnitType[]>([]);
-  const [selectedCategory, setSelectedCategory] =
-    useState<IngredientCategory | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<IngredientCategory | null>(null);
   const [isCategorySheetVisible, setIsCategorySheetVisible] = useState(false);
   const [categoryError, setCategoryError] = useState<string | null>(null);
 
@@ -44,9 +38,7 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
   }, [unitTypes]);
 
   useEffect(() => {
-    const filtered = unitTypes.filter((type) =>
-      type.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = unitTypes.filter((type) => type.name.toLowerCase().includes(searchTerm.toLowerCase()));
     setFilteredUnitTypes(filtered);
   }, [searchTerm]);
 
@@ -105,15 +97,7 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
             onClose();
           }}
         >
-          {({
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            values,
-            errors,
-            touched,
-            setFieldValue,
-          }) => (
+          {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
             <>
               <Text
                 h4
@@ -133,11 +117,7 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
                 onBlur={handleBlur("Ing_name")}
                 inputStyle={{ color: textColor }}
                 labelStyle={{ color: textColor }}
-                errorMessage={
-                  touched.Ing_name && errors.Ing_name
-                    ? errors.Ing_name
-                    : undefined
-                }
+                errorMessage={touched.Ing_name && errors.Ing_name ? errors.Ing_name : undefined}
                 disabled={!isMissing(ingredient.Ing_name)}
               />
 
@@ -149,11 +129,7 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
                   onBlur={handleBlur("Ing_brand")}
                   inputStyle={{ color: textColor }}
                   labelStyle={{ color: textColor }}
-                  errorMessage={
-                    touched.Ing_brand && errors.Ing_brand
-                      ? errors.Ing_brand
-                      : undefined
-                  }
+                  errorMessage={touched.Ing_brand && errors.Ing_brand ? errors.Ing_brand : undefined}
                 />
               )}
 
@@ -164,11 +140,7 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
                   keyboardType="numeric"
                   onChangeText={handleChange("Ing_quantity")}
                   onBlur={handleBlur("Ing_quantity")}
-                  errorMessage={
-                    touched.Ing_quantity && errors.Ing_quantity
-                      ? errors.Ing_quantity
-                      : undefined
-                  }
+                  errorMessage={touched.Ing_quantity && errors.Ing_quantity ? errors.Ing_quantity : undefined}
                   inputStyle={{ color: textColor }}
                   labelStyle={{ color: textColor }}
                 />
@@ -176,9 +148,7 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
 
               {isMissing(ingredient.Ing_quantity_units) && (
                 <>
-                  <Text style={{ color: textColor, marginBottom: 5 }}>
-                    Select Unit Type
-                  </Text>
+                  <Text style={{ color: textColor, marginBottom: 5 }}>Select Unit Type</Text>
                   <ShomiButton
                     title={values.Ing_quantity_units || "Select a unit type"}
                     onPress={() => setIsSheetVisible(true)}
@@ -186,37 +156,21 @@ const IngredientModal: React.FC<IngredientModalProps> = ({
                     type="outline"
                   />
                   {touched.Ing_quantity_units && errors.Ing_quantity_units && (
-                    <Text
-                      style={{ color: theme.colors.error, marginBottom: 8 }}
-                    >
-                      {errors.Ing_quantity_units}
-                    </Text>
+                    <Text style={{ color: theme.colors.error, marginBottom: 8 }}>{errors.Ing_quantity_units}</Text>
                   )}
                 </>
               )}
 
               {!ingredient.category?.id && (
                 <>
-                  <Text style={{ color: textColor, marginBottom: 5 }}>
-                    Select Category
-                  </Text>
+                  <Text style={{ color: textColor, marginBottom: 5 }}>Select Category</Text>
                   <ShomiButton
-                    title={
-                      selectedCategory
-                        ? selectedCategory.name
-                        : "Select a category"
-                    }
+                    title={selectedCategory ? selectedCategory.name : "Select a category"}
                     type="outline"
                     onPress={() => setIsCategorySheetVisible(true)}
                     color={theme.colors.secondary}
                   />
-                  {categoryError && (
-                    <Text
-                      style={{ color: theme.colors.error, marginBottom: 8 }}
-                    >
-                      {categoryError}
-                    </Text>
-                  )}
+                  {categoryError && <Text style={{ color: theme.colors.error, marginBottom: 8 }}>{categoryError}</Text>}
                 </>
               )}
 

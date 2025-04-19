@@ -11,12 +11,7 @@ interface ConfirmationModalProps {
   message?: string;
 }
 
-const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
-  visible,
-  onClose,
-  onConfirm,
-  message,
-}) => {
+const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ visible, onClose, onConfirm, message }) => {
   const { theme } = useTheme();
   const isDark = theme.mode === "dark";
   const textColor = isDark ? theme.colors.white : theme.colors.black;

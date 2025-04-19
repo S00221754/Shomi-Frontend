@@ -1,18 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { View, FlatList } from "react-native";
 import { CheckBox, Icon, Text, useTheme, ListItem } from "@rneui/themed";
-import {
-  deleteShoppingListItem,
-  getShoppingList,
-} from "@/services/shoppingListService";
+import { deleteShoppingListItem, getShoppingList } from "@/services/shoppingListService";
 import { useAuth } from "@/providers/AuthProvider";
 import { ShoppingItem } from "@/Interfaces/shopping-list";
 import { useToast } from "@/utils/toast";
 import { useFocusEffect, router } from "expo-router";
-import {
-  getUserIngredients,
-  updateUserIngredient,
-} from "@/services/user-ingredientService";
+import { getUserIngredients, updateUserIngredient } from "@/services/user-ingredientService";
 
 const ShoppingListScreen = () => {
   const { theme } = useTheme();
@@ -52,9 +46,7 @@ const ShoppingListScreen = () => {
 
   const handleMarkAsBought = async (item: ShoppingItem) => {
     const allUserIngredients = await getUserIngredients(userId!);
-    const matchingVariants = allUserIngredients.filter(
-      (ui) => ui.ingredient.Ing_id === item.ingredient.Ing_id
-    );
+    const matchingVariants = allUserIngredients.filter((ui) => ui.ingredient.Ing_id === item.ingredient.Ing_id);
 
     if (matchingVariants.length > 1) {
       router.push({
@@ -73,27 +65,21 @@ const ShoppingListScreen = () => {
     const pantryItem = matchingVariants[0];
     const updated = {
       unitQuantity: pantryItem.unitQuantity + item.Shop_quantity,
-      totalAmount:
-        (pantryItem.unitQuantity + item.Shop_quantity) *
-        (item.ingredient.Ing_quantity || 1),
+      totalAmount: (pantryItem.unitQuantity + item.Shop_quantity) * (item.ingredient.Ing_quantity || 1),
       unitType: pantryItem.unitType,
       expiry_date: pantryItem.expiry_date || null,
     };
 
     await updateUserIngredient(pantryItem.id, updated);
     await deleteShoppingListItem(item.Shop_id);
-    setShoppingItems((prev) =>
-      prev.filter((si) => si.Shop_id !== item.Shop_id)
-    );
+    setShoppingItems((prev) => prev.filter((si) => si.Shop_id !== item.Shop_id));
     showToast("success", "Restocked", `${item.ingredient.Ing_name} updated`);
   };
 
   const handleDismissItem = async (itemId: string) => {
     try {
       await deleteShoppingListItem(itemId);
-      setShoppingItems((prev) =>
-        prev.filter((item) => item.Shop_id !== itemId)
-      );
+      setShoppingItems((prev) => prev.filter((item) => item.Shop_id !== itemId));
       showToast("success", "Dismissed", "Item removed from shopping list.");
     } catch (error) {
       console.error("Failed to delete item:", error);
@@ -141,9 +127,7 @@ const ShoppingListScreen = () => {
               style={{
                 marginBottom: 16,
                 borderRadius: 16,
-                backgroundColor: isDark
-                  ? theme.colors.black
-                  : theme.colors.white,
+                backgroundColor: isDark ? theme.colors.black : theme.colors.white,
                 elevation: 4,
                 overflow: "hidden",
               }}
@@ -200,11 +184,7 @@ const ShoppingListScreen = () => {
                         onPress={() => handleDismissItem(item.Shop_id)}
                       />
                       <Icon
-                        name={
-                          expandedItems[item.Shop_id]
-                            ? "chevron-up"
-                            : "chevron-down"
-                        }
+                        name={expandedItems[item.Shop_id] ? "chevron-up" : "chevron-down"}
                         type="material-community"
                         color={textColor}
                         size={24}
@@ -222,16 +202,10 @@ const ShoppingListScreen = () => {
                   }}
                 >
                   <Text style={{ color: textColor, fontSize: 14 }}>
-                    Reason:{" "}
-                    <Text style={{ fontWeight: "bold", color: textColor }}>
-                      {item.Shop_reason || "N/A"}
-                    </Text>
+                    Reason: <Text style={{ fontWeight: "bold", color: textColor }}>{item.Shop_reason || "N/A"}</Text>
                   </Text>
                   <Text style={{ color: textColor, fontSize: 14 }}>
-                    Quantity:{" "}
-                    <Text style={{ fontWeight: "bold", color: textColor }}>
-                      {item.Shop_quantity}
-                    </Text>
+                    Quantity: <Text style={{ fontWeight: "bold", color: textColor }}>{item.Shop_quantity}</Text>
                   </Text>
                 </View>
               </ListItem.Accordion>

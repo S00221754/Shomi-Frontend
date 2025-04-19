@@ -41,14 +41,7 @@ export default function EmailLoginForm() {
       validationSchema={LoginSchema}
       onSubmit={({ email, password }) => handleLogin(email, password)}
     >
-      {({
-        handleChange,
-        handleBlur,
-        handleSubmit,
-        values,
-        errors,
-        touched,
-      }) => (
+      {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
         <View style={styles.container}>
           <Input
             label="Email"
@@ -59,9 +52,7 @@ export default function EmailLoginForm() {
             inputStyle={{ color: textColor }}
             labelStyle={{ color: textColor }}
             placeholderTextColor={placeholderColor}
-            errorMessage={
-              touched.email && errors.email ? errors.email : undefined
-            }
+            errorMessage={touched.email && errors.email ? errors.email : undefined}
           />
           <Input
             label="Password"
@@ -73,16 +64,9 @@ export default function EmailLoginForm() {
             inputStyle={{ color: textColor }}
             labelStyle={{ color: textColor }}
             placeholderTextColor={placeholderColor}
-            errorMessage={
-              touched.password && errors.password ? errors.password : undefined
-            }
+            errorMessage={touched.password && errors.password ? errors.password : undefined}
           />
-          <ShomiButton
-            title="Login"
-            onPress={handleSubmit as any}
-            loading={loading}
-            disabled={loading}
-          />
+          <ShomiButton title="Login" onPress={handleSubmit as any} loading={loading} disabled={loading} />
         </View>
       )}
     </Formik>

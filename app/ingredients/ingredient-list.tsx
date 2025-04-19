@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import { ListItem, Button, useTheme, Text, SearchBar } from "@rneui/themed";
-import {
-  addUserIngredient,
-  getUserIngredients,
-} from "@/services/user-ingredientService";
+import { addUserIngredient, getUserIngredients } from "@/services/user-ingredientService";
 import { ProductInfo } from "@/Interfaces/ingredient";
 import { UserIngredientInput } from "@/Interfaces/user-ingredient";
 import UserIngredientModal from "@/components/modals/UserIngredientModal";
@@ -12,6 +9,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { useToast } from "@/utils/toast";
 import { usePaginatedIngredients } from "@/hooks/useGetPaginatedIngredients";
 import ShomiButton from "@/components/common/ShomiButton";
+import { useGetIngredient } from "@/hooks/useGetIngredient";
 
 const IngredientList = () => {
   const { userId } = useAuth();
@@ -19,26 +17,20 @@ const IngredientList = () => {
   const { showToast } = useToast();
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedIngredient, setSelectedIngredient] =
-    useState<ProductInfo | null>(null);
-  const [userIngredient, setUserIngredient] =
-    useState<UserIngredientInput | null>(null);
+  const [selectedIngredient, setSelectedIngredient] = useState<ProductInfo | null>(null);
+  const [userIngredient, setUserIngredient] = useState<UserIngredientInput | null>(null);
   const [search, setSearch] = useState("");
 
-  const {
-    data: ingredients,
-    page,
-    totalPages,
-    loading,
-    setPage,
-    refetch,
-  } = usePaginatedIngredients();
+  const { data: paginatedIngredients, page, totalPages, setPage, refetch } = usePaginatedIngredients();
+  const { ingredients: allIngredients, loading: loadingAll } = useGetIngredient();
 
   const handleSearch = (text: string) => {
     setSearch(text);
   };
 
-  const filteredIngredients = ingredients.filter((item) =>
+  const displayedIngredients = search.length > 0 ? allIngredients : paginatedIngredients;
+
+  const filteredIngredients = displayedIngredients.filter((item) =>
     item.Ing_name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -57,27 +49,20 @@ const IngredientList = () => {
     setModalVisible(true);
   };
 
-  const handleAddUserIngredient = async (
-    data: UserIngredientInput
-  ): Promise<boolean> => {
+  const handleAddUserIngredient = async (data: UserIngredientInput): Promise<boolean> => {
     try {
       const allUserIngredients = await getUserIngredients(userId!);
 
       const isDuplicate = allUserIngredients.some(
         (item) =>
-          item.ingredient.Ing_id === data.ingredientId &&
-          (item.expiry_date ?? null) === (data.expiry_date ?? null)
+          item.ingredient.Ing_id === data.ingredientId && (item.expiry_date ?? null) === (data.expiry_date ?? null)
       );
 
       if (isDuplicate) return false;
 
       await addUserIngredient(data);
       setModalVisible(false);
-      showToast(
-        "success",
-        "Added to Pantry",
-        `${selectedIngredient?.Ing_name} added successfully.`
-      );
+      showToast("success", "Added to Pantry", `${selectedIngredient?.Ing_name} added successfully.`);
       return true;
     } catch (error) {
       console.error("Failed to add ingredient:", error);
@@ -87,9 +72,7 @@ const IngredientList = () => {
   };
 
   return (
-    <View
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
-    >
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <SearchBar
         placeholder="Search ingredients..."
         onChangeText={handleSearch}
@@ -97,12 +80,10 @@ const IngredientList = () => {
         round
         lightTheme={theme.mode === "light"}
         inputStyle={{
-          color:
-            theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+          color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
         }}
         inputContainerStyle={{
-          backgroundColor:
-            theme.mode === "dark" ? theme.colors.grey0 : theme.colors.white,
+          backgroundColor: theme.mode === "dark" ? theme.colors.grey0 : theme.colors.white,
           borderRadius: 10,
         }}
         containerStyle={{
@@ -121,8 +102,7 @@ const IngredientList = () => {
             key={index}
             bottomDivider
             containerStyle={{
-              backgroundColor:
-                theme.mode === "dark" ? theme.colors.black : theme.colors.white,
+              backgroundColor: theme.mode === "dark" ? theme.colors.black : theme.colors.white,
               borderRadius: 10,
               marginBottom: 8,
             }}
@@ -130,20 +110,14 @@ const IngredientList = () => {
             <ListItem.Content>
               <ListItem.Title
                 style={{
-                  color:
-                    theme.mode === "dark"
-                      ? theme.colors.white
-                      : theme.colors.black,
+                  color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
                 }}
               >
                 {item.Ing_name}
               </ListItem.Title>
               <ListItem.Subtitle
                 style={{
-                  color:
-                    theme.mode === "dark"
-                      ? theme.colors.grey3
-                      : theme.colors.black,
+                  color: theme.mode === "dark" ? theme.colors.grey3 : theme.colors.black,
                 }}
               >
                 {item.Ing_brand}
@@ -161,38 +135,39 @@ const IngredientList = () => {
           </ListItem>
         ))}
 
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            marginTop: 16,
-          }}
-        >
-          <ShomiButton
-            icon="chevron-left"
-            disabled={page === 1}
-            onPress={() => setPage((prev) => Math.max(prev - 1, 1))}
-            type="clear"
-          />
-
-          <Text
+        {search.length === 0 && (
+          <View
             style={{
-              alignSelf: "center",
-              marginHorizontal: 10,
-              color:
-                theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+              flexDirection: "row",
+              justifyContent: "center",
+              marginTop: 16,
             }}
           >
-            Page {page} of {totalPages}
-          </Text>
+            <ShomiButton
+              icon="chevron-left"
+              disabled={page === 1}
+              onPress={() => setPage((prev) => Math.max(prev - 1, 1))}
+              type="clear"
+            />
 
-          <ShomiButton
-            icon="chevron-right"
-            disabled={page === totalPages}
-            onPress={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-            type="clear"
-          />
-        </View>
+            <Text
+              style={{
+                alignSelf: "center",
+                marginHorizontal: 10,
+                color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
+              }}
+            >
+              Page {page} of {totalPages}
+            </Text>
+
+            <ShomiButton
+              icon="chevron-right"
+              disabled={page === totalPages}
+              onPress={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+              type="clear"
+            />
+          </View>
+        )}
       </ScrollView>
 
       <UserIngredientModal

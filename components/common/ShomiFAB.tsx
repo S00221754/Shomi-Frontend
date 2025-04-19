@@ -38,9 +38,7 @@ const ShomiFAB: React.FC<ShomiFABProps> = ({
       icon={isDeleteMode ? "delete" : fabOpen ? "close" : defaultIcon}
       color={theme.colors.white}
       fabStyle={{
-        backgroundColor: isDeleteMode
-          ? theme.colors.error
-          : theme.colors.primary,
+        backgroundColor: isDeleteMode ? theme.colors.error : theme.colors.primary,
       }}
       backdropColor="rgba(0,0,0,0.5)"
       actions={

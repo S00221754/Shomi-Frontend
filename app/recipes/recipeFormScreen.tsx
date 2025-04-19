@@ -2,20 +2,14 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { View, Image, TouchableOpacity, ScrollView } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Button, Icon, Input, useTheme, Text } from "@rneui/themed";
-import ShomiTentapEditor, {
-  ShomiTentapEditorRef,
-} from "@/components/common/ShomiTentapEditor";
+import ShomiTentapEditor, { ShomiTentapEditorRef } from "@/components/common/ShomiTentapEditor";
 import { Formik } from "formik";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
 import IngredientRow from "@/components/Ingredients/IngredientRow";
 import RecipeIngredientModal from "@/components/modals/RecipeIngredientModal";
 import { SelectedIngredient } from "@/Interfaces/ingredient";
 import { useAuth } from "@/providers/AuthProvider";
-import {
-  createRecipe,
-  getRecipeById,
-  updateRecipe,
-} from "@/services/recipe.Service";
+import { createRecipe, getRecipeById, updateRecipe } from "@/services/recipe.Service";
 import { uploadRecipeImage } from "@/lib/supabase/uploadRecipeImage";
 import { RecipeDTO } from "@/Interfaces/recipe";
 import { useToast } from "@/utils/toast";
@@ -33,21 +27,16 @@ const RecipeFormScreen = () => {
   const { id } = useLocalSearchParams();
   const isEdit = !!id;
   const router = useRouter();
-  const textColor =
-    theme.mode === "dark" ? theme.colors.white : theme.colors.black;
+  const textColor = theme.mode === "dark" ? theme.colors.white : theme.colors.black;
   const { showToast } = useToast();
 
   const [images, setImages] = useState<string[]>([]);
   const [instructions, setInstructions] = useState("");
   const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [selectedIngredient, setSelectedIngredient] = useState<
-    SelectedIngredient | undefined
-  >(undefined);
+  const [selectedIngredient, setSelectedIngredient] = useState<SelectedIngredient | undefined>(undefined);
   const [submitting, setSubmitting] = useState(false);
   const [showIngredientModal, setShowIngredientModal] = useState(false);
-  const [formValues, setFormValues] = useState<typeof initialValues | null>(
-    null
-  );
+  const [formValues, setFormValues] = useState<typeof initialValues | null>(null);
   const [originalImages, setOriginalImages] = useState<string[]>([]);
 
   const editorRef = useRef<ShomiTentapEditorRef>(null);
@@ -123,14 +112,8 @@ const RecipeFormScreen = () => {
         enableReinitialize
         validateOnMount
         onSubmit={async (values) => {
-          if (
-            values.ingredients.length < 3 ||
-            stripHtml(values.recipe_instructions).length === 0
-          ) {
-            showToast(
-              "error",
-              "Please provide at least 3 ingredients and valid instructions"
-            );
+          if (values.ingredients.length < 3 || stripHtml(values.recipe_instructions).length === 0) {
+            showToast("error", "Please provide at least 3 ingredients and valid instructions");
             return;
           }
 
@@ -152,9 +135,7 @@ const RecipeFormScreen = () => {
             if (isEdit) {
               await updateRecipe(id as string, payload);
 
-              const removedImages = originalImages.filter(
-                (img) => !uploadedImages.includes(img)
-              );
+              const removedImages = originalImages.filter((img) => !uploadedImages.includes(img));
 
               for (const url of removedImages) {
                 await deleteRecipeImage(url);
@@ -163,10 +144,7 @@ const RecipeFormScreen = () => {
               await createRecipe(payload);
             }
 
-            showToast(
-              "success",
-              isEdit ? "Recipe Updated" : "Recipe Published"
-            );
+            showToast("success", isEdit ? "Recipe Updated" : "Recipe Published");
 
             router.back();
           } catch (err) {
@@ -177,15 +155,7 @@ const RecipeFormScreen = () => {
           }
         }}
       >
-        {({
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          values,
-          errors,
-          touched,
-          setFieldValue,
-        }) => (
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
           <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 20 }}>
             <ShomiButton
               title={`Select Images (${images.length}/3)`}
@@ -198,10 +168,7 @@ const RecipeFormScreen = () => {
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
               {images.map((uri, index) => (
                 <View key={index} style={{ position: "relative" }}>
-                  <Image
-                    source={{ uri }}
-                    style={{ width: 100, height: 100, borderRadius: 10 }}
-                  />
+                  <Image source={{ uri }} style={{ width: 100, height: 100, borderRadius: 10 }} />
                   <TouchableOpacity
                     style={{
                       position: "absolute",
@@ -225,29 +192,17 @@ const RecipeFormScreen = () => {
               labelStyle={{
                 fontWeight: "bold",
                 fontSize: 18,
-                color:
-                  theme.mode === "dark"
-                    ? theme.colors.white
-                    : theme.colors.black,
+                color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
               }}
               value={values.recipe_name}
               onChangeText={handleChange("recipe_name")}
               onBlur={handleBlur("recipe_name")}
               placeholder="e.g. Classic Spaghetti Bolognese"
-              errorMessage={
-                touched.recipe_name && errors.recipe_name
-                  ? errors.recipe_name
-                  : undefined
-              }
+              errorMessage={touched.recipe_name && errors.recipe_name ? errors.recipe_name : undefined}
               inputStyle={{
-                color:
-                  theme.mode === "dark"
-                    ? theme.colors.white
-                    : theme.colors.black,
+                color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
               }}
-              placeholderTextColor={
-                theme.mode === "dark" ? theme.colors.grey2 : theme.colors.grey3
-              }
+              placeholderTextColor={theme.mode === "dark" ? theme.colors.grey2 : theme.colors.grey3}
             />
 
             <Input
@@ -255,29 +210,19 @@ const RecipeFormScreen = () => {
               labelStyle={{
                 fontWeight: "bold",
                 fontSize: 18,
-                color:
-                  theme.mode === "dark"
-                    ? theme.colors.white
-                    : theme.colors.black,
+                color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
               }}
               value={values.recipe_description}
               onChangeText={handleChange("recipe_description")}
               onBlur={handleBlur("recipe_description")}
               placeholder="A quick hearty pasta dish with meat sauce."
               errorMessage={
-                touched.recipe_description && errors.recipe_description
-                  ? errors.recipe_description
-                  : undefined
+                touched.recipe_description && errors.recipe_description ? errors.recipe_description : undefined
               }
               inputStyle={{
-                color:
-                  theme.mode === "dark"
-                    ? theme.colors.white
-                    : theme.colors.black,
+                color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
               }}
-              placeholderTextColor={
-                theme.mode === "dark" ? theme.colors.grey2 : theme.colors.grey3
-              }
+              placeholderTextColor={theme.mode === "dark" ? theme.colors.grey2 : theme.colors.grey3}
             />
 
             <View style={{ paddingHorizontal: 10 }}>
@@ -285,10 +230,7 @@ const RecipeFormScreen = () => {
                 style={{
                   fontSize: 18,
                   fontWeight: "bold",
-                  color:
-                    theme.mode === "dark"
-                      ? theme.colors.white
-                      : theme.colors.black,
+                  color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
                   marginBottom: 4,
                 }}
               >
@@ -319,12 +261,9 @@ const RecipeFormScreen = () => {
                 color={theme.colors.secondary}
               />
 
-              {touched.ingredients &&
-                typeof errors.ingredients === "string" && (
-                  <Text style={{ color: theme.colors.error, marginBottom: 5 }}>
-                    {errors.ingredients}
-                  </Text>
-                )}
+              {touched.ingredients && typeof errors.ingredients === "string" && (
+                <Text style={{ color: theme.colors.error, marginBottom: 5 }}>{errors.ingredients}</Text>
+              )}
             </View>
 
             <View style={{ paddingHorizontal: 10 }}>
@@ -332,10 +271,7 @@ const RecipeFormScreen = () => {
                 style={{
                   fontSize: 18,
                   fontWeight: "bold",
-                  color:
-                    theme.mode === "dark"
-                      ? theme.colors.white
-                      : theme.colors.black,
+                  color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
                   marginBottom: 4,
                 }}
               >
@@ -349,9 +285,7 @@ const RecipeFormScreen = () => {
               />
 
               {touched.recipe_instructions && errors.recipe_instructions && (
-                <Text style={{ color: theme.colors.error, marginBottom: 5 }}>
-                  {errors.recipe_instructions}
-                </Text>
+                <Text style={{ color: theme.colors.error, marginBottom: 5 }}>{errors.recipe_instructions}</Text>
               )}
             </View>
 
@@ -379,29 +313,17 @@ const RecipeFormScreen = () => {
               labelStyle={{
                 fontWeight: "bold",
                 fontSize: 18,
-                color:
-                  theme.mode === "dark"
-                    ? theme.colors.white
-                    : theme.colors.black,
+                color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
               }}
               value={values.cooking_time}
               onChangeText={handleChange("cooking_time")}
               onBlur={handleBlur("cooking_time")}
               keyboardType="numeric"
-              errorMessage={
-                touched.cooking_time && errors.cooking_time
-                  ? errors.cooking_time
-                  : undefined
-              }
+              errorMessage={touched.cooking_time && errors.cooking_time ? errors.cooking_time : undefined}
               inputStyle={{
-                color:
-                  theme.mode === "dark"
-                    ? theme.colors.white
-                    : theme.colors.black,
+                color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
               }}
-              placeholderTextColor={
-                theme.mode === "dark" ? theme.colors.grey2 : theme.colors.grey3
-              }
+              placeholderTextColor={theme.mode === "dark" ? theme.colors.grey2 : theme.colors.grey3}
             />
 
             <ConfirmationModal

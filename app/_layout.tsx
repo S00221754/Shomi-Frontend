@@ -19,10 +19,7 @@ if (typeof global.Buffer === "undefined") {
 const originalWarn = console.warn;
 console.warn = (...args) => {
   const message = args[0];
-  if (
-    typeof message === "string" &&
-    message.includes("Editor isn't ready yet")
-  ) {
+  if (typeof message === "string" && message.includes("Editor isn't ready yet")) {
     return;
   }
   originalWarn(...args);

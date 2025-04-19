@@ -61,12 +61,9 @@ const ChooseBatchModal: React.FC<ChooseBatchModalProps> = ({
             }}
           >
             <Text style={{ color: textColor, fontWeight: "600" }}>
-              Quantity: {item.unitQuantity} | Total: {item.totalAmount}{" "}
-              {item.unitType || ""}
+              Quantity: {item.unitQuantity} | Total: {item.totalAmount} {item.unitType || ""}
             </Text>
-            <Text style={{ color: theme.colors.grey3 }}>
-              Expiry: {item.expiry_date || "None"}
-            </Text>
+            <Text style={{ color: theme.colors.grey3 }}>Expiry: {item.expiry_date || "None"}</Text>
           </Pressable>
         )}
         ListFooterComponent={() => (

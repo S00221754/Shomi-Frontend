@@ -13,10 +13,7 @@ interface UpdateUserIngredientModalProps {
   visible: boolean;
   onClose: () => void;
   userIngredient: UserIngredient | null;
-  onUpdateUserIngredient: (
-    userIngredientId: string,
-    updatedIngredient: UserIngredientUpdate
-  ) => Promise<void>;
+  onUpdateUserIngredient: (userIngredientId: string, updatedIngredient: UserIngredientUpdate) => Promise<void>;
   userIngredientId: string | null;
 }
 
@@ -36,9 +33,7 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
     const fetchBaseIngredient = async () => {
       if (userIngredient?.ingredient.Ing_id) {
         try {
-          const ingredientData = await getIngredientById(
-            userIngredient.ingredient.Ing_id
-          );
+          const ingredientData = await getIngredientById(userIngredient.ingredient.Ing_id);
           setBaseQuantity(ingredientData.Ing_quantity || 1);
         } catch (error) {
           console.error("Error fetching base ingredient:", error);
@@ -80,15 +75,7 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
           onClose();
         }}
       >
-        {({
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          values,
-          setFieldValue,
-          errors,
-          touched,
-        }) => {
+        {({ handleChange, handleBlur, handleSubmit, values, setFieldValue, errors, touched }) => {
           const calculatedTotal = (() => {
             const qty = parseFloat(values.unitQuantity);
             return !isNaN(qty) ? (qty * baseQuantity).toFixed(0) : "";
@@ -115,11 +102,7 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
                 value={values.unitQuantity}
                 onChangeText={handleChange("unitQuantity")}
                 onBlur={handleBlur("unitQuantity")}
-                errorMessage={
-                  touched.unitQuantity && errors.unitQuantity
-                    ? errors.unitQuantity
-                    : undefined
-                }
+                errorMessage={touched.unitQuantity && errors.unitQuantity ? errors.unitQuantity : undefined}
                 inputStyle={{
                   color: isDark ? theme.colors.white : theme.colors.black,
                 }}
@@ -159,10 +142,7 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
                 }}
               />
 
-              <TouchableOpacity
-                onPress={() => setShowDatePicker(true)}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity onPress={() => setShowDatePicker(true)} activeOpacity={0.9}>
                 <Input
                   label="Expiry Date (optional)"
                   placeholder="YYYY-MM-DD"
@@ -196,20 +176,14 @@ const UpdateUserIngredientModal: React.FC<UpdateUserIngredientModalProps> = ({
 
               {showDatePicker && (
                 <DateTimePicker
-                  value={
-                    values.expiry_date
-                      ? new Date(values.expiry_date)
-                      : new Date()
-                  }
+                  value={values.expiry_date ? new Date(values.expiry_date) : new Date()}
                   mode="date"
                   display="default"
                   minimumDate={new Date()}
                   onChange={(_, selectedDate) => {
                     setShowDatePicker(false);
                     if (selectedDate) {
-                      const formatted = selectedDate
-                        .toISOString()
-                        .split("T")[0];
+                      const formatted = selectedDate.toISOString().split("T")[0];
                       setFieldValue("expiry_date", formatted);
                     }
                   }}

@@ -6,10 +6,7 @@ export const useUpdateUserIngredient = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleUpdateUserIngredient = async (
-    userIngredientId: string,
-    userIngredient: UserIngredientInput
-  ) => {
+  const handleUpdateUserIngredient = async (userIngredientId: string, userIngredient: UserIngredientInput) => {
     setLoading(true);
     try {
       await updateUserIngredient(userIngredientId, userIngredient);

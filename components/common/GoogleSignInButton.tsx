@@ -8,10 +8,7 @@ interface Props {
   title?: string;
 }
 
-const GoogleSignInButton: React.FC<Props> = ({
-  onPress,
-  title = "Sign in with Google",
-}) => {
+const GoogleSignInButton: React.FC<Props> = ({ onPress, title = "Sign in with Google" }) => {
   const { theme } = useTheme();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";

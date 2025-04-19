@@ -1,17 +1,10 @@
-import {
-  UserIngredientInput,
-  UserIngredientUpdate,
-} from "@/Interfaces/user-ingredient";
+import { UserIngredientInput, UserIngredientUpdate } from "@/Interfaces/user-ingredient";
 import axiosInstance from "./api";
 import { UserIngredient } from "@/Interfaces/ingredient";
 
-export const getUserIngredients = async (
-  userId: string
-): Promise<UserIngredient[]> => {
+export const getUserIngredients = async (userId: string): Promise<UserIngredient[]> => {
   try {
-    const response = await axiosInstance.get<UserIngredient[]>(
-      `/user-ingredient/`
-    );
+    const response = await axiosInstance.get<UserIngredient[]>(`/user-ingredient/`);
     return response.data;
   } catch (error) {
     throw error;
@@ -48,9 +41,7 @@ export const deleteUserIngredient = async (userIngredientIds: string[]) => {
   }
 };
 
-export const addUserIngredient = async (
-  userIngredient: UserIngredientInput
-) => {
+export const addUserIngredient = async (userIngredient: UserIngredientInput) => {
   try {
     const response = await axiosInstance.post(`/user-ingredient`, {
       userIngredient,
@@ -61,29 +52,18 @@ export const addUserIngredient = async (
   }
 };
 
-export const updateUserIngredient = async (
-  userIngredientId: string,
-  userIngredient: UserIngredientUpdate
-) => {
+export const updateUserIngredient = async (userIngredientId: string, userIngredient: UserIngredientUpdate) => {
   try {
-    const response = await axiosInstance.patch(
-      `/user-ingredient/${userIngredientId}`,
-      userIngredient
-    );
+    const response = await axiosInstance.patch(`/user-ingredient/${userIngredientId}`, userIngredient);
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const getUserIngredientByIngredientId = async (
-  userId: string,
-  ingredientId: number
-) => {
+export const getUserIngredientByIngredientId = async (userId: string, ingredientId: number) => {
   try {
-    const response = await axiosInstance.get<UserIngredient>(
-      `/user-ingredient/${userId}/${ingredientId}`
-    );
+    const response = await axiosInstance.get<UserIngredient>(`/user-ingredient/${userId}/${ingredientId}`);
     return response.data;
   } catch (error) {
     throw error;
@@ -92,9 +72,7 @@ export const getUserIngredientByIngredientId = async (
 
 export const quickRestockUserIngredient = async (useringredientId: string) => {
   try {
-    const response = await axiosInstance.patch(
-      `/user-ingredient/${useringredientId}/quick-restock`
-    );
+    const response = await axiosInstance.patch(`/user-ingredient/${useringredientId}/quick-restock`);
     return response.data;
   } catch (error) {
     throw error;

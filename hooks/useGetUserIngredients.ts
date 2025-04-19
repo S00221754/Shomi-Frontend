@@ -20,5 +20,9 @@ export const useGetUserIngredients = (userId: string) => {
     }
   }, [userId]);
 
+  useEffect(() => {
+    fetchUserIngredients();
+  }, [fetchUserIngredients]);
+
   return { userIngredients, loading, fetchUserIngredients };
 };

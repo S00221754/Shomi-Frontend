@@ -5,10 +5,7 @@ export const addShoppingListItem = async (
   shoppingListItem: Omit<ShoppingItemInput, "user_id">
 ): Promise<ShoppingItem> => {
   try {
-    const response = await axiosInstance.post(
-      "/shopping-list",
-      shoppingListItem
-    );
+    const response = await axiosInstance.post("/shopping-list", shoppingListItem);
     return response.data;
   } catch (error) {
     console.error("Error adding shopping list item:", error);
@@ -31,10 +28,7 @@ export const updateShoppingListItem = async (
   updatedItem: Partial<ShoppingItem>
 ): Promise<ShoppingItem> => {
   try {
-    const response = await axiosInstance.patch(
-      `/shopping-list/${itemId}`,
-      updatedItem
-    );
+    const response = await axiosInstance.patch(`/shopping-list/${itemId}`, updatedItem);
     return response.data;
   } catch (error) {
     console.error("Error updating shopping list item:", error);
