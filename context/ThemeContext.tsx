@@ -25,7 +25,7 @@ const lightTheme: CreateThemeOptions = {
     disabled: "#E6E6E6",
     divider: "#CEE9C8",
   },
-};
+}; 
 
 const darkTheme: CreateThemeOptions = {
   mode: "dark",
