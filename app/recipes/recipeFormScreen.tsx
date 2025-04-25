@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import { View, Image, TouchableOpacity, ScrollView } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Button, Icon, Input, useTheme, Text } from "@rneui/themed";
@@ -9,7 +9,7 @@ import IngredientRow from "@/components/Ingredients/IngredientRow";
 import RecipeIngredientModal from "@/components/modals/RecipeIngredientModal";
 import { SelectedIngredient } from "@/Interfaces/ingredient";
 import { useAuth } from "@/providers/AuthProvider";
-import { createRecipe, getRecipeById, updateRecipe } from "@/services/recipe.Service";
+import { createRecipe, getRecipeById, updateRecipe } from "@/services/recipeService";
 import { uploadRecipeImage } from "@/lib/supabase/uploadRecipeImage";
 import { RecipeDTO } from "@/Interfaces/recipe";
 import { useToast } from "@/utils/toast";
@@ -19,6 +19,7 @@ import { ActivityIndicator } from "react-native-paper";
 import { deleteRecipeImage } from "@/lib/supabase/deleteRecipeImage";
 import ShomiButton from "@/components/common/ShomiButton";
 
+// helper function to strip HTML tags from a string
 const stripHtml = (html: string) => html.replace(/<[^>]*>?/gm, "").trim();
 
 const RecipeFormScreen = () => {

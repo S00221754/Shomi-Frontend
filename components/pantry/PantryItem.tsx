@@ -14,6 +14,7 @@ interface PantryItemProps {
   onDelete: (id: string) => void;
 }
 
+// this is a component that renders a pantry item with an accordion style view. It shows the item name, quantity, and expiry date. It also has buttons to add to shopping list, edit, and delete the item.
 const PantryItem: React.FC<PantryItemProps> = ({ item, onSelect, onExpand, onAddToShoppingList, onEdit, onDelete }) => {
   //#region hooks
 

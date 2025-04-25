@@ -1,5 +1,6 @@
 import * as Yup from "yup";
 
+// This schema is used to validate the ingredient form inputs
 const IngredientSchema = Yup.object().shape({
   Ing_name: Yup.string().required("Product name is required"),
   Ing_brand: Yup.string().required("Brand is required"),

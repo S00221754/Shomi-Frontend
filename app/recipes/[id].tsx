@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import React, { useCallback, useLayoutEffect, useState } from "react";
 import { View, ScrollView, ActivityIndicator, useWindowDimensions, Image, Pressable } from "react-native";
 import { useRouter, useLocalSearchParams, useNavigation, useFocusEffect } from "expo-router";
-import { getRecipeById, getRecipeDeductionPreview, markRecipeAsCooked } from "../../services/recipe.Service";
+import { getRecipeById, getRecipeDeductionPreview, markRecipeAsCooked } from "../../services/recipeService";
 import { DeductionPreview, IngredientsToDeduct, Recipe } from "../../Interfaces/recipe";
 import { Text, Button, Divider, Icon } from "@rneui/themed";
 import { useTheme } from "@rneui/themed";

@@ -6,7 +6,8 @@ interface ImageCarouselProps {
   images: string[];
   width: number;
 }
-//TODO: make the arrows mmore visible and add a background color to the image
+
+// no valid carousel lirary for react native, so we are using a custom implementation
 const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, width }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -24,7 +25,6 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, width }) => {
 
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      {/* Left Arrow */}
       {images.length > 1 && (
         <View style={{ position: "absolute", left: 10, top: "50%", zIndex: 1 }}>
           <TouchableOpacity onPress={goToPrevious}>
@@ -33,7 +33,6 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, width }) => {
         </View>
       )}
 
-      {/* Image */}
       <Image
         source={{ uri: images[currentImageIndex] }}
         style={{
@@ -44,7 +43,6 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, width }) => {
         resizeMode="cover"
       />
 
-      {/* Right Arrow */}
       {images.length > 1 && (
         <View
           style={{ position: "absolute", right: 10, top: "50%", zIndex: 1 }}

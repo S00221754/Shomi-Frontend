@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { addIngredient } from "@/services/ingredientsService";
 import { ProductInfo } from "@/Interfaces/ingredient";
 

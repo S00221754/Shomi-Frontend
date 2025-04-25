@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+// This hook manages the state of the scanner, including the scanning mode and visibility of modals.
 export const useScannerState = () => {
   const [scanningMode, setScanningMode] = useState<"None" | "Barcode" | "Receipt">("None");
   const [isAddIngredientModalVisible, setIsAddIngredientModalVisible] = useState(false);

@@ -2,6 +2,7 @@ import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 
+// This function is used to get the Expo push token for the device. It checks for existing permissions, requests them if not granted, and then retrieves the token.
 export async function getExpoPushToken(): Promise<string | null> {
   const { status: existingStatus } = await Notifications.getPermissionsAsync();
   let finalStatus = existingStatus;

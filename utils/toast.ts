@@ -1,10 +1,9 @@
-// useToast.ts
 import { useTheme } from "@rneui/themed";
 import Toast, { ToastOptions } from "react-native-toast-message";
-import { TextStyle, ViewStyle } from "react-native";
 
 type CustomToastType = "success" | "error" | "info";
 
+// this is used to help make a custom toast message to match the app theme
 export const useToast = () => {
   const { theme } = useTheme();
   const isDark = theme.mode === "dark";

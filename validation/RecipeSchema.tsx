@@ -1,5 +1,6 @@
 import * as Yup from "yup";
 
+// This schema is used to validate the recipe ingredient form inputs
 export const recipeValidationSchema = Yup.object().shape({
   recipe_name: Yup.string().required("Recipe name is required"),
   recipe_description: Yup.string().required("Short description is required"),
@@ -19,6 +20,7 @@ export const recipeValidationSchema = Yup.object().shape({
     .min(3, "At least 3 ingredients are required"),
 });
 
+// This schema is used to validate the recipe ingredient form inputs
 export const recipeIngredientValidationSchema = Yup.object().shape({
   ingredient_name: Yup.string().required("Ingredient is required"),
   quantity: Yup.number().required("Quantity is required").min(0.01),

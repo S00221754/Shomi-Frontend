@@ -12,6 +12,7 @@ interface PantryHeaderProps {
   }) => void;
 }
 
+// component for the search and the filter options in the pantry screen
 const PantryHeader: React.FC<PantryHeaderProps> = ({ onFiltersChange }) => {
   //#region states, hooks, variables and effects
 

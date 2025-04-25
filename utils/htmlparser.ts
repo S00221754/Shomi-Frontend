@@ -1,11 +1,13 @@
 import { parseDocument } from "htmlparser2";
 
+// This function extracts text from a node and its children recursively
 const getText = (node: any): string => {
   if (node.type === "text") return node.data;
   if (node.children) return node.children.map(getText).join("");
   return "";
 };
 
+// This function parses HTML and extracts text from <li> and <p> tags
 export const htmlParser = (html: string): string[] => {
   const doc = parseDocument(html);
   const steps: string[] = [];

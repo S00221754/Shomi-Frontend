@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Overlay, Button, Text, Input, useTheme } from "@rneui/themed";
 import { Formik } from "formik";
-import * as Yup from "yup";
 import { UserIngredientUpdate } from "@/Interfaces/user-ingredient";
 import { UserIngredient } from "@/Interfaces/ingredient";
 import { getIngredientById } from "@/services/ingredientsService";

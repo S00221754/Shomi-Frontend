@@ -1,13 +1,13 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { View, FlatList, ActivityIndicator } from "react-native";
-import { Text, Card, Button } from "@rneui/themed";
+import { Text, Card } from "@rneui/themed";
 import { Recipe } from "../../Interfaces/recipe";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useTheme } from "@rneui/themed";
 import ShomiFAB from "@/components/common/ShomiFAB";
 import { useAuth } from "@/providers/AuthProvider";
 import { getBookmarkRecipes, addBookmark, removeBookmark } from "@/services/bookmarkRecipeService";
-import { getRecipes } from "@/services/recipe.Service";
+import { getRecipes } from "@/services/recipeService";
 import ShomiButton from "@/components/common/ShomiButton";
 import { useToast } from "@/utils/toast";
 

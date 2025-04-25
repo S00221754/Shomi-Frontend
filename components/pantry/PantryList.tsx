@@ -18,6 +18,7 @@ interface PantryListProps {
   setPage: React.Dispatch<React.SetStateAction<number>>;
 }
 
+// This component is used to display a list of pantry items with options to select, edit, and delete them.
 const PantryList: React.FC<PantryListProps> = ({
   userIngredients,
   selectedIngredients,
@@ -137,7 +138,6 @@ const PantryList: React.FC<PantryListProps> = ({
           </Text>
         </Card>
       )}
-      {/* User Ingredients List */}
       {userIngredients.map((item) => (
         <PantryItem
           key={item.id}

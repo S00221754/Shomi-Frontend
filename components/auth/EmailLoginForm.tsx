@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { View, StyleSheet, Alert, Keyboard } from "react-native";
 import { Input, useTheme } from "@rneui/themed";
 import { Formik } from "formik";
-import * as Yup from "yup";
 import { supabase } from "@/lib/supabase";
 import ShomiButton from "../common/ShomiButton";
 import LoginSchema from "@/validation/LoginSchema";

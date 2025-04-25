@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Icon, useTheme } from "@rneui/themed";
+import { Button, useTheme } from "@rneui/themed";
 import { ViewStyle, TextStyle } from "react-native";
 
 // shomi button component to be used in the app

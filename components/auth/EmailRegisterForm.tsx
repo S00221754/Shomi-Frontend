@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Alert, Pressable, Keyboard } from "react-native";
+import { View, Pressable, Keyboard } from "react-native";
 import { Input, Text, useTheme } from "@rneui/themed";
 import { Formik } from "formik";
 import { supabase } from "@/lib/supabase";

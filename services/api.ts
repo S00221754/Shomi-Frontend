@@ -2,10 +2,13 @@ import axios from "axios";
 import { API_URL } from "@/constants/constants";
 import { supabase } from "@/lib/supabase";
 
+// This file contains the axios instance with interceptors for authentication and error handling.
 const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
     "Content-Type": "application/json",
+    "Accept": "application/json",
+    "X-Requested-With": "XMLHttpRequest",
   },
 });
 

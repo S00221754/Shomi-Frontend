@@ -3,7 +3,6 @@ import { View, FlatList, Pressable } from "react-native";
 import { Overlay, Text, useTheme } from "@rneui/themed";
 import { UserIngredient } from "@/Interfaces/ingredient";
 import ShomiButton from "@/components/common/ShomiButton";
-import { Icon } from "@rneui/themed";
 
 interface ChooseBatchModalProps {
   visible: boolean;
