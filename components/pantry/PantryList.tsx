@@ -154,9 +154,13 @@ const PantryList: React.FC<PantryListProps> = ({
           style={{
             flexDirection: "row",
             justifyContent: "center",
+            alignItems: "center",
             marginTop: 16,
+            gap: 10,
           }}
         >
+          <ShomiButton icon="page-first" disabled={page === 1} onPress={() => setPage(1)} type="clear" />
+
           <ShomiButton
             icon="chevron-left"
             disabled={page === 1}
@@ -167,7 +171,6 @@ const PantryList: React.FC<PantryListProps> = ({
           <Text
             style={{
               alignSelf: "center",
-              marginHorizontal: 10,
               color: theme.mode === "dark" ? theme.colors.white : theme.colors.black,
             }}
           >
@@ -178,6 +181,13 @@ const PantryList: React.FC<PantryListProps> = ({
             icon="chevron-right"
             disabled={page === totalPages}
             onPress={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+            type="clear"
+          />
+
+          <ShomiButton
+            icon="page-last"
+            disabled={page === totalPages}
+            onPress={() => setPage(totalPages)}
             type="clear"
           />
         </View>

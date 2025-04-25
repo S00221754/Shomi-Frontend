@@ -13,6 +13,8 @@ export default function BookmarkedRecipesScreen() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { theme } = useTheme();
+  const isDarkMode = theme.mode === "dark";
+  const textColor = isDarkMode ? theme.colors.white : theme.colors.black;
   const router = useRouter();
   const { userId } = useAuth();
   const { showToast } = useToast();
@@ -87,7 +89,7 @@ export default function BookmarkedRecipesScreen() {
             containerStyle={{
               borderRadius: 10,
               padding: 15,
-              backgroundColor: theme.colors.white,
+              backgroundColor: theme.colors.background,
               elevation: 3,
             }}
           >
@@ -104,11 +106,11 @@ export default function BookmarkedRecipesScreen() {
               />
             )}
 
-            <Card.Title style={{ textAlign: "center", fontSize: 18 }}>{item.recipe_name}</Card.Title>
+            <Card.Title style={{ textAlign: "center", fontSize: 18, color: textColor }}>{item.recipe_name}</Card.Title>
 
             <Card.Divider />
 
-            <Text style={{ textAlign: "center", color: theme.colors.grey3 }}>{item.recipe_description}</Text>
+            <Text style={{ textAlign: "center", color: textColor }}>{item.recipe_description}</Text>
 
             <Text
               style={{
@@ -117,7 +119,7 @@ export default function BookmarkedRecipesScreen() {
                 marginBottom: 10,
               }}
             >
-              ⏱ {item.cooking_time} mins
+              {item.cooking_time} mins
             </Text>
 
             <View style={{ flexDirection: "row", gap: 10, marginTop: 10 }}>
