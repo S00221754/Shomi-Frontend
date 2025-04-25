@@ -1,50 +1,60 @@
-# Welcome to your Expo app 👋
+<img src="assets/images/shomi-light-logo.svg" alt="Shomi Logo" width="200"/>
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+# Shomi
 
-## Get started
+**Shomi** is a mobile application that helps users efficiently manage their pantry and cooking activities.
 
-1. Install dependencies
+It allows users to:
 
-   ```bash
-   npm install
-   ```
+- Track pantry inventory manually or by scanning barcodes.
+- Get recipe recommendations based on pantry ingredients.
+- Create and share custom recipes.
+- Log when they "cook" a recipe, automatically deducting used ingredients.
+- Maintain a shopping list for missing or expiring items.
 
-2. Start the app
+---
 
-   ```bash
-    npx expo start
-   ```
+## Tech Stack
 
-In the output, you'll find options to open the app in a
+- **React Native** (Expo) with **TypeScript**
+- **Supabase** Authentication and Storage
+- **Axios** for API requests
+- **PostgreSQL** backend (via Supabase)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Getting Started
 
-## Get a fresh project
+**Prerequisites:**
 
-When you're ready, run:
+- Node.js and npm installed
+- Expo CLI installed globally (`npm install -g expo-cli`)
+- Supabase project and environment variables configured
+
+---
+
+**Run the project locally:**
 
 ```bash
-npm run reset-project
+npx expo run:android
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Features
 
-## Learn more
+- Pantry management: add, edit, delete pantry items.
+- Barcode scanning to update or add pantry items.
+- Recipe recommendations based on current pantry ingredients.
+- Create and manage your own recipes.
+- Log cooked recipes to deduct ingredients.
+- Shopping list generation based on missing or expiring items.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Authentication
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- Supabase authentication handles user login and registration.
+- JWT tokens are used for securing all API requests.
+- Sessions are managed through Supabase client.
 
-## Join the community
+## License
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+This project is private and intended for personal or educational use only.
+Unauthorized copying, distribution, or commercial use is prohibited.

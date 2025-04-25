@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, ScrollView, ActivityIndicator } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { getRecommendedRecipes } from "../../services/recipe.Service";
+import { getRecommendedRecipes } from "../../services/recipeService";
 import { Recipe } from "../../Interfaces/recipe";
 import { useAuth } from "@/providers/AuthProvider";
 import { useTheme, Text, Card, Button } from "@rneui/themed";
@@ -105,7 +105,7 @@ export default function RecommendedRecipesScreen() {
               marginBottom: 10,
             }}
           >
-            ⏱ {recipe.cooking_time} mins
+            {recipe.cooking_time} mins
           </Text>
           <Button
             title="View Recipe"

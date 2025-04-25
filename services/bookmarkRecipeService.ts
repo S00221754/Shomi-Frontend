@@ -1,4 +1,3 @@
-// services/bookmark.service.ts
 import { Recipe } from "@/Interfaces/recipe";
 import axiosInstance from "./api";
 

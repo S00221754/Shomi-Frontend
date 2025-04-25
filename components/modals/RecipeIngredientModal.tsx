@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
-import { Overlay, Button, Input, Text, useTheme } from "@rneui/themed";
+import { Overlay, Input, Text, useTheme } from "@rneui/themed";
 import { Formik } from "formik";
-import * as Yup from "yup";
 import { ProductInfo, SelectedIngredient } from "@/Interfaces/ingredient";
 import { Ingredient } from "@/Interfaces/recipe";
 import { UnitType } from "@/Interfaces/unit-type";

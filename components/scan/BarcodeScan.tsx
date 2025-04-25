@@ -7,6 +7,7 @@ import ShomiButton from "../common/ShomiButton";
 import { useTheme } from "@rneui/themed";
 import CameraCorner from "../camera/CameraCorners";
 
+// This component is used to scan barcodes using the device's camera. It handles permission requests and displays a camera view with scanning functionality.
 export default function BarcodeScan({
   onStopScanning,
   onBarcodeScanned,

@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { View, FlatList } from "react-native";
-import { CheckBox, Icon, Text, useTheme, ListItem } from "@rneui/themed";
+import { Icon, Text, useTheme, ListItem } from "@rneui/themed";
 import { deleteShoppingListItem, getShoppingList } from "@/services/shoppingListService";
 import { useAuth } from "@/providers/AuthProvider";
 import { ShoppingItem } from "@/Interfaces/shopping-list";

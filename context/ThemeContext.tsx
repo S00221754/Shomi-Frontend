@@ -3,6 +3,10 @@ import { ThemeProvider, createTheme, CreateThemeOptions } from "@rneui/themed";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useColorScheme } from "react-native";
 
+// this is the theme context for the app, it provides the theme and a function to toggle between light and dark mode
+// it also saves the user's preference in async storage so that it persists between app restarts
+
+
 const lightTheme: CreateThemeOptions = {
   mode: "light",
   lightColors: {

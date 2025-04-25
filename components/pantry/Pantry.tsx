@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { View, ActivityIndicator, Animated } from "react-native";
-import { Button, useTheme } from "@rneui/themed";
+import { useTheme } from "@rneui/themed";
 import { useGetUserIngredients } from "@/hooks/useGetUserIngredients";
 import { useAuth } from "@/providers/AuthProvider";
 import ConfirmationModal from "../modals/ConfirmationModal";
@@ -28,6 +28,8 @@ import { usePaginatedUserIngredients } from "@/hooks/useGetPaginatedUserIngredie
 import { isExpired, isExpiringSoon } from "@/utils/dateHelpers";
 import ShomiButton from "../common/ShomiButton";
 
+
+// This is the main component for the Pantry screen is has been decoupled into smaller components for better readability and maintainability.
 const Pantry: React.FC = () => {
   //#region hooks and states
 

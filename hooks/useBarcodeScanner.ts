@@ -10,7 +10,6 @@ export function useBarcodeScanner(onBarcodeScanned: (product: ProductInfo) => vo
   const handleBarCodeScanned = async ({ data }: { data: string }) => {
     setScanned(true);
     try {
-      // First, check if the ingredient exists in the database
       const dbResponse = await getIngredientByBarcode(data);
       if (dbResponse) {
         onBarcodeScanned({ ...dbResponse, status: true, In_Database: true });

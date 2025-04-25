@@ -1,5 +1,6 @@
 import * as Yup from "yup";
 
+// this schema is used to validate the register form inputs
 const RegisterSchema = Yup.object().shape({
   name: Yup.string().min(2, "Too short").required("Name is required"),
   email: Yup.string().email("Invalid email").required("Email is required"),

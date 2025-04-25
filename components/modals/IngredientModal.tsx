@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
-import { Overlay, Button, Text, Input, useTheme } from "@rneui/themed";
+import { Overlay, Text, Input, useTheme } from "@rneui/themed";
 import { Formik } from "formik";
 import { ProductInfo } from "@/Interfaces/ingredient";
 import { useGetUnitTypes } from "@/hooks/useGetUnitTypes";

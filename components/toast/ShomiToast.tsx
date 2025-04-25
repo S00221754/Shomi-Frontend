@@ -10,6 +10,7 @@ interface ShomiToastProps extends BaseToastProps {
   };
 }
 
+// custom toast component for react-native-toast-message
 const ShomiToast: React.FC<ShomiToastProps> = ({ text1, text2, props }) => {
   const { theme } = useTheme();
   const isDark = props?.isDark ?? theme.mode === "dark";
